@@ -1,4 +1,5 @@
 import { Markup } from 'telegraf';
+import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
@@ -20,8 +21,9 @@ const getEventInfo = async (bot: TelegramBot) => {
 
       ctx.deleteMessage();
 
-      // TODO fix any !!!
-      const buttonsArray: any = [
+      const buttonsArray: (
+        InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+      )[][] = [
         [Markup.button.callback('🗺 Карта фестиваля', 'action_event_map')],
         [Markup.button.callback('👨‍👩‍👧‍👦 Участники', 'action_speakers')],
         [Markup.button.callback('🗓 Расписание', 'action_schedule')],
