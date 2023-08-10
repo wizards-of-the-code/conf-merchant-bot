@@ -1,6 +1,10 @@
 import { MongoClient, Db } from 'mongodb';
+// FIXME: * is bad
+import * as mongoDB from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
-import { Event } from '../types';
+import { Event, Participant } from '../types';
+
+interface Item extends mongoDB.Document {}
 
 class DBManager {
   instance: Db | undefined;
@@ -31,6 +35,7 @@ class DBManager {
     }
   }
 
+  /** Get all events from the database */
   async getEvents(): Promise<Event[]> {
     const arr: Event[] = [];
 
@@ -46,7 +51,25 @@ class DBManager {
     return arr;
   }
 
-  /** Get Event by name
+  /** Get all Participants from the database for specified Event
+   * @param {string} [eventName] - name of the Event in DB
+  */
+  async getEventParticipants(eventName: string): Promise<Participant[]> {
+    const arr: Participant[] = [];
+
+    if (this.instance) {
+      const collection = this.instance.collection<Participant>('participants');
+      const cursor = collection.find({ event_name: eventName });
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc });
+      }
+    }
+
+    return arr;
+  }
+
+  /** Get Event from the database by name
   * @param {string} [name] Event name
   * @returns {Promise<Event | null>} Promise object with Event if it was found, or null
   */
@@ -57,6 +80,43 @@ class DBManager {
       const collection = this.instance.collection<Event>('events');
       return collection.findOne<Event>({ name });
     }
+  }
+
+  /** Add a participant to an Event.
+   * @param {Event} [event] Event
+   * @param {Participant} [participant] Participant to add.
+   * @returns {boolean} True if success, False if participant is already added to an Event.
+   */
+  async addParticipant(event: Event, user: Participant): Promise<boolean> {
+    const participants = await this.getEventParticipants(event.name);
+
+    // Check if user is not already participated in this event
+    const isAlreadyPatricipated = participants.find(
+      (participant) => participant.tg_id === user.tg_id,
+    );
+
+    if (!isAlreadyPatricipated) {
+      this.insertOne('participants', user);
+      return true;
+    }
+
+    return false;
+  }
+
+  // PRIVATE CLASS METHODS
+
+  private async insertOne<T extends Item>(
+    collectionName: string,
+    item: mongoDB.OptionalUnlessRequiredId<T>,
+  ): Promise<boolean> {
+    const collection = this.instance!.collection<T>(collectionName);
+    const result = await collection.insertOne(item);
+
+    if (result.acknowledged) {
+      return true;
+    }
+
+    return false;
   }
 }
 

@@ -14,31 +14,18 @@ const participate = async (bot: TelegramBot) => {
         email: '',
       };
 
-      // TODO: check if user is not already participated in this event
-      if (bot.db) {
-        const collection = bot.db.collection<Participant>('participants');
+      const result: boolean = await bot.dbManager.addParticipant(event, user);
 
-        // Check if user is not already participated in this event
-        const isAlreadyPatricipated = await collection.findOne<Participant>({
-          tg_id: ctx.from.id,
-          event_name: event.name,
-        });
-
-        if (!isAlreadyPatricipated) {
-          const result = await collection.insertOne(user);
-
-          if (result.acknowledged) {
-            ctx.editMessageReplyMarkup(undefined);
-            // TODO: add datetime converted to readable format
-            ctx.reply(`Отлично, вы успешно записаны на "${event.name}", которое состоится ${event.datetime}. Бот обязательно напомнит вам за сутки до события!`);
-          } else {
-            ctx.reply('Кажется что-то пошло не так.');
-          }
-        } else {
-          // ctx.editMessageReplyMarkup(undefined);
-          ctx.reply('Вы уже записаны на эту конференцию! :)');
-        }
+      if (result) {
+        ctx.editMessageReplyMarkup(undefined);
+        // TODO: add datetime converted to readable format
+        ctx.reply(`Отлично, вы успешно записаны на "${event.name}", которое состоится ${event.datetime}. Бот обязательно напомнит вам за сутки до события!`);
+      } else {
+        // ctx.editMessageReplyMarkup(undefined);
+        ctx.reply('Вы уже записаны на эту конференцию! :)');
       }
+    } else {
+      throw new Error('Internal bot error.');
     }
   });
 };
