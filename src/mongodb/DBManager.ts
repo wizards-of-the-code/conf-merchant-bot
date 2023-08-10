@@ -45,6 +45,19 @@ class DBManager {
 
     return arr;
   }
+
+  /** Get Event by name
+  * @param {string} [name] Event name
+  * @returns {Promise<Event | null>} Promise object with Event if it was found, or null
+  */
+  async getEventByName(name: string): Promise<Event | null> {
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Event>('events');
+      return collection.findOne<Event>({ name });
+    }
+  }
 }
 
 export default DBManager;
