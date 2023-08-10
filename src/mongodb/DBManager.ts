@@ -42,7 +42,7 @@ class DBManager {
 
     if (this.instance) {
       const collection = this.instance.collection<Event>('events');
-      const cursor = collection.find();
+      const cursor = collection.find({is_active: true});
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
