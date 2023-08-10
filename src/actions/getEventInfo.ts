@@ -12,7 +12,6 @@ const getEventInfo = async (bot: TelegramBot) => {
 
     const event: Event | null = await bot.dbManager.getEventByName(name);
 
-    // TODO add handler if event doesn't exist
     if (!event) {
       console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
     } else {
@@ -33,7 +32,7 @@ const getEventInfo = async (bot: TelegramBot) => {
         [Markup.button.callback('📝 Записаться', 'action_participate')],
       ];
 
-      // Add Landing url button if event'link is valid url
+      // Add link buttons if event has filled with valid fields
       if (await isValidUrl(event.link)) {
         buttonsArray.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
       }
