@@ -11,6 +11,7 @@ export type Event = {
   current_price: string;
   currency: string;
   tg_channel: string;
+  is_active: boolean;
 };
 
 export type Participant = {
