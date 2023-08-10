@@ -6,6 +6,7 @@ import getEvents from '../actions/getEvents';
 import subscribeToEvent from '../actions/subscribeToEvent';
 import getEventInfo from '../actions/getEventInfo';
 import participate from '../actions/participate';
+import getEventSpeakers from '../actions/getEventSpeakers';
 
 class StartCommand extends Command {
   handle(): void {
@@ -32,6 +33,9 @@ class StartCommand extends Command {
 
     // Action: Participate in selected event
     participate(this.bot);
+
+    // Action: Show speakers for a selected event
+    getEventSpeakers(this.bot);
 
     // Enable graceful stop
     process.once('SIGINT', () => this.bot.stop('SIGINT'));

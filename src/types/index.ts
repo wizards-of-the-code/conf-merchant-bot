@@ -12,10 +12,19 @@ export type Event = {
 };
 
 export type Participant = {
-  _id?: number;
+  _id?: string;
   tg_id: number;
   event_name: string;
   tg_first_name: string;
   tg_last_name?: string;
   email: string;
+};
+
+export type Speaker = {
+  _id?: string;
+  name: string;
+  event_name: string;
+  position: string;
+  topic: string;
+  topic_description: string;
 };

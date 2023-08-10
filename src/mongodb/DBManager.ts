@@ -2,7 +2,7 @@ import {
   MongoClient, Db, Document, OptionalUnlessRequiredId,
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
-import { Event, Participant } from '../types';
+import { Event, Participant, Speaker } from '../types';
 
 interface Item extends Document {}
 
@@ -59,6 +59,24 @@ class DBManager {
 
     if (this.instance) {
       const collection = this.instance.collection<Participant>('participants');
+      const cursor = collection.find({ event_name: eventName });
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc });
+      }
+    }
+
+    return arr;
+  }
+
+  /** Get all Speakers from the database for specified Event
+   * @param {string} [eventName] - name of the Event in DB
+  */
+  async getEventSpeakers(eventName: string): Promise<Speaker[]> {
+    const arr: Speaker[] = [];
+
+    if (this.instance) {
+      const collection = this.instance.collection<Speaker>('speakers');
       const cursor = collection.find({ event_name: eventName });
 
       for await (const doc of cursor) {

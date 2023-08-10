@@ -1,7 +1,7 @@
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import TelegramBot from '../TelegramBot';
-import { Event } from '../types';
+import { Event, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 
 const getEventInfo = async (bot: TelegramBot) => {
@@ -25,7 +25,7 @@ const getEventInfo = async (bot: TelegramBot) => {
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [
         // [Markup.button.callback('🗺 Карта фестиваля', 'action_event_map')],
-        [Markup.button.callback('👨‍👩‍👧‍👦 Участники', 'action_speakers')],
+        // [Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${event.name}`)],
         [Markup.button.callback('🗓 Расписание', 'action_schedule')],
         // [Markup.button.callback('💼 Craft Business', 'action_craft_business')],
         // [Markup.button.callback('🙋‍♂️ Голосование', 'action_poll')],
@@ -33,6 +33,12 @@ const getEventInfo = async (bot: TelegramBot) => {
         [Markup.button.callback('🎟 Билеты', 'action_tickets')],
         [Markup.button.callback('📝 Записаться', 'action_participate')],
       ];
+
+      const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(event.name);
+      // TODO: Change unshift to push later
+      if (speakers.length > 0) {
+        buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${event.name}`)]);
+      }
 
       // Add link buttons if event has filled with valid fields
       if (await isValidUrl(event.link)) {
