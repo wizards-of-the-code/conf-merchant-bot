@@ -21,7 +21,8 @@ const participate = async (bot: TelegramBot) => {
         // TODO: add datetime converted to readable format
         ctx.reply(`Отлично, вы успешно записаны на "${event.name}", которое состоится ${event.datetime}. Бот обязательно напомнит вам за сутки до события!`);
       } else {
-        // ctx.editMessageReplyMarkup(undefined);
+        // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
+        ctx.editMessageReplyMarkup(undefined);
         ctx.reply('Вы уже записаны на эту конференцию! :)');
       }
     } else {
