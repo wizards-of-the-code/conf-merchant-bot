@@ -24,12 +24,12 @@ const getEventInfo = async (bot: TelegramBot) => {
       const buttonsArray: (
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [
-        [Markup.button.callback('🗺 Карта фестиваля', 'action_event_map')],
+        // [Markup.button.callback('🗺 Карта фестиваля', 'action_event_map')],
         [Markup.button.callback('👨‍👩‍👧‍👦 Участники', 'action_speakers')],
         [Markup.button.callback('🗓 Расписание', 'action_schedule')],
-        [Markup.button.callback('💼 Craft Business', 'action_craft_business')],
-        [Markup.button.callback('🙋‍♂️ Голосование', 'action_poll')],
-        [Markup.button.callback('🧩 Вопросы и ответы', 'action_qna')],
+        // [Markup.button.callback('💼 Craft Business', 'action_craft_business')],
+        // [Markup.button.callback('🙋‍♂️ Голосование', 'action_poll')],
+        // [Markup.button.callback('🧩 Вопросы и ответы', 'action_qna')],
         [Markup.button.callback('🎟 Билеты', 'action_tickets')],
         [Markup.button.callback('📝 Записаться', 'action_participate')],
       ];
