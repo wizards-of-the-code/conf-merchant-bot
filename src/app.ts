@@ -7,6 +7,7 @@ import LocalSession from "telegraf-session-local";
 import { Scheduler } from "./Scheduler";
 import { DBManager } from "./mongodb/DBManager";
 
+
 class App {
   bot: TelegramBot;
   commands: Command[] = [];
