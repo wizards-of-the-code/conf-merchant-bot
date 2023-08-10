@@ -1,10 +1,10 @@
-import { MongoClient, Db } from 'mongodb';
-// FIXME: * is bad
-import * as mongoDB from 'mongodb';
+import {
+  MongoClient, Db, Document, OptionalUnlessRequiredId,
+} from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import { Event, Participant } from '../types';
 
-interface Item extends mongoDB.Document {}
+interface Item extends Document {}
 
 class DBManager {
   instance: Db | undefined;
@@ -107,7 +107,7 @@ class DBManager {
 
   private async insertOne<T extends Item>(
     collectionName: string,
-    item: mongoDB.OptionalUnlessRequiredId<T>,
+    item: OptionalUnlessRequiredId<T>,
   ): Promise<boolean> {
     const collection = this.instance!.collection<T>(collectionName);
     const result = await collection.insertOne(item);
