@@ -1,5 +1,5 @@
 import {
-  MongoClient, Db, Document, OptionalUnlessRequiredId,
+  MongoClient, Db, Document, OptionalUnlessRequiredId, ObjectId
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import { Event, Participant, Speaker } from '../types';
@@ -32,6 +32,7 @@ class DBManager {
       console.log('Connected to MongoDB');
     } catch (error) {
       console.error('Error connecting to MongoDB:', error);
+      /* eslint no-console: 1 */
     }
   }
 
@@ -52,14 +53,14 @@ class DBManager {
   }
 
   /** Get all Participants from the database for specified Event
-   * @param {string} [eventName] - name of the Event in DB
+   * @param {ObjectId} [eventId] - Event ID in DB
   */
-  async getEventParticipants(eventName: string): Promise<Participant[]> {
+  async getEventParticipants(eventId: ObjectId): Promise<Participant[]> {
     const arr: Participant[] = [];
 
     if (this.instance) {
       const collection = this.instance.collection<Participant>('participants');
-      const cursor = collection.find({ event_name: eventName });
+      const cursor = collection.find({ _id: eventId });
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
@@ -70,14 +71,14 @@ class DBManager {
   }
 
   /** Get all Speakers from the database for specified Event
-   * @param {string} [eventName] - name of the Event in DB
+   * @param {ObjectId} [eventId] - name of the Event in DB
   */
-  async getEventSpeakers(eventName: string): Promise<Speaker[]> {
+  async getEventSpeakers(eventId: ObjectId): Promise<Speaker[]> {
     const arr: Speaker[] = [];
 
     if (this.instance) {
       const collection = this.instance.collection<Speaker>('speakers');
-      const cursor = collection.find({ event_name: eventName });
+      const cursor = collection.find({ event_id: eventId });
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
@@ -88,15 +89,16 @@ class DBManager {
   }
 
   /** Get Event from the database by name
-  * @param {string} [name] Event name
+  * @param {ObjectId} [eventId] Event ID
   * @returns {Promise<Event | null>} Promise object with Event if it was found, or null
   */
-  async getEventByName(name: string): Promise<Event | null> {
+  async getEventById(eventId: ObjectId): Promise<Event | null> {
+
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<Event>('events');
-      return collection.findOne<Event>({ name });
+      return collection.findOne<Event>({ _id: eventId });
     }
   }
 
@@ -106,7 +108,7 @@ class DBManager {
    * @returns {boolean} True if success, False if participant is already added to an Event.
    */
   async addParticipant(event: Event, user: Participant): Promise<boolean> {
-    const participants = await this.getEventParticipants(event.name);
+    const participants = await this.getEventParticipants(event._id!);
 
     // Check if user is not already participated in this event
     const isAlreadyPatricipated = participants.find(

@@ -3,15 +3,16 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import TelegramBot from '../TelegramBot';
 import { Event, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
+import { ObjectId } from 'mongodb';
 
 const getEventInfo = async (bot: TelegramBot) => {
   bot.action(/action_get_info_/, async (ctx) => {
     const actionString = ctx.match.input;
 
     // Get action id from context
-    const name = actionString.slice(actionString.lastIndexOf('_') + 1);
+    const eventId = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
 
-    const event: Event | null = await bot.dbManager.getEventByName(name);
+    const event: Event | null = await bot.dbManager.getEventById(eventId);
 
     if (!event) {
       console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
@@ -34,7 +35,7 @@ const getEventInfo = async (bot: TelegramBot) => {
         [Markup.button.callback('📝 Записаться', 'action_participate')],
       ];
 
-      const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(event.name);
+      const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(eventId);
       // TODO: Change unshift to push later
       if (speakers.length > 0) {
         buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${event.name}`)]);

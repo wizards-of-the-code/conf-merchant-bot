@@ -1,5 +1,7 @@
+import { ObjectId } from "mongodb";
+
 export type Event = {
-  _id: number;
+  _id?: ObjectId;
   name: string;
   location: string;
   description: string;
@@ -12,18 +14,18 @@ export type Event = {
 };
 
 export type Participant = {
-  _id?: string;
+  _id?: ObjectId;
   tg_id: number;
-  event_name: string;
+  event_id: ObjectId;
   tg_first_name: string;
   tg_last_name?: string;
   email: string;
 };
 
 export type Speaker = {
-  _id?: string;
+  _id?: ObjectId;
   name: string;
-  event_name: string;
+  event_id: ObjectId;
   position: string;
   topic: string;
   topic_description: string;

@@ -8,6 +8,7 @@
     },
     "rules": {
         "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
-        "linebreak-style": 0
+        "linebreak-style": 0,
+        "no-underscore-dangle" : ["allow"]
     }
 }

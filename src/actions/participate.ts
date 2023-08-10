@@ -1,5 +1,6 @@
 import { Participant } from '../types';
 import TelegramBot from '../TelegramBot';
+import { ObjectId } from 'mongodb';
 
 const participate = async (bot: TelegramBot) => {
   bot.action('action_participate', async (ctx) => {
@@ -8,7 +9,7 @@ const participate = async (bot: TelegramBot) => {
     if (ctx.from && event) {
       const user: Participant = {
         tg_id: ctx.from?.id,
-        event_name: event.name,
+        event_id: new ObjectId(event._id!),
         tg_first_name: ctx.from?.first_name,
         tg_last_name: ctx.from?.last_name,
         email: '',
