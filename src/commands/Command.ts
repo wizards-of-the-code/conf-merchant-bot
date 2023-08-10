@@ -1,7 +1,9 @@
-import { TelegramBot } from "../TelegramBot";
+import TelegramBot from '../TelegramBot';
 
-export abstract class Command {
+abstract class Command {
   constructor(public bot: TelegramBot) {}
 
   abstract handle(): void;
 }
+
+export default Command;

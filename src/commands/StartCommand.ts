@@ -1,29 +1,22 @@
-import { Markup } from "telegraf";
-import { Command } from "./Command";
-import { TelegramBot } from "../TelegramBot";
+import { Markup } from 'telegraf';
+import Command from './Command';
 
 // Actions imports
-import { getEvents } from "../actions/getEvents";
-import { subscribeToEvent } from "../actions/subscribeToEvent";
-import { getEventInfo } from "../actions/getEventInfo";
-import { participate } from "../actions/participate";
+import getEvents from '../actions/getEvents';
+import subscribeToEvent from '../actions/subscribeToEvent';
+import getEventInfo from '../actions/getEventInfo';
+import participate from '../actions/participate';
 
-export class StartCommand extends Command {
-  
-  constructor(bot: TelegramBot) {
-    super(bot);
-  }
-  
+class StartCommand extends Command {
   handle(): void {
-
     this.bot.start((ctx) => {
       // Save user id to session
       ctx.session.userId = ctx.from?.id;
 
-      ctx.reply("Чем я могу вам помочь?", Markup.inlineKeyboard([
-        [Markup.button.callback("Информация о событиях", "action_get_events")],
-        [Markup.button.callback("Подписаться на событие", "action_subscribe")],
-      ]))
+      ctx.reply('Чем я могу вам помочь?', Markup.inlineKeyboard([
+        [Markup.button.callback('Информация о событиях', 'action_get_events')],
+        [Markup.button.callback('Подписаться на событие', 'action_subscribe')],
+      ]));
     });
 
     // ACTION HANDLERS
@@ -45,3 +38,5 @@ export class StartCommand extends Command {
     process.once('SIGTERM', () => this.bot.stop('SIGTERM'));
   }
 }
+
+export default StartCommand;

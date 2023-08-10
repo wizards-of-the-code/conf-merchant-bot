@@ -1,10 +1,11 @@
-import { Telegraf } from "telegraf";
-import { IBotContext } from "./context/BotContext.interface";
-import { Db } from "mongodb";
-import { DBManager } from "./mongodb/DBManager";
+import { Telegraf } from 'telegraf';
+import { Db } from 'mongodb';
+import { IBotContext } from './context/BotContext.interface';
+import DBManager from './mongodb/DBManager';
 
-export class TelegramBot extends Telegraf<IBotContext> {
+class TelegramBot extends Telegraf<IBotContext> {
   db: Db | undefined;
+
   dbManager: DBManager;
 
   constructor(token: string, dbManager: DBManager) {
@@ -12,3 +13,5 @@ export class TelegramBot extends Telegraf<IBotContext> {
     this.dbManager = dbManager;
   }
 }
+
+export default TelegramBot;

@@ -1,4 +1,3 @@
-
 /**
  * A function that checks incoming url for validity.
  * @param {string} url - Checked url
@@ -6,11 +5,11 @@
  */
 const isValidUrl = async (url: string): Promise<boolean> => {
   // For some reason fetch("") returns 200
-  if(url === "") return false;
+  if (url === '') return false;
 
   try {
-    let response = await fetch(url);
-    if(response.status === 200) {
+    const response = await fetch(url);
+    if (response.status === 200) {
       return true;
     }
   } catch (err) {
@@ -18,6 +17,8 @@ const isValidUrl = async (url: string): Promise<boolean> => {
   }
 
   return false;
-}
+};
 
-export { isValidUrl };
+const moreFunctionToBeArrived = () => false;
+
+export { isValidUrl, moreFunctionToBeArrived };
