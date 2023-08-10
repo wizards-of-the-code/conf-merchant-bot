@@ -12,10 +12,12 @@ Create `.env` file in the root directory and add environment variables in it:
 BOT_TOKEN=
 MONGO_USERNAME=
 MONGO_PASSWORD=
+MONGO_DB_NAME=
 ```
 
 - `BOT_TOKEN` can be obtained from the [@BotFather](https://t.me/botfather) bot in Telegram.
 - `MONGO_USERNAME` and `MONGO_PASSWORD` will be shared in team's Rocket chat.
+- `MONGO_DB_NAME` is `bot` by default.
 
 Install the dependencies and devDependencies and start the project:
 
