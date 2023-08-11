@@ -19,19 +19,20 @@ const getEventSpeakers = async (bot: TelegramBot) => {
 
       // Reply with all Speakers to chat
       for (const speaker of speakersArr) {
-        // TODO: Add array of strings
+        // Message string array
+        const messageArray: String[] = [
+          `<b>${speaker.name}</b>`,
+          `<em>${speaker.position}</em>\n`,
+          `<b>Тема доклада:</b> ${speaker.topic}\n`,
+          `${speaker.topic_description}`,
+        ];
 
         /* eslint-disable no-await-in-loop --
         * The general idea to wait until each Context reply should be finished
         * until next one should run :)
         */
         await ctx.replyWithHTML(
-          `<b>${speaker.name}</b>
-<em>${speaker.position}</em>
-
-<b>Тема доклада:</b> ${speaker.topic}
-
-${speaker.topic_description}`,
+          messageArray.join('\n'),
           {
             parse_mode: 'HTML',
           },
