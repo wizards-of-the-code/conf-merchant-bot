@@ -2,7 +2,9 @@ import {
   MongoClient, Db, Document, OptionalUnlessRequiredId, ObjectId,
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
-import { Event, Participant, Speaker } from '../types';
+import {
+  Event, Participant, Speaker, ScheduleItem,
+} from '../types';
 
 interface Item extends Document {}
 
@@ -78,6 +80,24 @@ class DBManager {
 
     if (this.instance) {
       const collection = this.instance.collection<Speaker>('speakers');
+      const cursor = collection.find({ event_id: eventId });
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc });
+      }
+    }
+
+    return arr;
+  }
+
+  /** Get all Schedule items from the database for specified Event
+   * @param {ObjectId} [eventId] - Event ID
+  */
+  async getEventScheduleItems(eventId: ObjectId): Promise<ScheduleItem[]> {
+    const arr: ScheduleItem[] = [];
+
+    if (this.instance) {
+      const collection = this.instance.collection<ScheduleItem>('schedule');
       const cursor = collection.find({ event_id: eventId });
 
       for await (const doc of cursor) {
