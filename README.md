@@ -36,6 +36,7 @@ npm run dev
 
 ## Roadmap
 
+- [x] Implement Airbnb ESLint
 - [ ] Fill Miro board with Bot workflow concept
 - [ ] Add Documentation & Conventions document
 
