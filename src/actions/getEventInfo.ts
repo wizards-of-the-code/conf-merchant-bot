@@ -2,7 +2,7 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import { Event, Speaker } from '../types';
+import { Event, ScheduleItem, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 
 const getEventInfo = async (bot: TelegramBot) => {
@@ -25,14 +25,19 @@ const getEventInfo = async (bot: TelegramBot) => {
       const buttonsArray: (
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [
-        [Markup.button.callback('🗓 Расписание', 'action_schedule')],
         [Markup.button.callback('📝 Зарегистрироваться', 'action_participate')],
       ];
+
+      const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId);
+      // TODO: Change unshift to push later
+      if (schedule.length > 0) {
+        buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId}`)]);
+      }
 
       const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(eventId);
       // TODO: Change unshift to push later
       if (speakers.length > 0) {
-        buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${event.name}`)]);
+        buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId}`)]);
       }
 
       // Add link buttons if event has filled with valid fields
