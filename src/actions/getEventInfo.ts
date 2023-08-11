@@ -25,14 +25,8 @@ const getEventInfo = async (bot: TelegramBot) => {
       const buttonsArray: (
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [
-        // [Markup.button.callback('🗺 Карта фестиваля', 'action_event_map')],
-        // [Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${event.name}`)],
         [Markup.button.callback('🗓 Расписание', 'action_schedule')],
-        // [Markup.button.callback('💼 Craft Business', 'action_craft_business')],
-        // [Markup.button.callback('🙋‍♂️ Голосование', 'action_poll')],
-        // [Markup.button.callback('🧩 Вопросы и ответы', 'action_qna')],
-        [Markup.button.callback('🎟 Билеты', 'action_tickets')],
-        [Markup.button.callback('📝 Записаться', 'action_participate')],
+        [Markup.button.callback('📝 Зарегистрироваться', 'action_participate')],
       ];
 
       const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(eventId);
@@ -42,6 +36,10 @@ const getEventInfo = async (bot: TelegramBot) => {
       }
 
       // Add link buttons if event has filled with valid fields
+      if (await isValidUrl(event.tickets_link)) {
+        buttonsArray.push([Markup.button.url('🎟 Билеты', event.tickets_link)]);
+      }
+
       if (await isValidUrl(event.link)) {
         buttonsArray.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
       }
@@ -50,6 +48,7 @@ const getEventInfo = async (bot: TelegramBot) => {
         buttonsArray.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
       }
 
+      // TODO: Implement "Back to menu" button
       buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_start')]);
 
       // Message string array

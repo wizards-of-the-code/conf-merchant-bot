@@ -5,6 +5,7 @@ export type Event = {
   name: string;
   location: string;
   description: string;
+  tickets_link: string;
   link: string;
   datetime: string;
   address: string;
