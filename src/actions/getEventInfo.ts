@@ -52,9 +52,15 @@ const getEventInfo = async (bot: TelegramBot) => {
 
       buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_start')]);
 
-      ctx.reply(`
-          Локация: ${event.location}\n\n${event.description}\n\nДата и время: ${event.datetime}\n\nЦена: ${event.currency} ${event.current_price}
-        `, Markup.inlineKeyboard(buttonsArray));
+      // Message string array
+      const messageArray: String[] = [
+        `<b>Локация:</b> ${event.location}`,
+        `${event.description}`,
+        `<b>Дата и время:</b>  ${event.datetime}`,
+        `<b>Цена:</b>  ${event.currency} ${event.current_price}`,
+      ];
+
+      ctx.replyWithHTML(messageArray.join('\n\n'), Markup.inlineKeyboard(buttonsArray));
     }
   });
 };
