@@ -1,7 +1,6 @@
 import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
-import { ObjectId } from 'mongodb';
 
 const getEvents = async (bot: TelegramBot) => {
   bot.action('action_get_events', async (ctx) => {

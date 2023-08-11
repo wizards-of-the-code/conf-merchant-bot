@@ -1,5 +1,5 @@
 import {
-  MongoClient, Db, Document, OptionalUnlessRequiredId, ObjectId
+  MongoClient, Db, Document, OptionalUnlessRequiredId, ObjectId,
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import { Event, Participant, Speaker } from '../types';
@@ -42,7 +42,7 @@ class DBManager {
 
     if (this.instance) {
       const collection = this.instance.collection<Event>('events');
-      const cursor = collection.find({is_active: true});
+      const cursor = collection.find({ is_active: true });
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
@@ -93,7 +93,6 @@ class DBManager {
   * @returns {Promise<Event | null>} Promise object with Event if it was found, or null
   */
   async getEventById(eventId: ObjectId): Promise<Event | null> {
-
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {

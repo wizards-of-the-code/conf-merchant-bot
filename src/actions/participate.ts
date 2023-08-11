@@ -1,6 +1,6 @@
+import { ObjectId } from 'mongodb';
 import { Participant } from '../types';
 import TelegramBot from '../TelegramBot';
-import { ObjectId } from 'mongodb';
 
 const participate = async (bot: TelegramBot) => {
   bot.action('action_participate', async (ctx) => {

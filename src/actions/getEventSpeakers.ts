@@ -19,7 +19,6 @@ const getEventSpeakers = async (bot: TelegramBot) => {
 
       // Reply with all Speakers to chat
       for (const speaker of speakersArr) {
-
         // TODO: Add array of strings
 
         /* eslint-disable no-await-in-loop --
@@ -38,7 +37,7 @@ ${speaker.topic_description}`,
           },
         );
       }
-      
+
       // Reply footer with menu buttons
       ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
         [

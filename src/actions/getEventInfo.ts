@@ -1,9 +1,9 @@
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import { Event, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
-import { ObjectId } from 'mongodb';
 
 const getEventInfo = async (bot: TelegramBot) => {
   bot.action(/action_get_info_/, async (ctx) => {
