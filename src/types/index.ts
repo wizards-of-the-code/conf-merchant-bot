@@ -32,3 +32,11 @@ export type Speaker = {
   topic: string;
   topic_description: string;
 };
+
+export type ScheduleItem = {
+  _id: ObjectId;
+  event_id: ObjectId;
+  date: string;
+  time: string;
+  title: string;
+};
