@@ -29,12 +29,12 @@ class StartCommand extends Command {
       await ctx.reply(startMessages[1]);
 
       const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
-        [Markup.button.url('Telegram', 'https://peredelanoconf.com/')],
-        [Markup.button.url('Instagram', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
+        [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
         [Markup.button.url('Discord', 'https://peredelanoconf.com/')],
-        [Markup.button.url('Github', 'https://peredelanoconf.com/')],
-        [Markup.button.url('Twitter', 'https://peredelanoconf.com/')],
-        [Markup.button.url('Facebook', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
+        [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
+        [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
         [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
       ];
 
