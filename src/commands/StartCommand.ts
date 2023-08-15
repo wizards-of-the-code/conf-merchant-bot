@@ -1,24 +1,51 @@
+// import { Markup } from 'telegraf';
+import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
 import Command from './Command';
 
 // Actions imports
-import getEvents from '../actions/getEvents';
+import getEvents, { sendEventsMessage } from '../actions/getEvents';
 import subscribeToEvent from '../actions/subscribeToEvent';
 import getEventInfo from '../actions/getEventInfo';
 import participate from '../actions/participate';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
 
+// TODO: Store these messages in DB in the future
+const startMessages = [
+  `Peredelanoconf — это проект, который мы делаем, чтобы объединять и поддерживать экспатов по всему миру. Хорошая конференция базируется на трёх китах: индустриальная польза, приятное времяпрепровождение и сообщество.
+Мы — в первую очередь про сообщество. Мы существуем для того, чтобы у вас на новом месте появились знакомые, друзья и коллеги. Чтобы никто не был один. Наши конфы проходят в формате уютной домашней вечеринки, специально для того, чтобы людям было проще сойтись и подружиться, а также послушать классные доклады от не менее крутых спикеров. После самого мероприятия сообщество продолжает жить в чате, и в бесчисленных ламповых встречах в барах, коворкингах, кафешках, где угодно!`,
+  `Но! Индустриальная польза тоже будет, у нас есть спикеры — разговоры на технические темы приветствуются, старый добрый формат обсуждения принципов работы гарбадж коллектора в курилке — это то, что вы найдете у нас.
+Приходите, мы вас тепло встретим и угостим приветственным напитком, после покажем-расскажем все, дадим еду и напитки, а вечером торжественное открытие и доклады. При этом развлечения есть на любой вкус – для фанатов настолок, меломанов и любителей посидеть тихонечко в уголке пообщаться о высокодуховном.`,
+];
+
 class StartCommand extends Command {
   handle(): void {
-    this.bot.start((ctx) => {
+    this.bot.start(async (ctx) => {
       // Save user id to session
       ctx.session.userId = ctx.from?.id;
 
-      ctx.reply('Чем я могу вам помочь?', Markup.inlineKeyboard([
-        [Markup.button.callback('Информация о событиях', 'action_get_events')],
-        [Markup.button.callback('Подписаться на событие', 'action_subscribe')],
-      ]));
+      await ctx.reply(startMessages[0]);
+      await ctx.reply(startMessages[1]);
+
+      const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
+        [Markup.button.url('Telegram', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Instagram', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Discord', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Github', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Twitter', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Facebook', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
+      ];
+
+      await ctx.reply(
+        'Наши социальные сети:',
+        Markup.inlineKeyboard([
+          ...buttonsArray,
+        ]),
+      );
+
+      setTimeout(() => sendEventsMessage(this.bot, ctx), 2000);
     });
 
     // ACTION HANDLERS

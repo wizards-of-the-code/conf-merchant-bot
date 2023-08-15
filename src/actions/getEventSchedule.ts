@@ -36,7 +36,7 @@ const getEventSchedule = async (bot: TelegramBot) => {
       ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
         [
           Markup.button.callback('◀️ Назад', `action_get_info_${ctx.session.selectedConf!._id!.toString()}`),
-          Markup.button.callback('🔼 В главное меню', 'action_start'),
+          Markup.button.callback('🔼 В главное меню', 'action_get_events'),
         ],
       ));
     }

@@ -9,6 +9,6 @@
     "rules": {
         "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
         "linebreak-style": 0,
-        "no-underscore-dangle" : [0, "allow"]
+        "no-underscore-dangle" : 0
     }
 }

@@ -54,7 +54,7 @@ const getEventInfo = async (bot: TelegramBot) => {
       }
 
       // TODO: Implement "Back to menu" button
-      buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_start')]);
+      buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
 
       // Message string array
       const messageArray: String[] = [
