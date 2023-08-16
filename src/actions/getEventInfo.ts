@@ -5,21 +5,28 @@ import TelegramBot from '../TelegramBot';
 import { Event, ScheduleItem, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/BotContext.interface';
+import { sendEventsMessage } from './getEvents';
 // import { sendEventsMessage } from './getEvents';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,
   ctx: IBotContext,
-  event_id: string,
+  eventIdParam: string,
 ) => {
   // Get action id from context
-  const eventId = new ObjectId(event_id);
+  let eventId: ObjectId;
+  let event: Event | null = null;
 
-  const event: Event | null = await bot.dbManager.getEventById(eventId);
+  try {
+    eventId = new ObjectId(eventIdParam);
+    event = await bot.dbManager.getEventById(eventId);
+  } catch (e) {
+    console.log('Incorrect ID string, starting standard \\start sequence.');
+  }
 
   if (!event) {
-    console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
-    // sendEventsMessage(bot, ctx);
+    // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
+    sendEventsMessage(bot, ctx);
   } else {
     // Save event to current session context
     ctx.session.selectedConf = event;
@@ -32,16 +39,16 @@ export const sendEventInfoMessage = async (
       [Markup.button.callback('📝 Зарегистрироваться', 'action_participate')],
     ];
 
-    const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId);
+    const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId!);
     // TODO: Change unshift to push later
     if (schedule.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId}`)]);
+      buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
-    const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(eventId);
+    const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(eventId!);
     // TODO: Change unshift to push later
     if (speakers.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId}`)]);
+      buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
     }
 
     // Add link buttons if event has filled with valid fields

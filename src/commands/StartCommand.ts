@@ -10,6 +10,8 @@ import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
+import TelegramBot from '../TelegramBot';
+import { IBotContext } from '../context/BotContext.interface';
 
 // TODO: Store these messages in DB in the future
 const startMessages = [
@@ -19,6 +21,30 @@ const startMessages = [
 Приходите, мы вас тепло встретим и угостим приветственным напитком, после покажем-расскажем все, дадим еду и напитки, а вечером торжественное открытие и доклады. При этом развлечения есть на любой вкус – для фанатов настолок, меломанов и любителей посидеть тихонечко в уголке пообщаться о высокодуховном.`,
 ];
 
+export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
+  await ctx.reply(startMessages[0]);
+  await ctx.reply(startMessages[1]);
+
+  const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
+    [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
+    [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
+    [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
+    [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
+    [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
+    [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
+    [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
+  ];
+
+  await ctx.reply(
+    'Наши социальные сети:',
+    Markup.inlineKeyboard([
+      ...buttonsArray,
+    ]),
+  );
+
+  setTimeout(() => sendEventsMessage(bot, ctx), 2000);
+};
+
 class StartCommand extends Command {
   handle(): void {
     this.bot.start(async (ctx) => {
@@ -27,33 +53,12 @@ class StartCommand extends Command {
 
       // Check for startPayload - parameter to link bot to a certain event (for marketing purposes)
       if (ctx.startPayload) {
-        // console.log('payload', ctx.startPayload);
         // Call certain event action
         sendEventInfoMessage(this.bot, ctx, ctx.startPayload);
       } else {
         console.log('No payload, starting standard sequence.');
 
-        await ctx.reply(startMessages[0]);
-        await ctx.reply(startMessages[1]);
-
-        const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
-          [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
-          [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
-          [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
-          [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
-          [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
-          [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
-          [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
-        ];
-
-        await ctx.reply(
-          'Наши социальные сети:',
-          Markup.inlineKeyboard([
-            ...buttonsArray,
-          ]),
-        );
-
-        setTimeout(() => sendEventsMessage(this.bot, ctx), 2000);
+        sendStartMessage(this.bot, ctx);
       }
     });
 
