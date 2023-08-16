@@ -25,27 +25,35 @@ class StartCommand extends Command {
       // Save user id to session
       ctx.session.userId = ctx.from?.id;
 
-      await ctx.reply(startMessages[0]);
-      await ctx.reply(startMessages[1]);
+      // Check for startPayload - parameter to link bot to a certain event (for marketing purposes)
+      if (ctx.startPayload) {
+        console.log('payload', ctx.startPayload);
+        // call certain event action
+      } else {
+        console.log('No payload, starting standard sequence.');
 
-      const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
-        [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
-        [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
-        [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
-        [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
-        [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
-        [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
-        [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
-      ];
+        await ctx.reply(startMessages[0]);
+        await ctx.reply(startMessages[1]);
 
-      await ctx.reply(
-        'Наши социальные сети:',
-        Markup.inlineKeyboard([
-          ...buttonsArray,
-        ]),
-      );
+        const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
+          [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
+          [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
+          [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
+          [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
+          [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
+          [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
+          [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
+        ];
 
-      setTimeout(() => sendEventsMessage(this.bot, ctx), 2000);
+        await ctx.reply(
+          'Наши социальные сети:',
+          Markup.inlineKeyboard([
+            ...buttonsArray,
+          ]),
+        );
+
+        setTimeout(() => sendEventsMessage(this.bot, ctx), 2000);
+      }
     });
 
     // ACTION HANDLERS
