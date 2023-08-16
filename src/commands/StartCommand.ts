@@ -6,7 +6,7 @@ import Command from './Command';
 // Actions imports
 import getEvents, { sendEventsMessage } from '../actions/getEvents';
 import subscribeToEvent from '../actions/subscribeToEvent';
-import getEventInfo from '../actions/getEventInfo';
+import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
@@ -27,8 +27,9 @@ class StartCommand extends Command {
 
       // Check for startPayload - parameter to link bot to a certain event (for marketing purposes)
       if (ctx.startPayload) {
-        console.log('payload', ctx.startPayload);
-        // call certain event action
+        // console.log('payload', ctx.startPayload);
+        // Call certain event action
+        sendEventInfoMessage(this.bot, ctx, ctx.startPayload);
       } else {
         console.log('No payload, starting standard sequence.');
 
