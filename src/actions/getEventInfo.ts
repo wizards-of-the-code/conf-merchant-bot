@@ -5,8 +5,8 @@ import TelegramBot from '../TelegramBot';
 import { Event, ScheduleItem, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/BotContext.interface';
-import { sendEventsMessage } from './getEvents';
-// import { sendEventsMessage } from './getEvents';
+// eslint-disable-next-line import/no-cycle
+import { sendStartMessage } from '../commands/StartCommand';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,
@@ -26,7 +26,7 @@ export const sendEventInfoMessage = async (
 
   if (!event) {
     // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
-    sendEventsMessage(bot, ctx);
+    sendStartMessage(bot, ctx);
   } else {
     // Save event to current session context
     ctx.session.selectedConf = event;

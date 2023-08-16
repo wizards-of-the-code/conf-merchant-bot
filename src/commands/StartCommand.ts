@@ -1,4 +1,3 @@
-// import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
 import Command from './Command';
@@ -6,6 +5,7 @@ import Command from './Command';
 // Actions imports
 import getEvents, { sendEventsMessage } from '../actions/getEvents';
 import subscribeToEvent from '../actions/subscribeToEvent';
+// eslint-disable-next-line import/no-cycle
 import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
 import getEventSpeakers from '../actions/getEventSpeakers';
@@ -22,8 +22,14 @@ const startMessages = [
 ];
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
-  await ctx.reply(startMessages[0]);
-  await ctx.reply(startMessages[1]);
+  // Send start messages
+  for (const msg of startMessages) {
+    /* eslint-disable no-await-in-loop --
+        * The general idea to wait until each Context reply should be finished
+        * until next one should run :)
+        */
+    await ctx.reply(msg);
+  }
 
   const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
     [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
