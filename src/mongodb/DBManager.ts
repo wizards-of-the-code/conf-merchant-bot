@@ -41,6 +41,7 @@ class DBManager {
     }
   }
 
+
   /** Get all `active` events from the database */
   async getEvents(): Promise<Event[]> {
     const arr: Event[] = [];
