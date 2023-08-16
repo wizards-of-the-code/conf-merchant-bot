@@ -31,7 +31,7 @@ class StartCommand extends Command {
       const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
         [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
         [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
-        [Markup.button.url('Discord', 'https://peredelanoconf.com/')],
+        [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
         [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
         [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
         [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
