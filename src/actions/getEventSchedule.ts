@@ -1,10 +1,14 @@
 import { Markup } from 'telegraf';
+import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import { Event, ScheduleItem } from '../types';
 
 const getEventSchedule = async (bot: TelegramBot) => {
   bot.action(/action_get_schedule_/, async (ctx) => {
-    const event: Event | undefined = ctx.session.selectedConf;
+    const actionString = ctx.match.input;
+    const eventId = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
+
+    const event: Event | null = await bot.dbManager.getEventById(eventId);
 
     if (!event) {
       // TODO: Implement logs and store this errors there
