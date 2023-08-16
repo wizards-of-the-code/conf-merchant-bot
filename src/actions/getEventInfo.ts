@@ -58,7 +58,7 @@ const getEventInfo = async (bot: TelegramBot) => {
 
       // Message string array
       const messageArray: String[] = [
-        `<b>Локация:</b> ${event.location}`,
+        `<b>Локация:</b> ${event.location.city}, ${event.location.country}`,
         `${event.description}`,
         `<b>Дата и время:</b>  ${event.datetime}`,
         `<b>Цена:</b>  ${event.currency} ${event.current_price}`,
