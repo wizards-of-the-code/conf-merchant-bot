@@ -13,6 +13,7 @@ const participate = async (bot: TelegramBot) => {
         tg_first_name: ctx.from?.first_name,
         tg_last_name: ctx.from?.last_name,
         email: '',
+        type: 'participant',
       };
 
       const result: boolean = await bot.dbManager.addParticipant(event, user);

@@ -33,6 +33,23 @@ export type Speaker = {
   topic_description: string;
 };
 
+export type Sponsor = {
+  _id?: ObjectId;
+  tg_id: number;
+  tg_first_name: string;
+  tg_last_name?: string;
+  email: string;
+}
+
+export type Volunteer = {
+  _id?: ObjectId;
+  tg_id: number;
+  event_id: ObjectId;
+  tg_first_name: string;
+  tg_last_name?: string;
+  email: string;
+}
+
 export type ScheduleItem = {
   _id: ObjectId;
   event_id: ObjectId;
