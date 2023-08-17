@@ -11,10 +11,10 @@ const participate = async (bot: TelegramBot) => {
 
     // check if user if already in DB
     const participant = await bot.dbManager.getParticipant(ctx.from!.id);
-    console.log('participant', participant);
+    let participantId: ObjectId | undefined;
 
     if (!participant) {
-      // if no - create user
+      // if no - create new user first
       const newUser: Participant = {
         tg_id: ctx.from!.id,
         tg_first_name: ctx.from!.first_name,
@@ -23,11 +23,20 @@ const participate = async (bot: TelegramBot) => {
       };
 
       // TODO: Add try-catch and error handling
-      const addResult = await bot.dbManager.addParticipant(newUser);
-      console.log('New user created!');
+      participantId = await bot.dbManager.addParticipant(newUser);
+      console.log(`New user ${participantId} created!`);
     } else {
+      participantId = participant._id;
+    }
+
+    if (participantId) {
       // if yes - add him to participates array of Event object
-      console.log('I\'m alive!');
+      const result = await bot.dbManager.addParticipantToEvent(eventIdStr, participantId);
+      if (result.modifiedCount > 0) {
+        console.log(`User ${participantId} added to event ${eventIdStr}!`);
+      } else {
+        console.log('You\'re already participating in this event!');
+      }
     }
 
     // const event = ctx.session.selectedConf;
@@ -46,7 +55,9 @@ const participate = async (bot: TelegramBot) => {
     //   if (result) {
     //     ctx.editMessageReplyMarkup(undefined);
     //     // TODO: add datetime converted to readable format
-    //     ctx.reply(`Отлично, вы успешно записаны на "${event.name}", которое состоится ${event.datetime}. Бот обязательно напомнит вам за сутки до события!`);
+    //     ctx.reply(`Отлично, вы успешно записаны на
+    //  "${event.name}", которое состоится ${event.datetime}.
+    // Бот обязательно напомнит вам за сутки до события!`);
     //   } else {
     //     // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
     //     ctx.editMessageReplyMarkup(undefined);

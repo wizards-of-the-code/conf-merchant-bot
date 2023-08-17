@@ -1,5 +1,7 @@
 import {
-  MongoClient, Db, Document, OptionalUnlessRequiredId, ObjectId,
+  MongoClient, Db, Document,
+  OptionalUnlessRequiredId, ObjectId, UpdateResult,
+  InsertOneResult,
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
@@ -132,10 +134,34 @@ class DBManager {
 
   /** Add a new participant.
    * @param {Participant} [participant] Participant to add.
-   * @returns {boolean} True if success, False in case of any DB error.
+   * @returns {ObjectId} Inserted participant ObjectId
    */
-  async addParticipant(participant: Participant): Promise<boolean> {
-    const result = await this.insertOne('participants', participant);
+  async addParticipant(participant: Participant): Promise<ObjectId> {
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+      const result: InsertOneResult = await collection.insertOne(participant);
+      return result.insertedId;
+    }
+  }
+
+  /** Add a new participant.
+   * @param {ObjectId} [eventId] Event ID.
+   * @param {ObjectId} [participant] Participant to add.
+   * @returns {UpdateResult}
+   */
+  async addParticipantToEvent(eventId: ObjectId, participantId: ObjectId): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Event>('events');
+
+      result = await collection
+        .updateOne({ _id: eventId }, { $addToSet: { participants: participantId } });
+    }
 
     return result;
   }
