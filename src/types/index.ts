@@ -22,6 +22,11 @@ export type Location = {
   pictures: string[];
 };
 
+export type ParticipantEventDetails = {
+  event_id: ObjectId;
+  is_payed: boolean;
+};
+
 export type Participant = {
   _id?: ObjectId;
   tg_id: number;
@@ -29,6 +34,7 @@ export type Participant = {
   tg_first_name: string;
   tg_last_name?: string;
   email: string;
+  events: ParticipantEventDetails[];
 };
 
 export type Speaker = {
