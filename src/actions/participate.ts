@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { Markup } from 'telegraf';
 import { Participant } from '../types';
 import TelegramBot from '../TelegramBot';
 
@@ -32,18 +33,27 @@ const participate = async (bot: TelegramBot) => {
 
     // If yes - add him to participates array of Event object
     const addToEventResult = await bot.dbManager.addParticipantToEvent(eventId, participantId!);
+
+    let userMessage: string;
+
     if (addToEventResult.modifiedCount > 0) {
       // Add event details to Participant entry
-      const result = await bot.dbManager.addEventDetailsToParticipant(eventId, participantId!);
+      await bot.dbManager.addEventDetailsToParticipant(eventId, participantId!);
       // TODO: Handle result of addEventDetailsToParticipant
 
-      ctx.editMessageReplyMarkup(undefined);
-      ctx.reply(`Отлично, вы успешно записаны на конференцию ${event!.name}.`);
+      userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
     } else {
       // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
-      ctx.editMessageReplyMarkup(undefined);
-      ctx.reply('Вы уже записаны на эту конференцию! :)');
+      userMessage = 'Вы уже записаны на эту конференцию! :)';
     }
+
+    ctx.editMessageReplyMarkup(undefined);
+    ctx.reply(userMessage, Markup.inlineKeyboard(
+      [
+        Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+        Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+      ],
+    ));
   });
 };
 
