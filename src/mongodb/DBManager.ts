@@ -136,7 +136,7 @@ class DBManager {
    * @param {Participant} [participant] Participant to add.
    * @returns {ObjectId} Inserted participant ObjectId
    */
-  async addParticipant(participant: Participant): Promise<ObjectId> {
+  async insertParticipant(participant: Participant): Promise<ObjectId> {
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {

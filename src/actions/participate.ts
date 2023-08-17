@@ -21,7 +21,7 @@ const participate = async (bot: TelegramBot) => {
         events: [],
       };
 
-      participantId = await bot.dbManager.addParticipant(newUser);
+      participantId = await bot.dbManager.insertParticipant(newUser);
       console.log(`New user ${participantId} created!`);
     } else {
       participantId = participant._id;
@@ -35,8 +35,10 @@ const participate = async (bot: TelegramBot) => {
         const result = await bot.dbManager.addEventDetailsToParticipant(eventId, participantId);
         console.log('Add event result', result);
 
+        const event = await bot.dbManager.getEventById(eventId);
+
         ctx.editMessageReplyMarkup(undefined);
-        ctx.reply(`Отлично, вы успешно записаны на конференцию ${eventId}.`);
+        ctx.reply(`Отлично, вы успешно записаны на конференцию ${event!.name}.`);
       } else {
         // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
         ctx.editMessageReplyMarkup(undefined);
