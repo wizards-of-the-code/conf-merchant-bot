@@ -54,6 +54,15 @@ class DBManager {
     return arr;
   }
 
+  async getParticipant(tgId: number): Promise<Participant | null> {
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+      return collection.findOne<Participant>({ tg_id: tgId });
+    }
+  }
+
   /** Get all Participants from the database for specified Event
    * @param {ObjectId} [eventId] - Event ID in DB
   */
@@ -121,25 +130,14 @@ class DBManager {
     }
   }
 
-  /** Add a participant to an Event.
-   * @param {Event} [event] Event
+  /** Add a new participant.
    * @param {Participant} [participant] Participant to add.
-   * @returns {boolean} True if success, False if participant is already added to an Event.
+   * @returns {boolean} True if success, False in case of any DB error.
    */
-  async addParticipant(event: Event, user: Participant): Promise<boolean> {
-    const participants = await this.getEventParticipants(event._id!);
+  async addParticipant(participant: Participant): Promise<boolean> {
+    const result = await this.insertOne('participants', participant);
 
-    // Check if user is not already participated in this event
-    const isAlreadyPatricipated = participants.find(
-      (participant) => participant.tg_id === user.tg_id,
-    );
-
-    if (!isAlreadyPatricipated) {
-      this.insertOne('participants', user);
-      return true;
-    }
-
-    return false;
+    return result;
   }
 
   // PRIVATE CLASS METHODS
