@@ -148,7 +148,7 @@ class DBManager {
 
   /** Add a new participant.
    * @param {ObjectId} [eventId] Event ID.
-   * @param {ObjectId} [participant] Participant to add.
+   * @param {ObjectId} [participantId] Participant ID to add.
    * @returns {UpdateResult}
    */
   async addParticipantToEvent(eventId: ObjectId, participantId: ObjectId): Promise<UpdateResult> {

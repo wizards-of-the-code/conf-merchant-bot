@@ -8,6 +8,9 @@ const participate = async (bot: TelegramBot) => {
     const actionString = ctx.match.input;
     const eventId: ObjectId = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
 
+    // TODO: Check if event exists
+    const event = await bot.dbManager.getEventById(eventId);
+
     // Check if user if already in DB
     const participant = await bot.dbManager.getParticipant(ctx.from!.id);
     let participantId: ObjectId | undefined;
@@ -27,24 +30,19 @@ const participate = async (bot: TelegramBot) => {
       participantId = participant._id;
     }
 
-    if (participantId) {
-      // If yes - add him to participates array of Event object
-      const addToEventResult = await bot.dbManager.addParticipantToEvent(eventId, participantId);
-      if (addToEventResult.modifiedCount > 0) {
-        // Add event details to Participant entry
-        const result = await bot.dbManager.addEventDetailsToParticipant(eventId, participantId);
-        console.log('Add event result', result);
+    // If yes - add him to participates array of Event object
+    const addToEventResult = await bot.dbManager.addParticipantToEvent(eventId, participantId!);
+    if (addToEventResult.modifiedCount > 0) {
+      // Add event details to Participant entry
+      const result = await bot.dbManager.addEventDetailsToParticipant(eventId, participantId!);
+      // TODO: Handle result of addEventDetailsToParticipant
 
-        const event = await bot.dbManager.getEventById(eventId);
-
-        ctx.editMessageReplyMarkup(undefined);
-        ctx.reply(`Отлично, вы успешно записаны на конференцию ${event!.name}.`);
-      } else {
-        // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
-        ctx.editMessageReplyMarkup(undefined);
-        ctx.reply('Вы уже записаны на эту конференцию! :)');
-        // console.log('You\'re already participating in this event!');
-      }
+      ctx.editMessageReplyMarkup(undefined);
+      ctx.reply(`Отлично, вы успешно записаны на конференцию ${event!.name}.`);
+    } else {
+      // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
+      ctx.editMessageReplyMarkup(undefined);
+      ctx.reply('Вы уже записаны на эту конференцию! :)');
     }
   });
 };
