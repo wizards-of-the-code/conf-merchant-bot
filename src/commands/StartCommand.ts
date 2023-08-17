@@ -1,4 +1,3 @@
-// import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
 import Command from './Command';
@@ -6,11 +5,14 @@ import Command from './Command';
 // Actions imports
 import getEvents, { sendEventsMessage } from '../actions/getEvents';
 import subscribeToEvent from '../actions/subscribeToEvent';
-import getEventInfo from '../actions/getEventInfo';
+// eslint-disable-next-line import/no-cycle
+import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
 import sponsorship from '../actions/sponsorship';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
+import TelegramBot from '../TelegramBot';
+import { IBotContext } from '../context/BotContext.interface';
 
 // TODO: Store these messages in DB in the future
 const startMessages = [
@@ -20,33 +22,51 @@ const startMessages = [
 Приходите, мы вас тепло встретим и угостим приветственным напитком, после покажем-расскажем все, дадим еду и напитки, а вечером торжественное открытие и доклады. При этом развлечения есть на любой вкус – для фанатов настолок, меломанов и любителей посидеть тихонечко в уголке пообщаться о высокодуховном.`,
 ];
 
+export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
+  // Send start messages
+  for (const msg of startMessages) {
+    /* eslint-disable no-await-in-loop --
+        * The general idea to wait until each Context reply should be finished
+        * until next one should run :)
+        */
+    await ctx.reply(msg);
+  }
+
+  const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
+    [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
+    [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
+    [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
+    [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
+    [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
+    [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
+    [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
+  ];
+
+  await ctx.reply(
+    'Наши социальные сети:',
+    Markup.inlineKeyboard([
+      ...buttonsArray,
+    ]),
+  );
+
+  setTimeout(() => sendEventsMessage(bot, ctx), 2000);
+};
+
 class StartCommand extends Command {
   handle(): void {
     this.bot.start(async (ctx) => {
       // Save user id to session
       ctx.session.userId = ctx.from?.id;
 
-      await ctx.reply(startMessages[0]);
-      await ctx.reply(startMessages[1]);
+      // Check for startPayload - parameter to link bot to a certain event (for marketing purposes)
+      if (ctx.startPayload) {
+        // Call certain event action
+        sendEventInfoMessage(this.bot, ctx, ctx.startPayload);
+      } else {
+        console.log('No payload, starting standard sequence.');
 
-      const buttonsArray: InlineKeyboardButton.UrlButton[][] = [
-        [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
-        [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
-        [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
-        [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
-        [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
-        [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
-        [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
-      ];
-
-      await ctx.reply(
-        'Наши социальные сети:',
-        Markup.inlineKeyboard([
-          ...buttonsArray,
-        ]),
-      );
-
-      setTimeout(() => sendEventsMessage(this.bot, ctx), 2000);
+        sendStartMessage(this.bot, ctx);
+      }
     });
 
     // ACTION HANDLERS

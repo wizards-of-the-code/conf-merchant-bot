@@ -1,10 +1,14 @@
 import { Markup } from 'telegraf';
+import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import { Event, ScheduleItem } from '../types';
 
 const getEventSchedule = async (bot: TelegramBot) => {
   bot.action(/action_get_schedule_/, async (ctx) => {
-    const event: Event | undefined = ctx.session.selectedConf;
+    const actionString = ctx.match.input;
+    const eventIdStr = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
+
+    const event: Event | null = await bot.dbManager.getEventById(eventIdStr);
 
     if (!event) {
       // TODO: Implement logs and store this errors there
@@ -35,7 +39,7 @@ const getEventSchedule = async (bot: TelegramBot) => {
       // Reply footer with menu buttons
       ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
         [
-          Markup.button.callback('◀️ Назад', `action_get_info_${ctx.session.selectedConf!._id!.toString()}`),
+          Markup.button.callback('◀️ Назад', `action_get_info_${eventIdStr}`),
           Markup.button.callback('🔼 В главное меню', 'action_get_events'),
         ],
       ));

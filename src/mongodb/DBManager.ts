@@ -1,9 +1,11 @@
 import {
-  MongoClient, Db, Document, OptionalUnlessRequiredId, ObjectId,
+  MongoClient, Db, Document,
+  OptionalUnlessRequiredId, ObjectId, UpdateResult,
+  InsertOneResult,
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-  Event, Participant, Speaker, ScheduleItem, Sponsor
+  Event, Participant, Speaker, ScheduleItem, Sponsor, ParticipantEventDetails,
 } from '../types';
 
 interface Item extends Document { }
@@ -53,6 +55,15 @@ class DBManager {
     }
 
     return arr;
+  }
+
+  async getParticipant(tgId: number): Promise<Participant | null> {
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+      return collection.findOne<Participant>({ tg_id: tgId });
+    }
   }
 
   /** Get all Participants from the database for specified Event
@@ -139,25 +150,67 @@ class DBManager {
     }
   }
 
-  /** Add a participant to an Event.
-   * @param {Event} [event] Event
+  /** Add a new participant.
    * @param {Participant} [participant] Participant to add.
-   * @returns {boolean} True if success, False if participant is already added to an Event.
+   * @returns {ObjectId} Inserted participant ObjectId
    */
-  async addParticipant(event: Event, user: Participant): Promise<boolean> {
-    const participants = await this.getEventParticipants(event._id!);
+  async insertParticipant(participant: Participant): Promise<ObjectId> {
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+      const result: InsertOneResult = await collection.insertOne(participant);
+      return result.insertedId;
+    }
+  }
 
-    // Check if user is not already participated in this event
-    const isAlreadyPatricipated = participants.find(
-      (participant) => participant.tg_id === user.tg_id,
-    );
+  /** Add a new participant.
+   * @param {ObjectId} [eventId] Event ID.
+   * @param {ObjectId} [participantId] Participant ID to add.
+   * @returns {UpdateResult}
+   */
+  async addParticipantToEvent(eventId: ObjectId, participantId: ObjectId): Promise<UpdateResult> {
+    let result: UpdateResult;
 
-    if (!isAlreadyPatricipated) {
-      this.insertOne('participants', user);
-      return true;
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Event>('events');
+
+      result = await collection
+        .updateOne({ _id: eventId }, { $addToSet: { participants: participantId } });
     }
 
-    return false;
+    return result;
+  }
+
+  /** Add a new participant.
+   * @param {ObjectId} [eventId] Participant to add.
+   * @param {ObjectId} [participantId] Participant to add.
+   * @returns {ObjectId} Inserted participant ObjectId
+   */
+  async addEventDetailsToParticipant(
+    eventId: ObjectId,
+    participantId: ObjectId,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+
+      const eventDetails: ParticipantEventDetails = {
+        event_id: eventId,
+        is_payed: false,
+        role: 'participant',
+      };
+
+      result = await collection
+        .updateOne({ _id: participantId }, { $push: { events: eventDetails } });
+    }
+
+    return result;
   }
 
   async addSponsor(user: Sponsor): Promise<boolean> {

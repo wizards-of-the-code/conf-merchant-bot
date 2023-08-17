@@ -3,26 +3,38 @@ import { ObjectId } from 'mongodb';
 export type Event = {
   _id?: ObjectId;
   name: string;
-  location: string;
+  location: Location;
   description: string;
   tickets_link: string;
   link: string;
   datetime: string;
-  address: string;
   current_price: string;
   currency: string;
   tg_channel: string;
   is_active: boolean;
+  participants: ObjectId[];
+};
+
+export type Location = {
+  country: string;
+  city: string;
+  address: string;
+  pictures: string[];
+};
+
+export type ParticipantEventDetails = {
+  event_id: ObjectId;
+  is_payed: boolean;
+  role: string;
 };
 
 export type Participant = {
   _id?: ObjectId;
   tg_id: number;
-  event_id: ObjectId;
   tg_first_name: string;
   tg_last_name?: string;
-  email: string;
-  type: string;
+  email?: string;
+  events: ParticipantEventDetails[];
 };
 
 export type Speaker = {
