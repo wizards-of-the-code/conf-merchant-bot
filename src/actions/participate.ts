@@ -6,7 +6,7 @@ const participate = async (bot: TelegramBot) => {
   bot.action(/action_participate_/, async (ctx) => {
     // Get event_id from actionString
     const actionString = ctx.match.input;
-    const eventIdStr = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
+    const eventId: ObjectId = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
 
     // Check if user if already in DB
     const participant = await bot.dbManager.getParticipant(ctx.from!.id);
@@ -29,10 +29,14 @@ const participate = async (bot: TelegramBot) => {
 
     if (participantId) {
       // If yes - add him to participates array of Event object
-      const addToEventResult = await bot.dbManager.addParticipantToEvent(eventIdStr, participantId);
+      const addToEventResult = await bot.dbManager.addParticipantToEvent(eventId, participantId);
       if (addToEventResult.modifiedCount > 0) {
+        // Add event details to Participant entry
+        const result = await bot.dbManager.addEventDetailsToParticipant(eventId, participantId);
+        console.log('Add event result', result);
+
         ctx.editMessageReplyMarkup(undefined);
-        ctx.reply(`Отлично, вы успешно записаны на конференцию ${eventIdStr}.`);
+        ctx.reply(`Отлично, вы успешно записаны на конференцию ${eventId}.`);
       } else {
         // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
         ctx.editMessageReplyMarkup(undefined);

@@ -5,7 +5,7 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-  Event, Participant, Speaker, ScheduleItem,
+  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails,
 } from '../types';
 
 interface Item extends Document {}
@@ -161,6 +161,34 @@ class DBManager {
 
       result = await collection
         .updateOne({ _id: eventId }, { $addToSet: { participants: participantId } });
+    }
+
+    return result;
+  }
+
+  /** Add a new participant.
+   * @param {ObjectId} [eventId] Participant to add.
+   * @param {ObjectId} [participantId] Participant to add.
+   * @returns {ObjectId} Inserted participant ObjectId
+   */
+  async addEventDetailsToParticipant(
+    eventId: ObjectId,
+    participantId: ObjectId,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+
+      const eventDetails: ParticipantEventDetails = {
+        event_id: eventId,
+        is_payed: false,
+      };
+
+      result = await collection
+        .updateOne({ _id: participantId }, { $push: { events: eventDetails } });
     }
 
     return result;
