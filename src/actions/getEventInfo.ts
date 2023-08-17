@@ -25,7 +25,10 @@ const getEventInfo = async (bot: TelegramBot) => {
       const buttonsArray: (
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [
-        [Markup.button.callback('📝 Зарегистрироваться', 'action_participate')],
+        [
+          Markup.button.callback('📝 Зарегистрироваться', 'action_participate'),
+          Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor'),  
+        ],
       ];
 
       const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId);
@@ -39,6 +42,7 @@ const getEventInfo = async (bot: TelegramBot) => {
       if (speakers.length > 0) {
         buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId}`)]);
       }
+  
 
       // Add link buttons if event has filled with valid fields
       if (await isValidUrl(event.tickets_link)) {

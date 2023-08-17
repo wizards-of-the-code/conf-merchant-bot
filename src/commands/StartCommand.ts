@@ -8,6 +8,7 @@ import getEvents, { sendEventsMessage } from '../actions/getEvents';
 import subscribeToEvent from '../actions/subscribeToEvent';
 import getEventInfo from '../actions/getEventInfo';
 import participate from '../actions/participate';
+import sponsorship from '../actions/sponsorship';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
 
@@ -61,6 +62,8 @@ class StartCommand extends Command {
 
     // Action: Participate in selected event
     participate(this.bot);
+
+    sponsorship(this.bot);
 
     // Action: Show speakers for a selected event
     getEventSpeakers(this.bot);
