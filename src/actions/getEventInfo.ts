@@ -36,10 +36,8 @@ export const sendEventInfoMessage = async (
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      [
-        Markup.button.callback('📝 Зарегистрироваться', `action_participate_${eventId!}`), 
-        Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')
-      ],
+      [ Markup.button.callback('📝 Зарегистрироваться', `action_participate_${eventId!}`) ],
+      [ Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor') ]
     ];
 
     const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId!);
