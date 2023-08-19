@@ -70,7 +70,7 @@ export type LogEntry = {
   datetime: Date;
   initiator: TelegramUser;
   event: string;
-  message: string;
+  message?: string;
 };
 
 export type Message = {

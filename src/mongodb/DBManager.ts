@@ -18,6 +18,13 @@ import { statuses } from '../constants';
 
 interface Item extends Document { }
 
+// Statuses for logging
+const statuses = {
+  NEW_PARTICIPANT: 'New participant',
+  PARTICIPANT_UPDATE: 'Participant update',
+  EVENT_UPDATE: 'Event update',
+};
+
 class DBManager {
   instance: Db | undefined;
 
@@ -270,6 +277,16 @@ class DBManager {
       }
     }
 
+    // Log event to DB
+    await this.logToDB(
+      {
+        id: participant.tg_id,
+        name: participant.tg_first_name,
+      },
+      statuses.PARTICIPANT_UPDATE,
+      `Participant @${participant.tg_first_name} added to event: ${eventId}`,
+    );
+
     return messages;
   }
 
@@ -299,19 +316,25 @@ class DBManager {
 
   // LOGGER METHODS
 
+  /** Add a new participant.
+   * @param {TGUser} [initiator] Participant to add.
+   * @param {string} [event] Logging event.
+   * @param {string} [message] Optional log message.
+   * @returns {boolean} True - logged successfully, False - logging failed.
+   */
   async logToDB(
     initiator: TelegramUser,
     event: string,
-    message: string,
+    message?: string,
   ): Promise<boolean> {
-    const entry: LogEntry = {
+    const logEntry: LogEntry = {
       datetime: new Date(),
       initiator,
       event,
       message,
     };
 
-    const result = this.insertOne('log', entry);
+    const result = this.insertOne('log', logEntry);
     return result;
   }
 
