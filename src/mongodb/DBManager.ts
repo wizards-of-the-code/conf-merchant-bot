@@ -5,7 +5,7 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails,
+  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser,
 } from '../types';
 
 interface Item extends Document {}
@@ -208,6 +208,22 @@ class DBManager {
     }
 
     return false;
+  }
+
+  async logToDB(
+    initiator: TGUser,
+    event: string,
+    message: string,
+  ): Promise<boolean> {
+    const entry: LogEntry = {
+      datetime: new Date(),
+      initiator,
+      event,
+      message,
+    };
+
+    const result = this.insertOne('log', entry);
+    return result;
   }
 }
 

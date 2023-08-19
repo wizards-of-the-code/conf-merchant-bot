@@ -52,3 +52,16 @@ export type ScheduleItem = {
   time: string;
   title: string;
 };
+
+export type TGUser = {
+  id: number;
+  name: string;
+};
+
+export type LogEntry = {
+  _id?: ObjectId;
+  datetime: Date;
+  initiator: TGUser;
+  event: string;
+  message: string;
+};
