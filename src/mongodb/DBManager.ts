@@ -297,19 +297,22 @@ class DBManager {
     return result;
   }
 
-  async addSponsor(user: Sponsor): Promise<boolean> {
-    const sponsors = await this.getSponsors();
+  // LOGGER METHODS
 
-    const isAlreadySponsor = sponsors.find(
-      (sponsor) => sponsor.tg.id === user.tg.id,
-    );
+  async logToDB(
+    initiator: TelegramUser,
+    event: string,
+    message: string,
+  ): Promise<boolean> {
+    const entry: LogEntry = {
+      datetime: new Date(),
+      initiator,
+      event,
+      message,
+    };
 
-    if (isAlreadySponsor) {
-      return false;
-    }
-
-    this.insertOne('sponsors', user);
-    return true;
+    const result = this.insertOne('log', entry);
+    return result;
   }
 
   // PRIVATE CLASS METHODS
@@ -326,22 +329,6 @@ class DBManager {
     }
 
     return false;
-  }
-
-  async logToDB(
-    initiator: TelegramUser,
-    event: string,
-    message: string,
-  ): Promise<boolean> {
-    const entry: LogEntry = {
-      datetime: new Date(),
-      initiator,
-      event,
-      message,
-    };
-
-    const result = this.insertOne('log', entry);
-    return result;
   }
 }
 
