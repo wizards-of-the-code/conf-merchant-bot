@@ -5,8 +5,14 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-  Event, Participant, Speaker, ScheduleItem,
-  ParticipantEventDetails, LogEntry, TGUser, Message, Sponsor,
+  Event,
+  Participant,
+  Speaker,
+  ScheduleItem,
+
+  ParticipantEventDetails,
+  LogEntry,
+  LogEntry, TGUser, Message, Sponsor,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -213,7 +219,7 @@ class DBManager {
    */
   async addEventDetailsToParticipant(
     eventId: ObjectId,
-    participant: Participant,
+    participantId: ObjectId,
     role: string,
   ): Promise<UpdateResult> {
     let result: UpdateResult;
@@ -320,6 +326,22 @@ class DBManager {
     }
 
     return false;
+  }
+
+  async logToDB(
+    initiator: TelegramUser,
+    event: string,
+    message: string,
+  ): Promise<boolean> {
+    const entry: LogEntry = {
+      datetime: new Date(),
+      initiator,
+      event,
+      message,
+    };
+
+    const result = this.insertOne('log', entry);
+    return result;
   }
 }
 
