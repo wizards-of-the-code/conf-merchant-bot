@@ -142,6 +142,16 @@ class DBManager {
     } else {
       const collection = this.instance.collection<Participant>('participants');
       const result: InsertOneResult = await collection.insertOne(participant);
+
+      await this.logToDB(
+        {
+          id: participant.tg_id,
+          name: participant.tg_first_name,
+        },
+        'Added to participants',
+        '',
+      );
+
       return result.insertedId;
     }
   }
@@ -194,21 +204,7 @@ class DBManager {
     return result;
   }
 
-  // PRIVATE CLASS METHODS
-
-  private async insertOne<T extends Item>(
-    collectionName: string,
-    item: OptionalUnlessRequiredId<T>,
-  ): Promise<boolean> {
-    const collection = this.instance!.collection<T>(collectionName);
-    const result = await collection.insertOne(item);
-
-    if (result.acknowledged) {
-      return true;
-    }
-
-    return false;
-  }
+  // LOGGER METHODS
 
   async logToDB(
     initiator: TGUser,
@@ -224,6 +220,22 @@ class DBManager {
 
     const result = this.insertOne('log', entry);
     return result;
+  }
+
+  // PRIVATE CLASS METHODS
+
+  private async insertOne<T extends Item>(
+    collectionName: string,
+    item: OptionalUnlessRequiredId<T>,
+  ): Promise<boolean> {
+    const collection = this.instance!.collection<T>(collectionName);
+    const result = await collection.insertOne(item);
+
+    if (result.acknowledged) {
+      return true;
+    }
+
+    return false;
   }
 }
 
