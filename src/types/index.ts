@@ -63,5 +63,5 @@ export type LogEntry = {
   datetime: Date;
   initiator: TGUser;
   event: string;
-  message: string;
+  message?: string;
 };

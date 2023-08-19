@@ -10,6 +10,13 @@ import {
 
 interface Item extends Document {}
 
+// Statuses for logging
+const statuses = {
+  NEW_PARTICIPANT: 'New participant',
+  PARTICIPANT_UPDATE: 'Participant update',
+  EVENT_UPDATE: 'Event update',
+};
+
 class DBManager {
   instance: Db | undefined;
 
@@ -143,13 +150,14 @@ class DBManager {
       const collection = this.instance.collection<Participant>('participants');
       const result: InsertOneResult = await collection.insertOne(participant);
 
+      // Log event to DB
       await this.logToDB(
         {
           id: participant.tg_id,
           name: participant.tg_first_name,
         },
-        'Added to participants',
-        '',
+        statuses.NEW_PARTICIPANT,
+        `New participant @${participant.tg_first_name} added`,
       );
 
       return result.insertedId;
@@ -158,10 +166,10 @@ class DBManager {
 
   /** Add a new participant.
    * @param {ObjectId} [eventId] Event ID.
-   * @param {ObjectId} [participantId] Participant ID to add.
+   * @param {Participant} [participant] Participant to add.
    * @returns {UpdateResult}
    */
-  async addParticipantToEvent(eventId: ObjectId, participantId: ObjectId): Promise<UpdateResult> {
+  async addParticipantToEvent(eventId: ObjectId, participant: Participant): Promise<UpdateResult> {
     let result: UpdateResult;
 
     if (!this.instance) {
@@ -170,8 +178,18 @@ class DBManager {
       const collection = this.instance.collection<Event>('events');
 
       result = await collection
-        .updateOne({ _id: eventId }, { $addToSet: { participants: participantId } });
+        .updateOne({ _id: eventId }, { $addToSet: { participants: participant._id } });
     }
+
+    // Log event to DB
+    await this.logToDB(
+      {
+        id: participant.tg_id,
+        name: participant.tg_first_name,
+      },
+      statuses.EVENT_UPDATE,
+      `To event ${eventId} added participant @${participant.tg_first_name}`,
+    );
 
     return result;
   }
@@ -183,7 +201,7 @@ class DBManager {
    */
   async addEventDetailsToParticipant(
     eventId: ObjectId,
-    participantId: ObjectId,
+    participant: Participant,
   ): Promise<UpdateResult> {
     let result: UpdateResult;
 
@@ -198,27 +216,43 @@ class DBManager {
       };
 
       result = await collection
-        .updateOne({ _id: participantId }, { $push: { events: eventDetails } });
+        .updateOne({ _id: participant._id }, { $push: { events: eventDetails } });
     }
+
+    // Log event to DB
+    await this.logToDB(
+      {
+        id: participant.tg_id,
+        name: participant.tg_first_name,
+      },
+      statuses.PARTICIPANT_UPDATE,
+      `Participant @${participant.tg_first_name} added to event: ${eventId}`,
+    );
 
     return result;
   }
 
   // LOGGER METHODS
 
+  /** Add a new participant.
+   * @param {TGUser} [initiator] Participant to add.
+   * @param {string} [event] Logging event.
+   * @param {string} [message] Optional log message.
+   * @returns {boolean} True - logged successfully, False - logging failed.
+   */
   async logToDB(
     initiator: TGUser,
     event: string,
-    message: string,
+    message?: string,
   ): Promise<boolean> {
-    const entry: LogEntry = {
+    const logEntry: LogEntry = {
       datetime: new Date(),
       initiator,
       event,
       message,
     };
 
-    const result = this.insertOne('log', entry);
+    const result = this.insertOne('log', logEntry);
     return result;
   }
 

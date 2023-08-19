@@ -13,32 +13,30 @@ const participate = async (bot: TelegramBot) => {
     const event = await bot.dbManager.getEventById(eventId);
 
     // Check if user if already in DB
-    const participant = await bot.dbManager.getParticipant(ctx.from!.id);
+    let participant: Participant | null = await bot.dbManager.getParticipant(ctx.from!.id);
     let participantId: ObjectId | undefined;
 
     if (!participant) {
       // If no - create new user first
-      const newUser: Participant = {
+      participant = {
         tg_id: ctx.from!.id,
         tg_first_name: ctx.from!.first_name,
         tg_last_name: ctx.from!.last_name,
         events: [],
       };
 
-      participantId = await bot.dbManager.insertParticipant(newUser);
-      console.log(`New user ${participantId} created!`);
-    } else {
-      participantId = participant._id;
+      participantId = await bot.dbManager.insertParticipant(participant);
+      participant._id = participantId;
     }
 
     // If yes - add him to participates array of Event object
-    const addToEventResult = await bot.dbManager.addParticipantToEvent(eventId, participantId!);
+    const addToEventResult = await bot.dbManager.addParticipantToEvent(eventId, participant);
 
     let userMessage: string;
 
     if (addToEventResult.modifiedCount > 0) {
       // Add event details to Participant entry
-      await bot.dbManager.addEventDetailsToParticipant(eventId, participantId!);
+      await bot.dbManager.addEventDetailsToParticipant(eventId, participant);
       // TODO: Handle result of addEventDetailsToParticipant
 
       userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
