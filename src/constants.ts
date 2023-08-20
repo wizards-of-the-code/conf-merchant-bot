@@ -11,4 +11,5 @@ export const messages = {
   VOLONTEER_MESSAGES: 'VolonteerMessages',
   ORGANIZER_MESSAGES: 'OrganizerMessages',
   SPEAKER_MESSAGES: 'SpeakerMessages',
+  SPONSOR_MESSAGES: 'SponsorMessages',
 };
