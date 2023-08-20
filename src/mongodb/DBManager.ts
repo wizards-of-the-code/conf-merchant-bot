@@ -5,7 +5,7 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser,
+  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser, Message,
 } from '../types';
 
 interface Item extends Document {}
@@ -194,7 +194,7 @@ class DBManager {
     return result;
   }
 
-  /** Add a new participant.
+  /** Add event details to participant entry.
    * @param {ObjectId} [eventId] Participant to add.
    * @param {ObjectId} [participantId] Participant to add.
    * @returns {ObjectId} Inserted participant ObjectId
@@ -230,6 +230,27 @@ class DBManager {
     );
 
     return result;
+  }
+
+  /** Get messages array from DB.
+   * @param {string} [messageName] Name of the message entry in DB.
+   * @returns {string[]} String array of messages.
+   */
+  async getMessagesArray(messageName: string): Promise<string[]> {
+    const messages: string[] = [];
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Message>('messages');
+      const msg = await collection.findOne<Message>({ name: messageName });
+
+      if (msg && msg?.value.length > 0) {
+        messages.push(...msg.value);
+      }
+    }
+
+    return messages;
   }
 
   // LOGGER METHODS
