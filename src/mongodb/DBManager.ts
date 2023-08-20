@@ -7,15 +7,9 @@ import { IConfigService } from '../config/ConfigService.interface';
 import {
   Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser, Message,
 } from '../types';
+import { statuses } from '../constants';
 
 interface Item extends Document {}
-
-// Statuses for logging
-const statuses = {
-  NEW_PARTICIPANT: 'New participant',
-  PARTICIPANT_UPDATE: 'Participant update',
-  EVENT_UPDATE: 'Event update',
-};
 
 class DBManager {
   instance: Db | undefined;
