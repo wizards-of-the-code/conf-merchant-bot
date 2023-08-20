@@ -12,7 +12,7 @@ import {
 
   ParticipantEventDetails,
   LogEntry,
-  LogEntry, TGUser, Message, Sponsor,
+  TelegramUser,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -292,26 +292,25 @@ class DBManager {
 
   // LOGGER METHODS
 
-  /** Add a new participant.
-   * @param {TGUser} [initiator] Participant to add.
-   * @param {string} [event] Logging event.
-   * @param {string} [message] Optional log message.
-   * @returns {boolean} True - logged successfully, False - logging failed.
+  /** Get messages array from DB.
+   * @param {string} [messageName] Name of the message entry in DB.
+   * @returns {string[]} String array of messages.
    */
-  async logToDB(
-    initiator: TGUser,
-    event: string,
-    message?: string,
-  ): Promise<boolean> {
-    const logEntry: LogEntry = {
-      datetime: new Date(),
-      initiator,
-      event,
-      message,
-    };
+  async getMessagesArray(messageName: string): Promise<string[]> {
+    const messages: string[] = [];
 
-    const result = this.insertOne('log', logEntry);
-    return result;
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Message>('messages');
+      const msg = await collection.findOne<Message>({ name: messageName });
+
+      if (msg && msg?.value.length > 0) {
+        messages.push(...msg.value);
+      }
+    }
+
+    return messages;
   }
 
   // LOGGER METHODS
