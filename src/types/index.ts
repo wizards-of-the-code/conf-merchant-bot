@@ -65,3 +65,9 @@ export type LogEntry = {
   event: string;
   message?: string;
 };
+
+export type Message = {
+  _id?: ObjectId;
+  name: string;
+  value: string[];
+};
