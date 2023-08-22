@@ -1,14 +1,11 @@
-import { Db } from 'mongodb';
 import cron from 'node-cron';
-import { Event, Participant } from './types';
+import DBManager from './mongodb/DBManager';
+import { AutoScheduledMessage, ManualScheduledMessage } from './types';
 
 class Scheduler {
-  db: Db | undefined;
+  constructor(private readonly cronExpression: string, private readonly dbManager: DBManager) {}
 
-  constructor(private readonly cronExpression: string) {}
-
-  async init(db: Db | undefined) {
-    this.db = db;
+  async init() {
     // For a server console logs
     /* eslint no-console: 0 */
     console.log('Scheduler initialized');
@@ -44,6 +41,18 @@ class Scheduler {
 
       // this.bot.telegram.sendMessage(214955237, "Отправлено по расписанию");
     });
+
+    cron.schedule('*/1 * * * * *', async () => {
+      // Every minute check DB for changes ragarding MANUAL messages
+      const messages: ManualScheduledMessage[] = this.dbManager.getManualMessages();
+    });
+
+    // this.bot.telegram.sendMessage(214955237, "Отправлено по расписанию");
+  }
+
+  async sentReminder() {
+    console.log('Sent reminder');
+    // Sent message to a participant
   }
 }
 

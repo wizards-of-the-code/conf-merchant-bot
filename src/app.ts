@@ -21,7 +21,7 @@ class App {
     );
     this.bot.use((
       new LocalSession({ database: 'sessions.json' })).middleware());
-    this.scheduler = new Scheduler('0 0 19 * * *');
+    this.scheduler = new Scheduler('0 0 19 * * *', dbManager);
   }
 
   async init() {
@@ -33,7 +33,7 @@ class App {
     this.bot.launch();
 
     // Initializing scheduler (everyday at 19:00 for now)
-    this.scheduler.init(this.bot.db);
+    this.scheduler.init();
   }
 }
 
