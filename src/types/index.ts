@@ -78,3 +78,21 @@ export type Message = {
   name: string;
   value: string[];
 };
+
+export type ScheduledMessage = {
+  _id: ObjectId;
+  event_id: ObjectId;
+  type: 'manual' | 'auto';
+  message: string;
+  photos: string[];
+  actions: string[];
+  sent: Date | null;
+};
+
+export type ManualScheduledMessage = ScheduledMessage & {
+  datetime_to_send: Date;
+};
+
+export type AutoScheduledMessage = ScheduledMessage & {
+  days_before_conf: number;
+};
