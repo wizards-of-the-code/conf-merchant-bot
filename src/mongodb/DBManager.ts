@@ -13,6 +13,8 @@ import {
   ParticipantEventDetails,
   LogEntry,
   TelegramUser,
+  Message,
+  AutoScheduledMessage,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -328,6 +330,16 @@ class DBManager {
 
     const result = this.insertOne('log', logEntry);
     return result;
+  }
+
+  // SCHEDULER METHODS
+
+  async getAutoMessages(): Promise<AutoScheduledMessage[]> {
+
+  }
+
+  async getManualMessages(): Promise<AutoScheduledMessage[]> {
+
   }
 
   // PRIVATE CLASS METHODS
