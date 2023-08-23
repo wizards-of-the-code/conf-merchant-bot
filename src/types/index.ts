@@ -81,6 +81,7 @@ export type Message = {
 
 export type ScheduledMessage = {
   _id: ObjectId;
+  is_active: boolean;
   event_id: ObjectId;
   type: 'manual' | 'auto';
   message: string;
