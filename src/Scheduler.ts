@@ -10,49 +10,26 @@ class Scheduler {
     /* eslint no-console: 0 */
     console.log('Scheduler initialized');
 
-    cron.schedule(this.cronExpression, async () => {
-      // Check participants
-      if (!this.db) {
-        console.log('No database initialized.');
-      } else {
-        const participansId = new Set();
-        const events = new Set();
+    // cron.schedule(this.cronExpression, async () => {
+    //   // Every day check DB for SCHEDULED messages
+    //   const messages: AutoScheduledMessage[] = this.dbManager.getAutoMessages();
+    // });
 
-        const participantsCollection = this.db.collection<Participant>('participants');
-        const participantsCursor = participantsCollection.find();
+    cron.schedule('0 */1 * * * *', async () => {
+      // Every minute check DB for changes ragarding active MANUAL messages
+      const messages: ManualScheduledMessage[] = await this.dbManager.getScheduledNotifications('manual');
 
-        const eventsCollection = this.db.collection<Event>('events');
-        const eventsCursor = eventsCollection.find();
+      if (messages.length > 0) {
+        // Filter ready for sending messages
+        const toSentArr = messages.filter((message) => message.datetime_to_send <= new Date());
 
-        for await (const participant of participantsCursor) {
-          participansId.add(participant.tg.id);
+        if (toSentArr.length > 0) {
+          await this.sentNotifications(toSentArr);
         }
-
-        for await (const event of eventsCursor) {
-          events.add(event.name);
-        }
-
-        // TODO: Logic for finiding what participants should be notified
-        console.log(participansId);
-        console.log(events);
       }
-      // Send reminders to them
-      // TODO: Loop for sending reminders and other messages
-
-      // this.bot.telegram.sendMessage(214955237, "Отправлено по расписанию");
-    });
-
-    cron.schedule('*/1 * * * * *', async () => {
-      // Every minute check DB for changes ragarding MANUAL messages
-      const messages: ManualScheduledMessage[] = this.dbManager.getManualMessages();
     });
 
     // this.bot.telegram.sendMessage(214955237, "Отправлено по расписанию");
-  }
-
-  async sendReminder() {
-    console.log('Sent reminder');
-    // Sent message to a participant
   }
 }
 

@@ -334,13 +334,59 @@ class DBManager {
 
   // SCHEDULER METHODS
 
-  async getAutoMessages(): Promise<AutoScheduledMessage[]> {
+  async getAutoNotifications(): Promise<AutoScheduledMessage[]> {
+    const arr: AutoScheduledMessage[] = [];
 
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<AutoScheduledMessage>('notifications');
+      const cursor = collection.find({ is_active: true, type: 'auto' });
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc });
+      }
+    }
+
+    return arr;
   }
 
-  async getManualMessages(): Promise<AutoScheduledMessage[]> {
+  // }
 
+  async getManualNotifications(): Promise<ManualScheduledMessage[]> {
+    const arr: ManualScheduledMessage[] = [];
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<ManualScheduledMessage>('notifications');
+      const cursor = collection.find({ is_active: true, type: 'manual' });
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc });
+      }
+    }
+
+    return arr;
   }
+
+  /* eslint max-len: 0 */
+  // async getScheduledNotifications(type: 'manual' | 'auto'): Promise<ManualScheduledMessage[] | AutoScheduledMessage[]> {
+  //   const arr: ManualScheduledMessage[] | AutoScheduledMessage[] = [];
+
+  //   if (!this.instance) {
+  //     throw new Error('No DB instance.');
+  //   } else {
+  //     const collection = this.instance.collection<ManualScheduledMessage | AutoScheduledMessage>('notifications');
+  //     const cursor = collection.find({ is_active: true, type });
+
+  //     for await (const doc of cursor) {
+  //       arr.push({ ...doc });
+  //     }
+  //   }
+
+  //   return arr;
+  // }
 
   // PRIVATE CLASS METHODS
 
