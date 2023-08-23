@@ -15,6 +15,8 @@ import {
   TelegramUser,
   Message,
   AutoScheduledMessage,
+  ManualScheduledMessage,
+  EventWithParticipants,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -60,6 +62,48 @@ class DBManager {
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
+      }
+    }
+
+    return arr;
+  }
+
+  /** Get all `active` events from the database */
+  async getEventsWithParticipants(): Promise<EventWithParticipants[]> {
+    const arr: EventWithParticipants[] = [];
+
+    console.log('hit', new Date());
+
+    if (this.instance) {
+      const collection = this.instance.collection<Event>('events');
+      const cursor = collection.aggregate(
+        [
+          {
+            $lookup: {
+              from: 'participants',
+              localField: 'participants',
+              foreignField: '_id',
+              as: 'participants',
+              pipeline: [
+                {
+                  $project: {
+                    tg_id: 1,
+                    tg_first_name: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $match: {
+              is_active: true,
+            },
+          },
+        ],
+      );
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc } as EventWithParticipants);
       }
     }
 

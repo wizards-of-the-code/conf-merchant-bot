@@ -21,6 +21,24 @@ export type TelegramUser = {
   last_name?: string;
 };
 
+export type EventWithParticipants = {
+  _id: ObjectId;
+  name: string;
+  location: Location;
+  description: string;
+  tickets_link: string;
+  link: string;
+  datetime: string;
+  current_price: string;
+  currency: string;
+  tg_channel: string;
+  is_active: boolean;
+  participants: {
+    tg_id: number,
+    tg_first_name: string
+  }[];
+};
+
 export type Location = {
   country: string;
   city: string;
