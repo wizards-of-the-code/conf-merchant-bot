@@ -13,6 +13,8 @@ import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
 import TelegramBot from '../TelegramBot';
 import { IBotContext } from '../context/BotContext.interface';
+import participantRole from '../actions/role';
+import organizerRole from '../actions/organizer';
 
 // TODO: Store these messages in DB in the future
 const startMessages = [
@@ -83,6 +85,9 @@ class StartCommand extends Command {
     // Action: Get event by name, saved in Session
     getEventInfo(this.bot);
 
+    participantRole(this.bot);
+
+    organizerRole(this.bot);
     // Action: Participate in selected event
     participate(this.bot);
 
