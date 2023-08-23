@@ -15,6 +15,7 @@ import TelegramBot from '../TelegramBot';
 import { IBotContext } from '../context/BotContext.interface';
 import participantRole from '../actions/role';
 import organizerRole from '../actions/organizer';
+import volunteerRole from '../actions/volunteer';
 
 // TODO: Store these messages in DB in the future
 const startMessages = [
@@ -86,12 +87,13 @@ class StartCommand extends Command {
     getEventInfo(this.bot);
 
     participantRole(this.bot);
-
     organizerRole(this.bot);
+    volunteerRole(this.bot);
+    sponsorship(this.bot);
+
     // Action: Participate in selected event
     participate(this.bot);
 
-    sponsorship(this.bot);
 
     // Action: Show speakers for a selected event
     getEventSpeakers(this.bot);

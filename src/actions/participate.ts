@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
-import { Participant } from '../types';
+import { Participant, TelegramUser } from '../types';
 import TelegramBot from '../TelegramBot';
 
 const participate = async (bot: TelegramBot) => {
@@ -18,10 +18,14 @@ const participate = async (bot: TelegramBot) => {
 
     if (!participant) {
       // If no - create new user first
+      const user: TelegramUser = {
+        id: ctx.from!.id,
+        first_name: ctx.from!.first_name,
+        last_name: ctx.from!.last_name,
+      };
+
       const newUser: Participant = {
-        tg_id: ctx.from!.id,
-        tg_first_name: ctx.from!.first_name,
-        tg_last_name: ctx.from!.last_name,
+        tg: user,
         events: [],
       };
 
@@ -38,7 +42,7 @@ const participate = async (bot: TelegramBot) => {
 
     if (addToEventResult.modifiedCount > 0) {
       // Add event details to Participant entry
-      await bot.dbManager.addEventDetailsToParticipant(eventId, participantId!);
+      await bot.dbManager.addEventDetailsToParticipant(eventId, participantId!, 'participant');
       // TODO: Handle result of addEventDetailsToParticipant
 
       userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;

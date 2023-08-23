@@ -14,7 +14,6 @@ const participantRole = async (bot: TelegramBot) => {
           [Markup.button.callback('Организатор', `organizer_${eventId}`)],
           [Markup.button.callback('Волонтер', `volunteer_${eventId}`)],
           [Markup.button.callback('Участник', `participant_${eventId}`)],
-          [Markup.button.callback('Спикер', `speaker_${eventId}`)],
           [Markup.button.callback('Спонсор', `action_become_sponsor`)],
       ],
     ));

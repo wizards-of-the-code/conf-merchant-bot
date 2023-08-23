@@ -3,12 +3,12 @@ import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import addParticipant from './addParticipant';
 
-const organizerRole = async (bot: TelegramBot) => {
-    bot.action(/organizer_/, async (ctx) => {
+const participantRole = async (bot: TelegramBot) => {
+    bot.action(/participant_/, async (ctx) => {
         const actionString = ctx.match.input;
         const eventId: ObjectId = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
         const event = await bot.dbManager.getEventById(eventId);
-        const role = 'organizer';
+        const role = 'participant';
 
         const participant = await bot.dbManager.getParticipant(ctx.from!.id);
         let participantId: ObjectId | undefined;
@@ -48,4 +48,4 @@ const organizerRole = async (bot: TelegramBot) => {
     });
 };
 
-export default organizerRole
+export default participantRole

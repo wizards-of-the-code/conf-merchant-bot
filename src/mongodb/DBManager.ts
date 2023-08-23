@@ -5,7 +5,7 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-  Event, Participant, Speaker, ScheduleItem, Sponsor, ParticipantEventDetails,
+  Event, Participant, Speaker, ScheduleItem, Sponsor, ParticipantEventDetails, TelegramUser,
 } from '../types';
 
 interface Item extends Document { }
@@ -62,7 +62,7 @@ class DBManager {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<Participant>('participants');
-      return collection.findOne<Participant>({ tg_id: tgId });
+      return collection.findOne<Participant>({ 'tg.id': tgId });
     }
   }
 
@@ -192,6 +192,7 @@ class DBManager {
   async addEventDetailsToParticipant(
     eventId: ObjectId,
     participantId: ObjectId,
+    role: string
   ): Promise<UpdateResult> {
     let result: UpdateResult;
 
@@ -203,7 +204,7 @@ class DBManager {
       const eventDetails: ParticipantEventDetails = {
         event_id: eventId,
         is_payed: false,
-        role: 'participant',
+        role: role,
       };
 
       result = await collection
@@ -217,7 +218,7 @@ class DBManager {
     const sponsors = await this.getSponsors();
 
     const isAlreadySponsor = sponsors.find(
-      (sponsor) => sponsor.tg_id === user.tg_id,
+      (sponsor) => sponsor.tg.id === user.tg.id,
     );
 
     if (isAlreadySponsor) {
