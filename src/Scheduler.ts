@@ -50,7 +50,7 @@ class Scheduler {
     // this.bot.telegram.sendMessage(214955237, "Отправлено по расписанию");
   }
 
-  async sentReminder() {
+  async sendReminder() {
     console.log('Sent reminder');
     // Sent message to a participant
   }
