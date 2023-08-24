@@ -55,7 +55,7 @@ export type Sponsor = {
   email: string;
   donation: string;
   tg: TelegramUser;
-}
+};
 
 export type ScheduleItem = {
   _id: ObjectId;

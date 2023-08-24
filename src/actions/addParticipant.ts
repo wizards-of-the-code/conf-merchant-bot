@@ -1,34 +1,36 @@
-import { ObjectId } from "mongodb";
-import { IBotContext } from "../context/BotContext.interface";
-import { Participant, ParticipantEventDetails, TelegramUser } from "../types";
+import { ObjectId } from 'mongodb';
+import { IBotContext } from '../context/BotContext.interface';
+import { Participant, ParticipantEventDetails, TelegramUser } from '../types';
 
-export default async function addParticipant(ctx: IBotContext, eventId: ObjectId, role: string): Promise<Participant | null> {
-    try{
+export default async function addParticipant(
+  ctx: IBotContext,
+  eventId: ObjectId,
+  role: string,
+): Promise<Participant | null> {
+  try {
+    const user: TelegramUser = {
+      id: ctx.from!.id,
+      first_name: ctx.from!.first_name,
+      last_name: ctx.from!.last_name,
+    };
 
-        const user: TelegramUser = {
-            id: ctx.from!.id,
-            first_name: ctx.from!.first_name,
-            last_name: ctx.from!.last_name,
-          };
+    const eventDetail: ParticipantEventDetails = {
+      event_id: eventId,
+      is_payed: false,
+      role,
+    };
 
-        const eventDetail: ParticipantEventDetails = {
-            event_id: eventId,
-            is_payed: false,
-            role: role,
-        };
+    const newUser: Participant = {
+      tg: user,
+      events: [
+        eventDetail,
+      ],
+    };
 
-        const newUser: Participant = {
-            tg: user,
-            events: [
-                eventDetail
-            ],
-        };
+    return newUser;
+  } catch (error) {
+    console.log('Error! Can not create user!');
 
-        return newUser;
-    
-    } catch (error) {
-        console.log('Error! Can not create user!');
-
-        return null;
-    }
+    return null;
+  }
 }

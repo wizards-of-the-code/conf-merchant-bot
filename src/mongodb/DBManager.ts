@@ -5,7 +5,8 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser, Message, Sponsor
+  Event, Participant, Speaker, ScheduleItem,
+  ParticipantEventDetails, LogEntry, TGUser, Message, Sponsor,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -41,7 +42,6 @@ class DBManager {
     }
   }
 
-
   /** Get all `active` events from the database */
   async getEvents(): Promise<Event[]> {
     const arr: Event[] = [];
@@ -63,7 +63,7 @@ class DBManager {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<Participant>('participants');
-      return collection.findOne<Participant>({ "tg.id": tgId });
+      return collection.findOne<Participant>({ 'tg.id': tgId });
     }
   }
 
@@ -226,7 +226,7 @@ class DBManager {
       const eventDetails: ParticipantEventDetails = {
         event_id: eventId,
         is_payed: false,
-        role: role,
+        role,
       };
 
       result = await collection

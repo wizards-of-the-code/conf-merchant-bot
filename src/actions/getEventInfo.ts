@@ -31,13 +31,13 @@ export const sendEventInfoMessage = async (
     // Save event to current session context
     ctx.session.selectedConf = event;
 
-    ctx.deleteMessage();
+    // ctx.deleteMessage();
 
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      [ Markup.button.callback('📝 Зарегистрироваться', `action_role_${eventId!}`) ],
-      [ Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor') ]
+      [Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')],
+      [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
     ];
 
     const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId!);
