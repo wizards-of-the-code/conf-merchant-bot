@@ -51,15 +51,7 @@ export type Sponsor = {
   tg_first_name: string;
   tg_last_name?: string;
   email: string;
-}
-
-export type Volunteer = {
-  _id?: ObjectId;
-  tg_id: number;
-  event_id: ObjectId;
-  tg_first_name: string;
-  tg_last_name?: string;
-  email: string;
+  donation: string;
 }
 
 export type ScheduleItem = {

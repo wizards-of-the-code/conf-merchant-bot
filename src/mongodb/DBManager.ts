@@ -5,11 +5,15 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
+<<<<<<< HEAD
   Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser, Message,
+=======
+  Event, Participant, Speaker, ScheduleItem, Sponsor
+>>>>>>> 7985155 (feat: added sponsorship)
 } from '../types';
 import { statuses } from '../constants';
 
-interface Item extends Document {}
+interface Item extends Document { }
 
 class DBManager {
   instance: Db | undefined;
@@ -83,6 +87,23 @@ class DBManager {
     }
 
     return arr;
+  }
+
+  async getSponsors(): Promise<Sponsor[]> {
+    if (!this.instance) {
+      return [];
+    }
+
+    const collection = this.instance.collection<Sponsor>('sponsors');
+    const itemsArray = collection.find({});
+
+    const fetchedItems: Sponsor[] = [];
+
+    for await (const item of itemsArray) {
+      fetchedItems.push(item);
+    }
+
+    return fetchedItems;
   }
 
   /** Get all Speakers from the database for specified Event
@@ -270,6 +291,21 @@ class DBManager {
 
     const result = this.insertOne('log', logEntry);
     return result;
+  }
+
+  async addSponsor(user: Sponsor): Promise<boolean> {
+    const sponsors = await this.getSponsors();
+
+    const isAlreadySponsor = sponsors.find(
+      (sponsor) => sponsor.tg_id === user.tg_id,
+    );
+
+    if (isAlreadySponsor) {
+      return false;
+    }
+
+    this.insertOne('sponsors', user);
+    return true;
   }
 
   // PRIVATE CLASS METHODS

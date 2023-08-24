@@ -8,6 +8,7 @@ import subscribeToEvent from '../actions/subscribeToEvent';
 // eslint-disable-next-line import/no-cycle
 import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
+import sponsorship from '../actions/sponsorship';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
 import TelegramBot from '../TelegramBot';
@@ -77,6 +78,8 @@ class StartCommand extends Command {
 
     // Action: Participate in selected event
     participate(this.bot);
+
+    sponsorship(this.bot);
 
     // Action: Show speakers for a selected event
     getEventSpeakers(this.bot);
