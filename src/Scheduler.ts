@@ -36,7 +36,9 @@ class Scheduler {
       console.log('messages', messages);
       if (messages.length > 0) {
         // Filter ready for sending messages
-        const toSentArr = messages.filter((message) => message.datetime_to_send <= new Date());
+        const toSentArr = messages.filter((message) => (
+          message.datetime_to_send <= new Date()
+          && message.sent === null));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
         console.log('Active events:', events[0].participants);
 
