@@ -13,10 +13,24 @@ import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
 import TelegramBot from '../TelegramBot';
 import { IBotContext } from '../context/BotContext.interface';
+<<<<<<< HEAD
 import { messages } from '../constants';
 import participantRole from '../actions/role';
 import organizerRole from '../actions/organizer';
 import volunteerRole from '../actions/volunteer';
+=======
+import participantRole from '../actions/role';
+import organizerRole from '../actions/organizer';
+import volunteerRole from '../actions/volunteer';
+
+// TODO: Store these messages in DB in the future
+const startMessages = [
+  `Peredelanoconf — это проект, который мы делаем, чтобы объединять и поддерживать экспатов по всему миру. Хорошая конференция базируется на трёх китах: индустриальная польза, приятное времяпрепровождение и сообщество.
+Мы — в первую очередь про сообщество. Мы существуем для того, чтобы у вас на новом месте появились знакомые, друзья и коллеги. Чтобы никто не был один. Наши конфы проходят в формате уютной домашней вечеринки, специально для того, чтобы людям было проще сойтись и подружиться, а также послушать классные доклады от не менее крутых спикеров. После самого мероприятия сообщество продолжает жить в чате, и в бесчисленных ламповых встречах в барах, коворкингах, кафешках, где угодно!`,
+  `Но! Индустриальная польза тоже будет, у нас есть спикеры — разговоры на технические темы приветствуются, старый добрый формат обсуждения принципов работы гарбадж коллектора в курилке — это то, что вы найдете у нас.
+Приходите, мы вас тепло встретим и угостим приветственным напитком, после покажем-расскажем все, дадим еду и напитки, а вечером торжественное открытие и доклады. При этом развлечения есть на любой вкус – для фанатов настолок, меломанов и любителей посидеть тихонечко в уголке пообщаться о высокодуховном.`,
+];
+>>>>>>> 4e77ba612c8092ae125f057bc4f85c1efbbb31ed
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get messages array from DB

@@ -63,7 +63,7 @@ class DBManager {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<Participant>('participants');
-      return collection.findOne<Participant>({ 'tg.id': tgId });
+      return collection.findOne<Participant>({ "tg.id": tgId });
     }
   }
 
