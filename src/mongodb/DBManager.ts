@@ -410,7 +410,7 @@ class DBManager {
       const collection = this.instance.collection<ManualScheduledMessage>('notifications');
       // console.log(collection);
       result = await collection
-        .updateOne({ _id: messageId }, { sent: new Date() });
+        .updateOne({ _id: messageId }, { $set: { sent: new Date() } });
     }
 
     return result;

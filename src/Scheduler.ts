@@ -24,26 +24,18 @@ class Scheduler {
     /* eslint no-console: 0 */
     console.log('Scheduler initialized');
 
-    // cron.schedule(this.cronExpression, async () => {
-    //   // Every day check DB for SCHEDULED messages
-    //   const messages: AutoScheduledMessage[] = this.dbManager.getAutoMessages();
-    // });
-
     const minutelyTask: ScheduledTask = cron.schedule('*/30 * * * * *', async () => {
       // Every minute check DB for changes ragarding active MANUAL messages
       const messages: ManualScheduledMessage[] = await this.dbManager.getManualNotifications();
 
-      console.log('messages', messages);
       if (messages.length > 0) {
         // Filter ready for sending messages
         const toSentArr = messages.filter((message) => (
           message.datetime_to_send <= new Date()
-          && message.sent === null));
+        ));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
 
-        // TODO: Write an algorithm to sent messages to event participants
-        console.log('toSentArr', toSentArr);
-        // Take toSentArray
+        // Take toSentArray with messages, ready for sending
         for (const message of toSentArr) {
           // Find event object
           const recipients = events.find((event) => (
@@ -69,14 +61,12 @@ class Scheduler {
   }
 
   private async sentNotifications(
-    message: ManualScheduledMessage,
+    message: ManualScheduledMessage | AutoScheduledMessage,
     recipients: ParticipantShort[],
   ) {
-    console.log('Test notification');
-    // Sent message to each recipient
-    console.log('Message', message.text);
-
+    // Counter for checking is all messages has been sent or not
     let counter = 0;
+    // Sent message to each recipient
     for (const recipient of recipients) {
       const sentResult = await this.sentMessageToUser(recipient.tg.id, message);
       if (sentResult) counter += 1;
@@ -84,6 +74,8 @@ class Scheduler {
 
     if (counter !== recipients.length) {
       console.log('Warning: Not all messages has been sent!');
+    } else {
+      console.log(`${counter} messages successfully sent!`);
     }
 
     // Mark notification as sent in DB
@@ -94,9 +86,7 @@ class Scheduler {
     tgId: number,
     message: ManualScheduledMessage | AutoScheduledMessage,
   ): Promise<boolean> {
-    const result = await this.bot.telegram.sendMessage(tgId, message.text);
-    console.log('Message sent result', result);
-    console.log('Sent to:', tgId);
+    await this.bot.telegram.sendMessage(tgId, message.text);
 
     return true;
   }
