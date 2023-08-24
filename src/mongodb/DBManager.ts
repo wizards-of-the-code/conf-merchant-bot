@@ -70,11 +70,14 @@ class DBManager {
 
   /** Get all `active` events from the database */
   async getEventsWithParticipants(): Promise<EventWithParticipants[]> {
+    // TODO: Add eventId array to filter only needed events
     const arr: EventWithParticipants[] = [];
 
     console.log('hit', new Date());
 
-    if (this.instance) {
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
       const collection = this.instance.collection<Event>('events');
       const cursor = collection.aggregate(
         [
