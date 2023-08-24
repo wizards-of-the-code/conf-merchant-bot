@@ -1,6 +1,6 @@
 import cron, { ScheduledTask } from 'node-cron';
 import DBManager from './mongodb/DBManager';
-import { EventWithParticipants, ManualScheduledMessage } from './types';
+import { EventWithParticipants, ManualScheduledMessage, ParticipantShort } from './types';
 
 class Scheduler {
   tasks: ScheduledTask[];
@@ -18,21 +18,32 @@ class Scheduler {
     //   // Every day check DB for SCHEDULED messages
     //   const messages: AutoScheduledMessage[] = this.dbManager.getAutoMessages();
     // });
-    console.log('tasks', cron.getTasks());
 
-    const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
+    const minutelyTask: ScheduledTask = cron.schedule('*/30 * * * * *', async () => {
       // Every minute check DB for changes ragarding active MANUAL messages
       const messages: ManualScheduledMessage[] = await this.dbManager.getManualNotifications();
 
+      console.log('messages', messages);
       if (messages.length > 0) {
         // Filter ready for sending messages
         const toSentArr = messages.filter((message) => message.datetime_to_send <= new Date());
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
-        console.log('Active events:', events.length);
-
-        // TODO: Find out how to get normal ObjectId instead of new ObjectId(...) in events
+        console.log('Active events:', events[0].participants);
 
         // TODO: Write an algorithm to sent messages to event participants
+        console.log('toSentArr', toSentArr);
+        // Take toSentArray
+        for (const message of toSentArr) {
+          // Find event object
+          const recipients = events.find((event) => (
+            event._id.toString() === message.event_id.toString()
+          ))?.participants;
+          console.log('recipients', recipients);
+
+          if (recipients && recipients.length > 0) {
+            await this.sentNotifications(message, recipients);
+          }
+        }
 
         // if (toSentArr.length > 0) {
         //   await this.sentNotifications(toSentArr);
@@ -49,17 +60,19 @@ class Scheduler {
   }
 
   private async sentNotifications(
-    messages: ManualScheduledMessage[],
+    message: ManualScheduledMessage,
+    recipients: ParticipantShort[],
   ) {
-    console.log('Sent notifications');
-    // Get all events with participants included
-    const full = this.dbManager.getEventsWithParticipants();
-    // Sent message to a participants
-    console.log(messages);
-    console.log(full);
+    console.log('Test notification');
+    // Sent message to each recipient
+    console.log('Message', message.text);
+
+    for (const recipient of recipients) {
+      console.log('Sent to:', recipient.tg.id);
+    }
 
     // Mark notification as sent in DB
-    // this.dbManager.markNotificationAsSent();
+    await this.dbManager.markNotificationAsSent();
   }
 }
 

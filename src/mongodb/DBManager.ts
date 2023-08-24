@@ -90,8 +90,7 @@ class DBManager {
               pipeline: [
                 {
                   $project: {
-                    tg_id: 1,
-                    tg_first_name: 1,
+                    tg: 1,
                   },
                 },
               ],
@@ -253,8 +252,11 @@ class DBManager {
       {
         id: participant.tg.id,
         name: participant.tg.first_name,
+        id: participant.tg.id,
+        name: participant.tg.first_name,
       },
       statuses.EVENT_UPDATE,
+      `To event ${eventId} added participant @${participant.tg.first_name}`,
       `To event ${eventId} added participant @${participant.tg.first_name}`,
     );
 
@@ -293,8 +295,11 @@ class DBManager {
       {
         id: participant.tg.id,
         name: participant.tg.first_name,
+        id: participant.tg.id,
+        name: participant.tg.first_name,
       },
       statuses.PARTICIPANT_UPDATE,
+      `Participant @${participant.tg.first_name} added to event: ${eventId}`,
       `Participant @${participant.tg.first_name} added to event: ${eventId}`,
     );
 
@@ -415,6 +420,15 @@ class DBManager {
     }
 
     return arr;
+  }
+
+  async markNotificationAsSent(): Promise<void> {
+    console.log('DB updated!');
+    if (this.instance) {
+      /* eslint @typescript-eslint/no-unused-vars: 0 */
+      const collection = this.instance.collection<ManualScheduledMessage>('notifications');
+      // console.log(collection);
+    }
   }
 
   /* eslint max-len: 0 */

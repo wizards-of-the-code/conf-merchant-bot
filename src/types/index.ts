@@ -33,10 +33,7 @@ export type EventWithParticipants = {
   currency: string;
   tg_channel: string;
   is_active: boolean;
-  participants: {
-    tg_id: number,
-    tg_first_name: string
-  }[];
+  participants: ParticipantShort[];
 };
 
 export type Location = {
@@ -57,6 +54,14 @@ export type Participant = {
   email?: string;
   tg: TelegramUser;
   events: ParticipantEventDetails[];
+};
+
+export type ParticipantShort = {
+  tg: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+  }
 };
 
 export type Speaker = {
@@ -102,7 +107,7 @@ export type ScheduledMessage = {
   is_active: boolean;
   event_id: ObjectId;
   type: 'manual' | 'auto';
-  message: string;
+  text: string;
   photos: string[];
   actions: string[];
   sent: Date | null;
