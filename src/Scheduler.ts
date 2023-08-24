@@ -41,6 +41,10 @@ class Scheduler {
           console.log('recipients', recipients);
 
           if (recipients && recipients.length > 0) {
+            /* eslint-disable no-await-in-loop --
+            * The general idea to wait until each message will be sent
+            * until next message executes
+            */
             await this.sentNotifications(message, recipients);
           }
         }

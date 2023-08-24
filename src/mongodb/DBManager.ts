@@ -321,6 +321,21 @@ class DBManager {
     return messages;
   }
 
+  async addSponsor(user: Sponsor): Promise<boolean> {
+    const sponsors = await this.getSponsors();
+
+    const isAlreadySponsor = sponsors.find(
+      (sponsor) => sponsor.tg.id === user.tg.id,
+    );
+
+    if (isAlreadySponsor) {
+      return false;
+    }
+
+    this.insertOne('sponsors', user);
+    return true;
+  }
+
   // LOGGER METHODS
 
   /** Add a new participant.
