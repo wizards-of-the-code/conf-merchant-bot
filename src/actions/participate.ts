@@ -2,12 +2,13 @@ import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
 import { Participant, TelegramUser } from '../types';
 import TelegramBot from '../TelegramBot';
+import parseActionParam from '../utils/parseActionParam';
 
 const participate = async (bot: TelegramBot) => {
   bot.action(/action_participate_/, async (ctx) => {
     // Get role from actionString
     const actionString = ctx.match.input;
-    const role: string = actionString.slice(actionString.lastIndexOf('_') + 1);
+    const role: string = parseActionParam(actionString);
     const eventId = ctx.session.selectedConf!._id;
 
     // TODO: Check if event exists
