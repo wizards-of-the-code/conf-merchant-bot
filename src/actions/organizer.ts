@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
+import { Participant, ParticipantEventDetails } from '../types';
 import TelegramBot from '../TelegramBot';
 import addParticipant from './addParticipant';
 

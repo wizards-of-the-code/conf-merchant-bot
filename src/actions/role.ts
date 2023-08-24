@@ -8,7 +8,6 @@ const participantRole = async (bot: TelegramBot) => {
     const actionString = ctx.match.input;
     const eventId: ObjectId = new ObjectId(actionString.slice(actionString.lastIndexOf('_') + 1));
     const event = await bot.dbManager.getEventById(eventId);
-    ctx.session.selectedConf = event;
     ctx.reply('Выберите свою роль на мероприятии', Markup.inlineKeyboard(
       [
           [Markup.button.callback('Организатор', `organizer_${eventId}`)],
