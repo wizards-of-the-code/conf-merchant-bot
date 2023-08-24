@@ -388,7 +388,7 @@ class DBManager {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<ManualScheduledMessage>('notifications');
-      const cursor = collection.find({ is_active: true, type: 'manual' });
+      const cursor = collection.find({ is_active: true, type: 'manual', sent: null });
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
@@ -398,13 +398,22 @@ class DBManager {
     return arr;
   }
 
-  async markNotificationAsSent(): Promise<void> {
-    console.log('DB updated!');
-    if (this.instance) {
+  async markNotificationAsSent(
+    messageId: ObjectId,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
       /* eslint @typescript-eslint/no-unused-vars: 0 */
       const collection = this.instance.collection<ManualScheduledMessage>('notifications');
       // console.log(collection);
+      result = await collection
+        .updateOne({ _id: messageId }, { sent: new Date() });
     }
+
+    return result;
   }
 
   /* eslint max-len: 0 */

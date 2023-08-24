@@ -40,7 +40,6 @@ class Scheduler {
           message.datetime_to_send <= new Date()
           && message.sent === null));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
-        console.log('Active events:', events[0].participants);
 
         // TODO: Write an algorithm to sent messages to event participants
         console.log('toSentArr', toSentArr);
@@ -50,7 +49,6 @@ class Scheduler {
           const recipients = events.find((event) => (
             event._id.toString() === message.event_id.toString()
           ))?.participants;
-          console.log('recipients', recipients);
 
           if (recipients && recipients.length > 0) {
             /* eslint-disable no-await-in-loop --
@@ -60,15 +58,10 @@ class Scheduler {
             await this.sentNotifications(message, recipients);
           }
         }
-
-        // if (toSentArr.length > 0) {
-        //   await this.sentNotifications(toSentArr);
-        // }
       }
     });
 
     this.tasks.push(minutelyTask);
-    // this.bot.telegram.sendMessage(214955237, "Отправлено по расписанию");
 
     // Enable graceful stop
     process.prependOnceListener('SIGINT', () => this.tasks.forEach((task) => task.stop()));
@@ -94,7 +87,7 @@ class Scheduler {
     }
 
     // Mark notification as sent in DB
-    await this.dbManager.markNotificationAsSent();
+    await this.dbManager.markNotificationAsSent(message._id);
   }
 
   private async sentMessageToUser(
