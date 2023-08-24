@@ -9,7 +9,6 @@ import {
   Participant,
   Speaker,
   ScheduleItem,
-
   ParticipantEventDetails,
   LogEntry,
   TelegramUser,
@@ -17,6 +16,7 @@ import {
   AutoScheduledMessage,
   ManualScheduledMessage,
   EventWithParticipants,
+  Sponsor,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -220,7 +220,7 @@ class DBManager {
       await this.logToDB(
         {
           id: participant.tg.id,
-          name: participant.tg.first_name,
+          first_name: participant.tg.first_name,
         },
         statuses.NEW_PARTICIPANT,
         `New participant @${participant.tg.first_name} added`,
@@ -251,12 +251,9 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
-        name: participant.tg.first_name,
-        id: participant.tg.id,
-        name: participant.tg.first_name,
+        first_name: participant.tg.first_name,
       },
       statuses.EVENT_UPDATE,
-      `To event ${eventId} added participant @${participant.tg.first_name}`,
       `To event ${eventId} added participant @${participant.tg.first_name}`,
     );
 
@@ -270,7 +267,7 @@ class DBManager {
    */
   async addEventDetailsToParticipant(
     eventId: ObjectId,
-    participantId: ObjectId,
+    participant: Participant,
     role: string,
   ): Promise<UpdateResult> {
     let result: UpdateResult;
@@ -294,50 +291,14 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
-        name: participant.tg.first_name,
-        id: participant.tg.id,
-        name: participant.tg.first_name,
+        first_name: participant.tg.first_name,
       },
       statuses.PARTICIPANT_UPDATE,
-      `Participant @${participant.tg.first_name} added to event: ${eventId}`,
       `Participant @${participant.tg.first_name} added to event: ${eventId}`,
     );
 
     return result;
   }
-
-  /** Get messages array from DB.
-   * @param {string} [messageName] Name of the message entry in DB.
-   * @returns {string[]} String array of messages.
-   */
-  async getMessagesArray(messageName: string): Promise<string[]> {
-    const messages: string[] = [];
-
-    if (!this.instance) {
-      throw new Error('No DB instance.');
-    } else {
-      const collection = this.instance.collection<Message>('messages');
-      const msg = await collection.findOne<Message>({ name: messageName });
-
-      if (msg && msg?.value.length > 0) {
-        messages.push(...msg.value);
-      }
-    }
-
-    // Log event to DB
-    await this.logToDB(
-      {
-        id: participant.tg_id,
-        name: participant.tg_first_name,
-      },
-      statuses.PARTICIPANT_UPDATE,
-      `Participant @${participant.tg_first_name} added to event: ${eventId}`,
-    );
-
-    return messages;
-  }
-
-  // LOGGER METHODS
 
   /** Get messages array from DB.
    * @param {string} [messageName] Name of the message entry in DB.
