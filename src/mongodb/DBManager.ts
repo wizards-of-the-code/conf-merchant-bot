@@ -5,11 +5,7 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-<<<<<<< HEAD
-  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser, Message,
-=======
-  Event, Participant, Speaker, ScheduleItem, Sponsor
->>>>>>> 7985155 (feat: added sponsorship)
+  Event, Participant, Speaker, ScheduleItem, ParticipantEventDetails, LogEntry, TGUser, Message, Sponsor
 } from '../types';
 import { statuses } from '../constants';
 
@@ -67,7 +63,7 @@ class DBManager {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<Participant>('participants');
-      return collection.findOne<Participant>({ tg_id: tgId });
+      return collection.findOne<Participant>({ 'tg.id': tgId });
     }
   }
 
@@ -169,11 +165,11 @@ class DBManager {
       // Log event to DB
       await this.logToDB(
         {
-          id: participant.tg_id,
-          name: participant.tg_first_name,
+          id: participant.tg.id,
+          name: participant.tg.first_name,
         },
         statuses.NEW_PARTICIPANT,
-        `New participant @${participant.tg_first_name} added`,
+        `New participant @${participant.tg.first_name} added`,
       );
 
       return result.insertedId;
@@ -200,11 +196,11 @@ class DBManager {
     // Log event to DB
     await this.logToDB(
       {
-        id: participant.tg_id,
-        name: participant.tg_first_name,
+        id: participant.tg.id,
+        name: participant.tg.first_name,
       },
       statuses.EVENT_UPDATE,
-      `To event ${eventId} added participant @${participant.tg_first_name}`,
+      `To event ${eventId} added participant @${participant.tg.first_name}`,
     );
 
     return result;
@@ -218,6 +214,7 @@ class DBManager {
   async addEventDetailsToParticipant(
     eventId: ObjectId,
     participant: Participant,
+    role: string,
   ): Promise<UpdateResult> {
     let result: UpdateResult;
 
@@ -229,6 +226,7 @@ class DBManager {
       const eventDetails: ParticipantEventDetails = {
         event_id: eventId,
         is_payed: false,
+        role: role,
       };
 
       result = await collection
@@ -238,11 +236,11 @@ class DBManager {
     // Log event to DB
     await this.logToDB(
       {
-        id: participant.tg_id,
-        name: participant.tg_first_name,
+        id: participant.tg.id,
+        name: participant.tg.first_name,
       },
       statuses.PARTICIPANT_UPDATE,
-      `Participant @${participant.tg_first_name} added to event: ${eventId}`,
+      `Participant @${participant.tg.first_name} added to event: ${eventId}`,
     );
 
     return result;
@@ -297,7 +295,7 @@ class DBManager {
     const sponsors = await this.getSponsors();
 
     const isAlreadySponsor = sponsors.find(
-      (sponsor) => sponsor.tg_id === user.tg_id,
+      (sponsor) => sponsor.tg.id === user.tg.id,
     );
 
     if (isAlreadySponsor) {

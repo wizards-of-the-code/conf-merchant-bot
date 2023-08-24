@@ -1,15 +1,18 @@
 import { Markup } from 'telegraf';
-import { Sponsor } from "../types";
+import { Sponsor, TelegramUser } from "../types";
 import TelegramBot from "../TelegramBot";
 import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
 
 const sponsorship = async (bot: TelegramBot) => {
     bot.action('action_become_sponsor', async (ctx) => {
         if (ctx.from) {
+            const user: TelegramUser = {
+                id: ctx.from?.id,
+                first_name: ctx.from?.first_name,
+                last_name: ctx.from?.last_name,
+            };
             const sponsor: Sponsor = {
-                tg_id: ctx.from?.id,
-                tg_first_name: ctx.from?.first_name,
-                tg_last_name: ctx.from?.last_name,
+                tg: user,
                 email: '',
                 donation: '',
             }

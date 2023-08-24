@@ -28,7 +28,7 @@ class Scheduler {
         const eventsCursor = eventsCollection.find();
 
         for await (const participant of participantsCursor) {
-          participansId.add(participant.tg_id);
+          participansId.add(participant.tg.id);
         }
 
         for await (const event of eventsCursor) {
