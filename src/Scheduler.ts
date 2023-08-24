@@ -1,12 +1,22 @@
 import cron, { ScheduledTask } from 'node-cron';
 import DBManager from './mongodb/DBManager';
-import { EventWithParticipants, ManualScheduledMessage, ParticipantShort } from './types';
+import {
+  AutoScheduledMessage, EventWithParticipants, ManualScheduledMessage, ParticipantShort,
+} from './types';
+import TelegramBot from './TelegramBot';
 
 class Scheduler {
   tasks: ScheduledTask[];
 
-  constructor(private readonly cronExpression: string, private readonly dbManager: DBManager) {
+  bot: TelegramBot;
+
+  constructor(
+    private readonly cronExpression: string,
+    private readonly dbManager: DBManager,
+    bot: TelegramBot,
+  ) {
     this.tasks = [];
+    this.bot = bot;
   }
 
   async init() {
@@ -71,12 +81,29 @@ class Scheduler {
     // Sent message to each recipient
     console.log('Message', message.text);
 
+    let counter = 0;
     for (const recipient of recipients) {
-      console.log('Sent to:', recipient.tg.id);
+      const sentResult = await this.sentMessageToUser(recipient.tg.id, message);
+      if (sentResult) counter += 1;
+    }
+
+    if (counter !== recipients.length) {
+      console.log('Warning: Not all messages has been sent!');
     }
 
     // Mark notification as sent in DB
     await this.dbManager.markNotificationAsSent();
+  }
+
+  private async sentMessageToUser(
+    tgId: number,
+    message: ManualScheduledMessage | AutoScheduledMessage,
+  ): Promise<boolean> {
+    const result = await this.bot.telegram.sendMessage(tgId, message.text);
+    console.log('Message sent result', result);
+    console.log('Sent to:', tgId);
+
+    return true;
   }
 }
 
