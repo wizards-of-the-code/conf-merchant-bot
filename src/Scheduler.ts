@@ -1,8 +1,6 @@
 import cron, { ScheduledTask } from 'node-cron';
 import DBManager from './mongodb/DBManager';
-import {
-  AutoScheduledMessage, EventWithParticipants, ManualScheduledMessage, ParticipantShort,
-} from './types';
+import { ScheduledMessage, EventWithParticipants, ParticipantShort } from './types';
 import TelegramBot from './TelegramBot';
 
 class Scheduler {
@@ -26,7 +24,7 @@ class Scheduler {
 
     const minutelyTask: ScheduledTask = cron.schedule('*/30 * * * * *', async () => {
       // Every minute check DB for changes ragarding active MANUAL messages
-      const messages: ManualScheduledMessage[] = await this.dbManager.getManualNotifications();
+      const messages: ScheduledMessage[] = await this.dbManager.getScheduledNotifications();
 
       if (messages.length > 0) {
         // Filter ready for sending messages
@@ -61,7 +59,7 @@ class Scheduler {
   }
 
   private async sentNotifications(
-    message: ManualScheduledMessage | AutoScheduledMessage,
+    message: ScheduledMessage,
     recipients: ParticipantShort[],
   ) {
     // Counter for checking is all messages has been sent or not
@@ -84,7 +82,7 @@ class Scheduler {
 
   private async sentMessageToUser(
     tgId: number,
-    message: ManualScheduledMessage | AutoScheduledMessage,
+    message: ScheduledMessage,
   ): Promise<boolean> {
     await this.bot.telegram.sendMessage(tgId, message.text);
 

@@ -13,8 +13,7 @@ import {
   LogEntry,
   TelegramUser,
   Message,
-  AutoScheduledMessage,
-  ManualScheduledMessage,
+  ScheduledMessage,
   EventWithParticipants,
   Sponsor,
 } from '../types';
@@ -48,7 +47,6 @@ class DBManager {
       console.log('Connected to MongoDB');
     } catch (error) {
       console.error('Error connecting to MongoDB:', error);
-      /* eslint no-console: 1 */
     }
   }
 
@@ -338,7 +336,7 @@ class DBManager {
 
   // LOGGER METHODS
 
-  /** Add a new participant.
+  /** Creating a log message in the DB.
    * @param {TGUser} [initiator] Participant to add.
    * @param {string} [event] Logging event.
    * @param {string} [message] Optional log message.
@@ -362,14 +360,17 @@ class DBManager {
 
   // SCHEDULER METHODS
 
-  async getAutoNotifications(): Promise<AutoScheduledMessage[]> {
-    const arr: AutoScheduledMessage[] = [];
+  /** Get all Scheduled Messages from DB which are ACTIVE and NOT SENT yet.
+   * @returns {ScheduledMessage[]} Array of ScheduledMessages.
+   */
+  async getScheduledNotifications(): Promise<ScheduledMessage[]> {
+    const arr: ScheduledMessage[] = [];
 
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {
-      const collection = this.instance.collection<AutoScheduledMessage>('notifications');
-      const cursor = collection.find({ is_active: true, type: 'auto' });
+      const collection = this.instance.collection<ScheduledMessage>('notifications');
+      const cursor = collection.find({ is_active: true, sent: null });
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
@@ -379,25 +380,10 @@ class DBManager {
     return arr;
   }
 
-  // }
-
-  async getManualNotifications(): Promise<ManualScheduledMessage[]> {
-    const arr: ManualScheduledMessage[] = [];
-
-    if (!this.instance) {
-      throw new Error('No DB instance.');
-    } else {
-      const collection = this.instance.collection<ManualScheduledMessage>('notifications');
-      const cursor = collection.find({ is_active: true, type: 'manual', sent: null });
-
-      for await (const doc of cursor) {
-        arr.push({ ...doc });
-      }
-    }
-
-    return arr;
-  }
-
+  /** Mark Scheduled Message as SENT in the DB.
+   * @param {ObjectId} [messageId] Scheduled Message ID
+   * @returns {boolean} True - marked successfully, False - marking failed.
+   */
   async markNotificationAsSent(
     messageId: ObjectId,
   ): Promise<UpdateResult> {
@@ -407,7 +393,7 @@ class DBManager {
       throw new Error('No DB instance.');
     } else {
       /* eslint @typescript-eslint/no-unused-vars: 0 */
-      const collection = this.instance.collection<ManualScheduledMessage>('notifications');
+      const collection = this.instance.collection<ScheduledMessage>('notifications');
       // console.log(collection);
       result = await collection
         .updateOne({ _id: messageId }, { $set: { sent: new Date() } });
@@ -415,24 +401,6 @@ class DBManager {
 
     return result;
   }
-
-  /* eslint max-len: 0 */
-  // async getScheduledNotifications(type: 'manual' | 'auto'): Promise<ManualScheduledMessage[] | AutoScheduledMessage[]> {
-  //   const arr: ManualScheduledMessage[] | AutoScheduledMessage[] = [];
-
-  //   if (!this.instance) {
-  //     throw new Error('No DB instance.');
-  //   } else {
-  //     const collection = this.instance.collection<ManualScheduledMessage | AutoScheduledMessage>('notifications');
-  //     const cursor = collection.find({ is_active: true, type });
-
-  //     for await (const doc of cursor) {
-  //       arr.push({ ...doc });
-  //     }
-  //   }
-
-  //   return arr;
-  // }
 
   // PRIVATE CLASS METHODS
 

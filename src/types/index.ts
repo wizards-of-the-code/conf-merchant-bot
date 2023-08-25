@@ -108,15 +108,10 @@ export type ScheduledMessage = {
   event_id: ObjectId;
   type: 'manual' | 'auto';
   text: string;
+  links: string[];
   photos: string[];
   actions: string[];
   sent: Date | null;
-};
-
-export type ManualScheduledMessage = ScheduledMessage & {
   datetime_to_send: Date;
-};
-
-export type AutoScheduledMessage = ScheduledMessage & {
-  days_before_conf: number;
+  days_before_conf?: number;
 };
