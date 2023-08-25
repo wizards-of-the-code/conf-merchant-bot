@@ -5,10 +5,6 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
-<<<<<<< HEAD
-  Event, Participant, Speaker, ScheduleItem,
-  ParticipantEventDetails, LogEntry, TelegramUser, Message, Sponsor,
-=======
   Event,
   Participant,
   Speaker,
@@ -20,7 +16,6 @@ import {
   ScheduledMessage,
   EventWithParticipants,
   Sponsor,
->>>>>>> dev
 } from '../types';
 import { statuses } from '../constants';
 
@@ -342,13 +337,8 @@ class DBManager {
 
   // LOGGER METHODS
 
-<<<<<<< HEAD
   /** Add a new participant.
    * @param {TelegramUser} [initiator] Participant to add.
-=======
-  /** Creating a log message in the DB.
-   * @param {TGUser} [initiator] Participant to add.
->>>>>>> dev
    * @param {string} [event] Logging event.
    * @param {string} [message] Optional log message.
    * @returns {boolean} True - logged successfully, False - logging failed.

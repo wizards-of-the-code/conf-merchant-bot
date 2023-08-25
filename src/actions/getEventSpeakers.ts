@@ -6,7 +6,7 @@ import { Event, Speaker } from '../types';
 
 const getEventSpeakers = async (bot: TelegramBot) => {
   bot.action(/action_get_speakers_/, async (ctx) => {
-    const event: Event | undefined = ctx.session.selectedConf;
+    const event: Event | null = ctx.session.selectedEvent;
 
     if (!event) {
       // TODO: Implement logs and store this errors there
