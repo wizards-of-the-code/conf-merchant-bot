@@ -1,7 +1,10 @@
 import cron, { ScheduledTask } from 'node-cron';
+import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import { Markup } from 'telegraf';
 import DBManager from './mongodb/DBManager';
 import { ScheduledMessage, EventWithParticipants, ParticipantShort } from './types';
 import TelegramBot from './TelegramBot';
+import { isValidUrl } from './utils/isValidUrl';
 
 class Scheduler {
   tasks: ScheduledTask[];
@@ -62,11 +65,26 @@ class Scheduler {
     message: ScheduledMessage,
     recipients: ParticipantShort[],
   ) {
+    // Construct telegram message
+    const buttonsArray: (
+      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+    )[][] = [];
+
+    // Add links
+    if (message.links.length > 0) {
+      for (const link of message.links) {
+        // Mandatory link validation - in other case bot will crash
+        if (await isValidUrl(link.url)) {
+          buttonsArray.push([Markup.button.url(link.name, link.url)]);
+        }
+      }
+    }
+
     // Counter for checking is all messages has been sent or not
     let counter = 0;
     // Sent message to each recipient
     for (const recipient of recipients) {
-      const sentResult = await this.sentMessageToUser(recipient.tg.id, message);
+      const sentResult = await this.sentMessageToUser(recipient.tg.id, message, buttonsArray);
       if (sentResult) counter += 1;
     }
 
@@ -83,8 +101,11 @@ class Scheduler {
   private async sentMessageToUser(
     tgId: number,
     message: ScheduledMessage,
+    buttonsArray: (
+      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+    )[][],
   ): Promise<boolean> {
-    await this.bot.telegram.sendMessage(tgId, message.text);
+    await this.bot.telegram.sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
 
     return true;
   }

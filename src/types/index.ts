@@ -108,10 +108,15 @@ export type ScheduledMessage = {
   event_id: ObjectId;
   type: 'manual' | 'auto';
   text: string;
-  links: string[];
+  links: MessageButton[];
   photos: string[];
   actions: string[];
   sent: Date | null;
   datetime_to_send: Date;
   days_before_conf?: number;
+};
+
+export type MessageButton = {
+  name: string;
+  url: string;
 };

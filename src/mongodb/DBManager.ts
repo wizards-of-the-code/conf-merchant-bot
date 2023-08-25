@@ -71,8 +71,6 @@ class DBManager {
     // TODO: Add eventId array to filter only needed events
     const arr: EventWithParticipants[] = [];
 
-    console.log('hit', new Date());
-
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {
@@ -394,7 +392,6 @@ class DBManager {
     } else {
       /* eslint @typescript-eslint/no-unused-vars: 0 */
       const collection = this.instance.collection<ScheduledMessage>('notifications');
-      // console.log(collection);
       result = await collection
         .updateOne({ _id: messageId }, { $set: { sent: new Date() } });
     }
