@@ -21,6 +21,21 @@ export type TelegramUser = {
   last_name?: string;
 };
 
+export type EventWithParticipants = {
+  _id: ObjectId;
+  name: string;
+  location: Location;
+  description: string;
+  tickets_link: string;
+  link: string;
+  datetime: string;
+  current_price: string;
+  currency: string;
+  tg_channel: string;
+  is_active: boolean;
+  participants: ParticipantShort[];
+};
+
 export type Location = {
   country: string;
   city: string;
@@ -39,6 +54,14 @@ export type Participant = {
   email?: string;
   tg: TelegramUser;
   events: ParticipantEventDetails[];
+};
+
+export type ParticipantShort = {
+  tg: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+  }
 };
 
 export type Speaker = {
@@ -68,6 +91,10 @@ export type ScheduleItem = {
 export type LogEntry = {
   _id?: ObjectId;
   datetime: Date;
+<<<<<<< HEAD
+=======
+  initiator: TelegramUser;
+>>>>>>> dev
   event: string;
   message?: string;
   initiator: TelegramUser;
@@ -77,4 +104,23 @@ export type Message = {
   _id?: ObjectId;
   name: string;
   value: string[];
+};
+
+export type ScheduledMessage = {
+  _id: ObjectId;
+  is_active: boolean;
+  event_id: ObjectId;
+  type: 'manual' | 'auto';
+  text: string;
+  links: MessageButton[];
+  photos: string[];
+  actions: string[];
+  sent: Date | null;
+  datetime_to_send: Date;
+  days_before_conf?: number;
+};
+
+export type MessageButton = {
+  name: string;
+  url: string;
 };

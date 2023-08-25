@@ -31,7 +31,11 @@ export const sendEventInfoMessage = async (
     // Save event to current session context
     ctx.session.selectedEvent = event;
 
-    // ctx.deleteMessage();
+    try {
+      ctx.deleteMessage();
+    } catch (e) {
+      console.log('Error when trying to delete old message');
+    }
 
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton

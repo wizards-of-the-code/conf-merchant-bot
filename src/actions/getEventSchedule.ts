@@ -4,7 +4,7 @@ import { Event, ScheduleItem } from '../types';
 
 const getEventSchedule = async (bot: TelegramBot) => {
   bot.action(/action_get_schedule_/, async (ctx) => {
-    const event: Event | undefined = ctx.session.selectedConf;
+    const event: Event | null = ctx.session.selectedEvent;
 
     if (!event) {
       // TODO: Implement logs and store this errors there

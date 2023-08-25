@@ -5,8 +5,22 @@ import {
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
 import {
+<<<<<<< HEAD
   Event, Participant, Speaker, ScheduleItem,
   ParticipantEventDetails, LogEntry, TelegramUser, Message, Sponsor,
+=======
+  Event,
+  Participant,
+  Speaker,
+  ScheduleItem,
+  ParticipantEventDetails,
+  LogEntry,
+  TelegramUser,
+  Message,
+  ScheduledMessage,
+  EventWithParticipants,
+  Sponsor,
+>>>>>>> dev
 } from '../types';
 import { statuses } from '../constants';
 
@@ -38,7 +52,6 @@ class DBManager {
       console.log('Connected to MongoDB');
     } catch (error) {
       console.error('Error connecting to MongoDB:', error);
-      /* eslint no-console: 1 */
     }
   }
 
@@ -52,6 +65,51 @@ class DBManager {
 
       for await (const doc of cursor) {
         arr.push({ ...doc });
+      }
+    }
+
+    return arr;
+  }
+
+  /** Get all `active` events from the database */
+  async getEventsWithParticipants(): Promise<EventWithParticipants[]> {
+    // TODO: Add eventId array to filter only needed events
+    const arr: EventWithParticipants[] = [];
+
+    // For debugging purposes
+    // console.log('hit', new Date());
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Event>('events');
+      const cursor = collection.aggregate(
+        [
+          {
+            $lookup: {
+              from: 'participants',
+              localField: 'participants',
+              foreignField: '_id',
+              as: 'participants',
+              pipeline: [
+                {
+                  $project: {
+                    tg: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $match: {
+              is_active: true,
+            },
+          },
+        ],
+      );
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc } as EventWithParticipants);
       }
     }
 
@@ -267,10 +325,30 @@ class DBManager {
     return messages;
   }
 
+  async addSponsor(user: Sponsor): Promise<boolean> {
+    const sponsors = await this.getSponsors();
+
+    const isAlreadySponsor = sponsors.find(
+      (sponsor) => sponsor.tg.id === user.tg.id,
+    );
+
+    if (isAlreadySponsor) {
+      return false;
+    }
+
+    this.insertOne('sponsors', user);
+    return true;
+  }
+
   // LOGGER METHODS
 
+<<<<<<< HEAD
   /** Add a new participant.
    * @param {TelegramUser} [initiator] Participant to add.
+=======
+  /** Creating a log message in the DB.
+   * @param {TGUser} [initiator] Participant to add.
+>>>>>>> dev
    * @param {string} [event] Logging event.
    * @param {string} [message] Optional log message.
    * @returns {boolean} True - logged successfully, False - logging failed.
@@ -291,19 +369,47 @@ class DBManager {
     return result;
   }
 
-  async addSponsor(user: Sponsor): Promise<boolean> {
-    const sponsors = await this.getSponsors();
+  // SCHEDULER METHODS
 
-    const isAlreadySponsor = sponsors.find(
-      (sponsor) => sponsor.tg.id === user.tg.id,
-    );
+  /** Get all Scheduled Messages from DB which are ACTIVE and NOT SENT yet.
+   * @returns {ScheduledMessage[]} Array of ScheduledMessages.
+   */
+  async getScheduledNotifications(): Promise<ScheduledMessage[]> {
+    const arr: ScheduledMessage[] = [];
 
-    if (isAlreadySponsor) {
-      return false;
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<ScheduledMessage>('notifications');
+      const cursor = collection.find({ is_active: true, sent: null });
+
+      for await (const doc of cursor) {
+        arr.push({ ...doc });
+      }
     }
 
-    this.insertOne('sponsors', user);
-    return true;
+    return arr;
+  }
+
+  /** Mark Scheduled Message as SENT in the DB.
+   * @param {ObjectId} [messageId] Scheduled Message ID
+   * @returns {boolean} True - marked successfully, False - marking failed.
+   */
+  async markNotificationAsSent(
+    messageId: ObjectId,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      /* eslint @typescript-eslint/no-unused-vars: 0 */
+      const collection = this.instance.collection<ScheduledMessage>('notifications');
+      result = await collection
+        .updateOne({ _id: messageId }, { $set: { sent: new Date() } });
+    }
+
+    return result;
   }
 
   // async getCollectionData<T>(
