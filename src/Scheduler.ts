@@ -119,13 +119,12 @@ class Scheduler {
     photos: string[],
   ): Promise<boolean> {
     // Send photos if they exists
-    // TODO: Find out how to check is photo is valid link
+    // TODO: Find out how to check if photo has valid link
     if (photos.length > 0) {
       const mediaArray: any[] = [];
       for (const photo of photos) {
-        const ph: InputMediaPhoto = { type: 'photo', media: photo };
-        mediaArray.push(ph);
-        // await this.bot.telegram.sendPhoto(tgId, photo);
+        const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
+        mediaArray.push(inputPhoto);
       }
       const mediaGroup: MediaGroup = [...mediaArray];
       await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
