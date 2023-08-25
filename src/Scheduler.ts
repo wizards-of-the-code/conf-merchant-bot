@@ -1,6 +1,7 @@
 import cron, { ScheduledTask } from 'node-cron';
-import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import { InlineKeyboardButton, InputMediaPhoto } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
+import { MediaGroup } from 'telegraf/typings/telegram-types';
 import DBManager from './mongodb/DBManager';
 import { ScheduledMessage, EventWithParticipants, ParticipantShort } from './types';
 import TelegramBot from './TelegramBot';
@@ -69,6 +70,7 @@ class Scheduler {
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [];
+    let photos: string[] = [];
 
     // Add links
     if (message.links.length > 0) {
@@ -80,11 +82,21 @@ class Scheduler {
       }
     }
 
+    // Add photos
+    if (message.photos.length > 0) {
+      photos = message.photos;
+    }
+
     // Counter for checking is all messages has been sent or not
     let counter = 0;
     // Sent message to each recipient
     for (const recipient of recipients) {
-      const sentResult = await this.sentMessageToUser(recipient.tg.id, message, buttonsArray);
+      const sentResult = await this.sentMessageToUser(
+        recipient.tg.id,
+        message,
+        buttonsArray,
+        photos,
+      );
       if (sentResult) counter += 1;
     }
 
@@ -104,7 +116,22 @@ class Scheduler {
     buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
+    photos: string[],
   ): Promise<boolean> {
+    // Send photos if they exists
+    // TODO: Find out how to check is photo is valid link
+    if (photos.length > 0) {
+      const mediaArray: any[] = [];
+      for (const photo of photos) {
+        const ph: InputMediaPhoto = { type: 'photo', media: photo };
+        mediaArray.push(ph);
+        // await this.bot.telegram.sendPhoto(tgId, photo);
+      }
+      const mediaGroup: MediaGroup = [...mediaArray];
+      await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
+    }
+
+    // Send text with buttons
     const sendResult = await this.bot
       .telegram
       .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
