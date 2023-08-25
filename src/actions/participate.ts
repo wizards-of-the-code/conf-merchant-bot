@@ -13,6 +13,7 @@ const participate = async (bot: TelegramBot) => {
 
     // TODO: Check if event exists
     const event = await bot.dbManager.getEventById(new ObjectId(eventId));
+
     // Check if user if already in DB
     let participant: Participant | null = await bot.dbManager.getParticipant(ctx.from!.id);
     let participantId: ObjectId | undefined;

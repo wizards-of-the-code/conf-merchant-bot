@@ -4,8 +4,7 @@ import { Event } from '../types';
 import { IBotContext } from '../context/IBotContext';
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
-  const eventsArr: Event[] = await bot.dbManager.getEvents();
-
+  const eventsArr: Event[] = await bot.dbManager.getCollectionData('events', { is_active: true });
   try {
     ctx.deleteMessage();
   } catch (e) {

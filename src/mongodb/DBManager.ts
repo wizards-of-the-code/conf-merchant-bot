@@ -7,7 +7,6 @@ import { IConfigService } from '../config/ConfigService.interface';
 import {
   Event,
   Participant,
-  Speaker,
   ScheduleItem,
   ParticipantEventDetails,
   LogEntry,
@@ -50,20 +49,27 @@ class DBManager {
     }
   }
 
-  /** Get all `active` events from the database */
-  async getEvents(): Promise<Event[]> {
-    const arr: Event[] = [];
-
+  async getCollectionData<T>(
+    collectionName: string,
+    selectionCondition: any,
+  ): Promise<T[]> {
     if (this.instance) {
-      const collection = this.instance.collection<Event>('events');
-      const cursor = collection.find({ is_active: true });
-
-      for await (const doc of cursor) {
-        arr.push({ ...doc });
-      }
+      const collection = this.instance.collection(collectionName);
+      const result = await collection.find(selectionCondition).toArray();
+      return result as T[];
     }
+    return [];
+  }
 
-    return arr;
+  async getDocumentData<T>(
+    collectionName: string,
+    selectionCondition: any,
+  ): Promise<T> {
+    if (this.instance) {
+      const collection = this.instance.collection(collectionName);
+      return collection.findOne<T>(selectionCondition) as T;
+    }
+    throw new Error('Document not found.');
   }
 
   /** Get all `active` events from the database */
@@ -118,59 +124,6 @@ class DBManager {
       const collection = this.instance.collection<Participant>('participants');
       return collection.findOne<Participant>({ 'tg.id': tgId });
     }
-  }
-
-  /** Get all Participants from the database for specified Event
-   * @param {ObjectId} [eventId] - Event ID in DB
-  */
-  async getEventParticipants(eventId: ObjectId): Promise<Participant[]> {
-    const arr: Participant[] = [];
-
-    if (this.instance) {
-      const collection = this.instance.collection<Participant>('participants');
-      const cursor = collection.find({ _id: eventId });
-
-      for await (const doc of cursor) {
-        arr.push({ ...doc });
-      }
-    }
-
-    return arr;
-  }
-
-  async getSponsors(): Promise<Sponsor[]> {
-    if (!this.instance) {
-      return [];
-    }
-
-    const collection = this.instance.collection<Sponsor>('sponsors');
-    const itemsArray = collection.find({});
-
-    const fetchedItems: Sponsor[] = [];
-
-    for await (const item of itemsArray) {
-      fetchedItems.push(item);
-    }
-
-    return fetchedItems;
-  }
-
-  /** Get all Speakers from the database for specified Event
-   * @param {ObjectId} [eventId] - name of the Event in DB
-  */
-  async getEventSpeakers(eventId: ObjectId): Promise<Speaker[]> {
-    const arr: Speaker[] = [];
-
-    if (this.instance) {
-      const collection = this.instance.collection<Speaker>('speakers');
-      const cursor = collection.find({ event_id: eventId });
-
-      for await (const doc of cursor) {
-        arr.push({ ...doc });
-      }
-    }
-
-    return arr;
   }
 
   /** Get all Schedule items from the database for specified Event
@@ -321,7 +274,7 @@ class DBManager {
   }
 
   async addSponsor(user: Sponsor): Promise<boolean> {
-    const sponsors = await this.getSponsors();
+    const sponsors: Sponsor[] = await this.getCollectionData('sponsors', {});
 
     const isAlreadySponsor = sponsors.find(
       (sponsor) => sponsor.tg.id === user.tg.id,
@@ -401,18 +354,6 @@ class DBManager {
 
     return result;
   }
-
-  // async getCollectionData<T>(
-  //   collectionName: string,
-  //   selectionCondition: any,
-  // ): Promise<T[] | null> {
-  //   if (this.instance) {
-  //     const collection = this.instance.collection(collectionName);
-  //     const result = await collection.find(selectionCondition).toArray();
-  //     return result;
-  //   }
-  //   return null;
-  // }
 
   // PRIVATE CLASS METHODS
 

@@ -24,6 +24,7 @@ export const sendEventInfoMessage = async (
     }
     // Save event to current session context
     ctx.session.selectedEvent = event;
+    ctx.session.userId = ctx.from?.id;
 
     try {
       ctx.deleteMessage();
@@ -44,7 +45,7 @@ export const sendEventInfoMessage = async (
       buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
-    const speakers: Speaker[] = await bot.dbManager.getEventSpeakers(eventId!);
+    const speakers: Speaker[] = await bot.dbManager.getCollectionData('speakers', { event_id: eventId });
     // TODO: Change unshift to push later
     if (speakers.length > 0) {
       buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);

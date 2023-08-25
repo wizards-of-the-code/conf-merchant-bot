@@ -2,7 +2,7 @@ import { Context } from 'telegraf';
 import { Event } from '../types';
 
 export interface SessionData {
-  userId: number | null;
+  userId: number | undefined;
   selectedEvent: Event | null;
   role: string;
 }
