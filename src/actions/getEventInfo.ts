@@ -2,7 +2,7 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import { Event, ScheduleItem, Speaker } from '../types';
+import { ScheduleItem, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
@@ -13,21 +13,15 @@ export const sendEventInfoMessage = async (
   ctx: IBotContext,
   eventIdParam: string,
 ) => {
-  // Get action id from context
-  let eventId: ObjectId;
-  let event: Event | null = null;
   try {
-    eventId = new ObjectId(eventIdParam);
-    event = await bot.dbManager.getEventById(eventId);
-    ctx.session.selectedEvent = event;
-  } catch (e) {
-    console.log('Incorrect ID string, starting standard \\start sequence.');
-  }
+    const eventId: ObjectId = new ObjectId(eventIdParam);
+    const event = await bot.dbManager.getEventById(eventId);
 
-  if (!event) {
-    // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
-    sendStartMessage(bot, ctx);
-  } else {
+    if (!event) {
+      // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
+      sendStartMessage(bot, ctx);
+      return;
+    }
     // Save event to current session context
     ctx.session.selectedEvent = event;
 
@@ -81,14 +75,17 @@ export const sendEventInfoMessage = async (
     ];
 
     ctx.replyWithHTML(messageArray.join('\n\n'), Markup.inlineKeyboard(buttonsArray));
+  } catch (e) {
+    console.log('Incorrect ID string, starting standard \\start sequence.');
+    sendStartMessage(bot, ctx);
   }
 };
 
 const getEventInfo = async (bot: TelegramBot) => {
   bot.action(/action_get_info_/, async (ctx) => {
     const actionString = ctx.match.input;
-
-    sendEventInfoMessage(bot, ctx, actionString.slice(actionString.lastIndexOf('_') + 1));
+    const eventId = actionString.slice(actionString.lastIndexOf('_') + 1);
+    sendEventInfoMessage(bot, ctx, eventId);
   });
 };
 

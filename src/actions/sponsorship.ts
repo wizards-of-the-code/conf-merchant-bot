@@ -13,7 +13,6 @@ const sponsorship = async (bot: TelegramBot) => {
       };
       const sponsor: Sponsor = {
         tg: user,
-        email: '',
         donation: '',
       };
       const result: boolean = await bot.dbManager.addSponsor(sponsor);

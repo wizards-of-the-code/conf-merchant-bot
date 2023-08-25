@@ -2,7 +2,6 @@ import cron, { ScheduledTask } from 'node-cron';
 import { InlineKeyboardButton, InputMediaPhoto } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
 import { MediaGroup } from 'telegraf/typings/telegram-types';
-// import DBManager from './mongodb/DBManager';
 import DBManager from './mongodb/DBManager';
 import { ScheduledMessage, EventWithParticipants, ParticipantShort } from './types';
 import TelegramBot from './TelegramBot';

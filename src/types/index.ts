@@ -51,7 +51,6 @@ export type ParticipantEventDetails = {
 
 export type Participant = {
   _id?: ObjectId;
-  email?: string;
   tg: TelegramUser;
   events: ParticipantEventDetails[];
 };
@@ -75,7 +74,6 @@ export type Speaker = {
 
 export type Sponsor = {
   _id?: ObjectId;
-  email: string;
   donation: string;
   tg: TelegramUser;
 };
@@ -104,16 +102,16 @@ export type Message = {
 
 export type ScheduledMessage = {
   _id: ObjectId;
-  is_active: boolean;
   event_id: ObjectId;
-  type: 'manual' | 'auto';
+  is_active: boolean;
   text: string;
-  links: MessageButton[];
+  days_before_conf?: number;
   photos: string[];
   actions: string[];
   sent: Date | null;
   datetime_to_send: Date;
-  days_before_conf?: number;
+  type: 'manual' | 'auto';
+  links: MessageButton[];
 };
 
 export type MessageButton = {
