@@ -71,6 +71,9 @@ class DBManager {
     // TODO: Add eventId array to filter only needed events
     const arr: EventWithParticipants[] = [];
 
+    // For debugging purposes
+    // console.log('hit', new Date());
+
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {
