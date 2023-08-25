@@ -10,7 +10,7 @@ import participate from '../actions/participate';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
 import TelegramBot from '../TelegramBot';
-import { IBotContext } from '../context/BotContext.interface';
+import { IBotContext } from '../context/IBotContext';
 import { messages } from '../constants';
 import selectRole from '../actions/selectRole';
 

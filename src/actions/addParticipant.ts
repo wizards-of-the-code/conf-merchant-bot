@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { IBotContext } from '../context/BotContext.interface';
+import { IBotContext } from '../context/IBotContext';
 import { Participant, ParticipantEventDetails, TelegramUser } from '../types';
 
 export default async function addParticipant(

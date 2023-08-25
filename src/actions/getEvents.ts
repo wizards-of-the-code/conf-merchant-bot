@@ -1,7 +1,7 @@
 import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
-import { IBotContext } from '../context/BotContext.interface';
+import { IBotContext } from '../context/IBotContext';
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const eventsArr: Event[] = await bot.dbManager.getEvents();

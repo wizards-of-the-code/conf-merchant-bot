@@ -65,17 +65,12 @@ export type ScheduleItem = {
   title: string;
 };
 
-export type TGUser = {
-  id: number;
-  name: string;
-};
-
 export type LogEntry = {
   _id?: ObjectId;
   datetime: Date;
-  initiator: TGUser;
   event: string;
   message?: string;
+  initiator: TelegramUser;
 };
 
 export type Message = {

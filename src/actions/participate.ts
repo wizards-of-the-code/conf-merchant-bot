@@ -9,7 +9,7 @@ const participate = async (bot: TelegramBot) => {
     // Get role from actionString
     const actionString = ctx.match.input;
     const role: string = parseActionParam(actionString);
-    const eventId = ctx.session.selectedConf!._id;
+    const eventId = ctx.session.selectedEvent!._id;
 
     // TODO: Check if event exists
     const event = await bot.dbManager.getEventById(new ObjectId(eventId));

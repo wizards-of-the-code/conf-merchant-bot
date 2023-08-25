@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import { Event, ScheduleItem, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
-import { IBotContext } from '../context/BotContext.interface';
+import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
 import { sendStartMessage } from '../commands/StartCommand';
 
@@ -16,10 +16,10 @@ export const sendEventInfoMessage = async (
   // Get action id from context
   let eventId: ObjectId;
   let event: Event | null = null;
-
   try {
     eventId = new ObjectId(eventIdParam);
     event = await bot.dbManager.getEventById(eventId);
+    ctx.session.selectedEvent = event;
   } catch (e) {
     console.log('Incorrect ID string, starting standard \\start sequence.');
   }
@@ -29,7 +29,7 @@ export const sendEventInfoMessage = async (
     sendStartMessage(bot, ctx);
   } else {
     // Save event to current session context
-    ctx.session.selectedConf = event;
+    ctx.session.selectedEvent = event;
 
     // ctx.deleteMessage();
 

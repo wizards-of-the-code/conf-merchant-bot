@@ -1,6 +1,6 @@
 import { Telegraf } from 'telegraf';
 import { Db } from 'mongodb';
-import { IBotContext } from './context/BotContext.interface';
+import { IBotContext } from './context/IBotContext';
 import DBManager from './mongodb/DBManager';
 
 class TelegramBot extends Telegraf<IBotContext> {

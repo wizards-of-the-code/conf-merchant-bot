@@ -6,7 +6,7 @@ import {
 import { IConfigService } from '../config/ConfigService.interface';
 import {
   Event, Participant, Speaker, ScheduleItem,
-  ParticipantEventDetails, LogEntry, TGUser, Message, Sponsor,
+  ParticipantEventDetails, LogEntry, TelegramUser, Message, Sponsor,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -166,7 +166,7 @@ class DBManager {
       await this.logToDB(
         {
           id: participant.tg.id,
-          name: participant.tg.first_name,
+          first_name: participant.tg.first_name,
         },
         statuses.NEW_PARTICIPANT,
         `New participant @${participant.tg.first_name} added`,
@@ -197,7 +197,7 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
-        name: participant.tg.first_name,
+        first_name: participant.tg.first_name,
       },
       statuses.EVENT_UPDATE,
       `To event ${eventId} added participant @${participant.tg.first_name}`,
@@ -237,7 +237,7 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
-        name: participant.tg.first_name,
+        first_name: participant.tg.first_name,
       },
       statuses.PARTICIPANT_UPDATE,
       `Participant @${participant.tg.first_name} added to event: ${eventId}`,
@@ -270,13 +270,13 @@ class DBManager {
   // LOGGER METHODS
 
   /** Add a new participant.
-   * @param {TGUser} [initiator] Participant to add.
+   * @param {TelegramUser} [initiator] Participant to add.
    * @param {string} [event] Logging event.
    * @param {string} [message] Optional log message.
    * @returns {boolean} True - logged successfully, False - logging failed.
    */
   async logToDB(
-    initiator: TGUser,
+    initiator: TelegramUser,
     event: string,
     message?: string,
   ): Promise<boolean> {
@@ -305,6 +305,18 @@ class DBManager {
     this.insertOne('sponsors', user);
     return true;
   }
+
+  // async getCollectionData<T>(
+  //   collectionName: string,
+  //   selectionCondition: any,
+  // ): Promise<T[] | null> {
+  //   if (this.instance) {
+  //     const collection = this.instance.collection(collectionName);
+  //     const result = await collection.find(selectionCondition).toArray();
+  //     return result;
+  //   }
+  //   return null;
+  // }
 
   // PRIVATE CLASS METHODS
 
