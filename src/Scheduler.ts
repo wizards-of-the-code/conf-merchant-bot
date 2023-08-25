@@ -65,7 +65,7 @@ class Scheduler {
     message: ScheduledMessage,
     recipients: ParticipantShort[],
   ) {
-    // Construct telegram message
+    // Construct telegram message buttons
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [];
@@ -105,9 +105,14 @@ class Scheduler {
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
   ): Promise<boolean> {
-    await this.bot.telegram.sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+    const sendResult = await this.bot
+      .telegram
+      .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
 
-    return true;
+    if (sendResult) {
+      return true;
+    }
+    return false;
   }
 }
 
