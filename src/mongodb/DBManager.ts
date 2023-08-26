@@ -64,66 +64,58 @@ class DBManager {
   async getDocumentData<T>(
     collectionName: string,
     selectionCondition: any,
-  ): Promise<T> {
+  ) {
     if (this.instance) {
       const collection = this.instance.collection(collectionName);
       return collection.findOne<T>(selectionCondition) as T;
     }
-    throw new Error('Document not found.');
+    throw new Error('No instance');
+  }
+
+  async addDocumentToCollection<T>(
+    collectionName: string,
+    data: any,
+  ): Promise<ObjectId> {
+    if (this.instance) {
+      const collection = this.instance.collection(collectionName);
+      const result: InsertOneResult = await collection.insertOne(data);
+      return result.insertedId;
+    }
+    throw new Error('Error! No instance!');
   }
 
   /** Get all `active` events from the database */
   async getEventsWithParticipants(): Promise<EventWithParticipants[]> {
-    // TODO: Add eventId array to filter only needed events
-    const arr: EventWithParticipants[] = [];
-
-    // For debugging purposes
-    // console.log('hit', new Date());
-
     if (!this.instance) {
       throw new Error('No DB instance.');
-    } else {
-      const collection = this.instance.collection<Event>('events');
-      const cursor = collection.aggregate(
-        [
-          {
-            $lookup: {
-              from: 'participants',
-              localField: 'participants',
-              foreignField: '_id',
-              as: 'participants',
-              pipeline: [
-                {
-                  $project: {
-                    tg: 1,
-                  },
-                },
-              ],
-            },
-          },
-          {
-            $match: {
-              is_active: true,
-            },
-          },
-        ],
-      );
-
-      for await (const doc of cursor) {
-        arr.push({ ...doc } as EventWithParticipants);
-      }
     }
 
-    return arr;
-  }
+    const collection = this.instance.collection<Event>('events');
+    const cursor = collection.aggregate([
+      {
+        $lookup: {
+          from: 'participants',
+          localField: 'participants',
+          foreignField: '_id',
+          as: 'participants',
+          pipeline: [
+            {
+              $project: {
+                tg: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $match: {
+          is_active: true,
+        },
+      },
+    ]);
 
-  async getParticipant(tgId: number): Promise<Participant | null> {
-    if (!this.instance) {
-      throw new Error('No DB instance.');
-    } else {
-      const collection = this.instance.collection<Participant>('participants');
-      return collection.findOne<Participant>({ 'tg.id': tgId });
-    }
+    const results = await cursor.toArray();
+    return results as EventWithParticipants[];
   }
 
   /** Get all Schedule items from the database for specified Event
@@ -142,19 +134,6 @@ class DBManager {
     }
 
     return arr;
-  }
-
-  /** Get Event from the database by name
-  * @param {ObjectId} [eventId] Event ID
-  * @returns {Promise<Event | null>} Promise object with Event if it was found, or null
-  */
-  async getEventById(eventId: ObjectId): Promise<Event | null> {
-    if (!this.instance) {
-      throw new Error('No DB instance.');
-    } else {
-      const collection = this.instance.collection<Event>('events');
-      return collection.findOne<Event>({ _id: eventId });
-    }
   }
 
   /** Add a new participant.

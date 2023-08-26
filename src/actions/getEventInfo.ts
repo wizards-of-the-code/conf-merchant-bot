@@ -2,7 +2,7 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import { ScheduleItem, Speaker } from '../types';
+import { ScheduleItem, Speaker, Event } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
@@ -15,7 +15,7 @@ export const sendEventInfoMessage = async (
 ) => {
   try {
     const eventId: ObjectId = new ObjectId(eventIdParam);
-    const event = await bot.dbManager.getEventById(eventId);
+    const event: Event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
 
     if (!event) {
       // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);

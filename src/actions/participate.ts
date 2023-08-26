@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
-import { Participant, TelegramUser } from '../types';
+import { Participant, TelegramUser, Event } from '../types';
 import TelegramBot from '../TelegramBot';
 import parseActionParam from '../utils/parseActionParam';
 
@@ -12,10 +12,10 @@ const participate = async (bot: TelegramBot) => {
     const eventId = ctx.session.selectedEvent!._id;
 
     // TODO: Check if event exists
-    const event = await bot.dbManager.getEventById(new ObjectId(eventId));
+    const event: Event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
 
     // Check if user if already in DB
-    let participant: Participant | null = await bot.dbManager.getParticipant(ctx.from!.id);
+    let participant: Participant = await bot.dbManager.getDocumentData('participants', { 'tg.id': ctx.from!.id });
     let participantId: ObjectId | undefined;
 
     if (!participant) {
