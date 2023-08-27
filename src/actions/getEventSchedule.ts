@@ -11,7 +11,7 @@ const getEventSchedule = async (bot: TelegramBot) => {
       console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
     } else {
       /* eslint-disable max-len */
-      const scheduleItemsArr: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(event._id!);
+      const scheduleItemsArr = await bot.dbManager.getCollectionData<ScheduleItem>('schedule', { event_id: event._id });
 
       // Remove keyboard from last message
       ctx.editMessageReplyMarkup(undefined);

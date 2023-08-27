@@ -15,7 +15,7 @@ export const sendEventInfoMessage = async (
 ) => {
   try {
     const eventId: ObjectId = new ObjectId(eventIdParam);
-    const event: Event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
+    const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
 
     if (!event) {
       // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
@@ -39,13 +39,13 @@ export const sendEventInfoMessage = async (
       [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
     ];
 
-    const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId!);
+    const schedule = await bot.dbManager.getCollectionData<ScheduleItem>('schedule', { event_id: eventId });
     // TODO: Change unshift to push later
     if (schedule.length > 0) {
       buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
-    const speakers: Speaker[] = await bot.dbManager.getCollectionData('speakers', { event_id: eventId });
+    const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: eventId });
     // TODO: Change unshift to push later
     if (speakers.length > 0) {
       buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);

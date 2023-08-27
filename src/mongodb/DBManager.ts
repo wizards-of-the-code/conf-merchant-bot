@@ -7,7 +7,6 @@ import { IConfigService } from '../config/ConfigService.interface';
 import {
   Event,
   Participant,
-  ScheduleItem,
   ParticipantEventDetails,
   LogEntry,
   TelegramUser,
@@ -53,35 +52,52 @@ class DBManager {
     collectionName: string,
     selectionCondition: any,
   ): Promise<T[]> {
-    if (this.instance) {
+    try {
+      if (!this.instance) {
+        throw new Error('Database instance not available.');
+      }
+
       const collection = this.instance.collection(collectionName);
       const result = await collection.find(selectionCondition).toArray();
       return result as T[];
+    } catch (error) {
+      console.error('Error fetching collection data:', error);
+      throw new Error('Failed to fetch data from collection.');
     }
-    return [];
   }
 
   async getDocumentData<T>(
     collectionName: string,
     selectionCondition: any,
-  ) {
-    if (this.instance) {
+  ): Promise<T | null> {
+    try {
+      if (!this.instance) {
+        throw new Error('Database instance not available.');
+      }
       const collection = this.instance.collection(collectionName);
-      return collection.findOne<T>(selectionCondition) as T;
+      const result: T | null = await collection.findOne<T>(selectionCondition);
+      return result;
+    } catch (error) {
+      console.error('Error fetching document:', error);
+      throw new Error('Failed to fetch document from collection.');
     }
-    throw new Error('No instance');
   }
 
   async addDocumentToCollection<T>(
     collectionName: string,
-    data: any,
-  ): Promise<ObjectId> {
-    if (this.instance) {
+    data: any, // Use a specific type for 'data'
+  ): Promise<ObjectId | null> {
+    try {
+      if (!this.instance) {
+        throw new Error('No database instance found.');
+      }
       const collection = this.instance.collection(collectionName);
       const result: InsertOneResult = await collection.insertOne(data);
       return result.insertedId;
+    } catch (error) {
+      console.error('Error adding document:', error);
+      throw new Error('Failed to add document to collection.');
     }
-    throw new Error('Error! No instance!');
   }
 
   /** Get all `active` events from the database */
@@ -116,24 +132,6 @@ class DBManager {
 
     const results = await cursor.toArray();
     return results as EventWithParticipants[];
-  }
-
-  /** Get all Schedule items from the database for specified Event
-   * @param {ObjectId} [eventId] - Event ID
-  */
-  async getEventScheduleItems(eventId: ObjectId): Promise<ScheduleItem[]> {
-    const arr: ScheduleItem[] = [];
-
-    if (this.instance) {
-      const collection = this.instance.collection<ScheduleItem>('schedule');
-      const cursor = collection.find({ event_id: eventId });
-
-      for await (const doc of cursor) {
-        arr.push({ ...doc });
-      }
-    }
-
-    return arr;
   }
 
   /** Add a new participant.
@@ -265,6 +263,13 @@ class DBManager {
 
     this.insertOne('sponsors', user);
     return true;
+  }
+
+  async addSponsor2<T>(
+    collectionName: string,
+    user: any,
+  ) {
+    this.insertOne(collectionName, user);
   }
 
   // LOGGER METHODS

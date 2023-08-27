@@ -12,7 +12,7 @@ const getEventSpeakers = async (bot: TelegramBot) => {
       // TODO: Implement logs and store this errors there
       console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
     } else {
-      const speakers: Speaker[] = await bot.dbManager.getCollectionData('speakers', { event_id: event._id });
+      const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: event._id });
       // Remove keyboard from last message
       ctx.editMessageReplyMarkup(undefined);
 

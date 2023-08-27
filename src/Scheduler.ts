@@ -28,7 +28,7 @@ class Scheduler {
 
     const minutelyTask: ScheduledTask = cron.schedule('*/30 * * * * *', async () => {
       // Every minute check DB for changes ragarding active MANUAL messages
-      const messages: ScheduledMessage[] = await this.dbManager.getScheduledNotifications();
+      const messages = await this.dbManager.getCollectionData<ScheduledMessage>('notifications', { is_active: true, sent: null });
 
       if (messages.length > 0) {
         // Filter ready for sending messages

@@ -16,7 +16,6 @@ const sponsorship = async (bot: TelegramBot) => {
         donation: '',
       };
       const result: boolean = await bot.dbManager.addSponsor(sponsor);
-
       const buttonsArray: (
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [];

@@ -12,10 +12,10 @@ const participate = async (bot: TelegramBot) => {
     const eventId = ctx.session.selectedEvent!._id;
 
     // TODO: Check if event exists
-    const event: Event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
+    const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
 
     // Check if user if already in DB
-    let participant: Participant = await bot.dbManager.getDocumentData('participants', { 'tg.id': ctx.from!.id });
+    let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
     let participantId: ObjectId | undefined;
 
     if (!participant) {
