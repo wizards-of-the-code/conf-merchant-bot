@@ -219,6 +219,7 @@ class DBManager {
       await this.logToDB(
         {
           id: participant.tg.id,
+          username: participant.tg.username,
           first_name: participant.tg.first_name,
         },
         statuses.NEW_PARTICIPANT,
@@ -250,6 +251,7 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
+        username: participant.tg.username,
         first_name: participant.tg.first_name,
       },
       statuses.EVENT_UPDATE,
@@ -290,6 +292,7 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
+        username: participant.tg.username,
         first_name: participant.tg.first_name,
       },
       statuses.PARTICIPANT_UPDATE,
