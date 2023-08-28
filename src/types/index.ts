@@ -109,6 +109,7 @@ export type ScheduledMessage = {
   type: 'manual' | 'auto';
   text: string;
   links: MessageButton[];
+  photos_on_top: boolean;
   photos: string[];
   actions: string[];
   sent: Date | null;

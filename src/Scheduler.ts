@@ -138,10 +138,12 @@ class Scheduler {
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
     mediaGroup: MediaGroup,
-    photosOnTop: boolean = true,
   ): Promise<boolean> {
+    console.log('mediaGroup', mediaGroup);
+    console.log('photosOnTop', message.photos_on_top);
+
     // Send photos first if photosOnTop === true
-    if (mediaGroup.length > 0 && photosOnTop) {
+    if (mediaGroup.length > 0 && message.photos_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
@@ -149,7 +151,7 @@ class Scheduler {
     await this.sendMessageText(tgId, message, buttonsArray);
 
     // Send photos in the end if photosOnTop === true
-    if (mediaGroup.length > 0 && !photosOnTop) {
+    if (mediaGroup.length > 0 && !message.photos_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
