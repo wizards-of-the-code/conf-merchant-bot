@@ -223,7 +223,7 @@ class DBManager {
           first_name: participant.tg.first_name,
         },
         statuses.NEW_PARTICIPANT,
-        `New participant @${participant.tg.first_name} added`,
+        `New participant @${participant.tg.username} added`,
       );
 
       return result.insertedId;
@@ -255,7 +255,7 @@ class DBManager {
         first_name: participant.tg.first_name,
       },
       statuses.EVENT_UPDATE,
-      `To event ${eventId} added participant @${participant.tg.first_name}`,
+      `To event ${eventId} added participant @${participant.tg.username}`,
     );
 
     return result;
@@ -296,7 +296,7 @@ class DBManager {
         first_name: participant.tg.first_name,
       },
       statuses.PARTICIPANT_UPDATE,
-      `Participant @${participant.tg.first_name} added to event: ${eventId}`,
+      `Participant @${participant.tg.username} added to event: ${eventId}`,
     );
 
     return result;
