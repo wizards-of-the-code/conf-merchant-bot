@@ -139,9 +139,6 @@ class Scheduler {
     )[][],
     mediaGroup: MediaGroup,
   ): Promise<boolean> {
-    console.log('mediaGroup', mediaGroup);
-    console.log('photosOnTop', message.photos_on_top);
-
     // Send photos first if photosOnTop === true
     if (mediaGroup.length > 0 && message.photos_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);
