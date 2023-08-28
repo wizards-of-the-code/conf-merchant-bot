@@ -48,6 +48,7 @@ export type ParticipantEventDetails = {
   event_id: ObjectId;
   is_payed: boolean;
   role: string;
+  attended: boolean;
 };
 
 export type Participant = {

@@ -19,6 +19,7 @@ export default async function addParticipant(
       event_id: eventId,
       is_payed: false,
       role,
+      attended: false,
     };
 
     const newUser: Participant = {

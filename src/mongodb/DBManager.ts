@@ -282,6 +282,7 @@ class DBManager {
         event_id: eventId,
         is_payed: false,
         role,
+        attended: false,
       };
 
       result = await collection
