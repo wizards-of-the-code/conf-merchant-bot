@@ -70,7 +70,6 @@ class Scheduler {
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [];
-    let photos: string[] = [];
 
     // Add links
     if (message.links.length > 0) {
@@ -83,11 +82,22 @@ class Scheduler {
     }
 
     // Add photos
+    let mediaGroup: MediaGroup;
+    // Put photos in MediaGroup
     if (message.photos.length > 0) {
-      photos = message.photos;
+      const mediaArray: InputMediaPhoto[] = [];
+      for (const photo of message.photos) {
+        if (await isValidUrl(photo)) {
+          const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
+          mediaArray.push(inputPhoto);
+        }
+      }
+      mediaGroup = [...mediaArray];
+    } else {
+      mediaGroup = [];
     }
 
-    // Counter for checking is all messages has been sent or not
+    // Counter for checking if all messages has been sent or not
     let counter = 0;
     // Sent message to each recipient
     for (const recipient of recipients) {
@@ -95,7 +105,7 @@ class Scheduler {
         recipient.tg.id,
         message,
         buttonsArray,
-        photos,
+        mediaGroup,
       );
       if (sentResult) counter += 1;
     }
@@ -115,7 +125,7 @@ class Scheduler {
    * @param {ScheduledMessage} [message] Message object to be sent.
    * @param {(InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][]}
    * [buttonsArray] Inline buttons to be attached to the message.
-   * @param {string[]} [photos] Array of links to photos.
+   * @param {MediaGroup} [mediaGroup] Array of links to photos.
    * @param {boolean} [photosOnTop] Photos position.
    * True: at the top of the message.
    * False: at the bottom.
@@ -127,26 +137,11 @@ class Scheduler {
     buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
-    photos: string[],
+    mediaGroup: MediaGroup,
     photosOnTop: boolean = true,
   ): Promise<boolean> {
-    let mediaGroup: MediaGroup;
-    // Put photos in MediaGroup
-    if (photos.length > 0) {
-      const mediaArray: any[] = [];
-      for (const photo of photos) {
-        if (await isValidUrl(photo)) {
-          const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
-          mediaArray.push(inputPhoto);
-        }
-      }
-      mediaGroup = [...mediaArray];
-    } else {
-      mediaGroup = [];
-    }
-
     // Send photos first if photosOnTop === true
-    if (photos.length > 0 && photosOnTop) {
+    if (mediaGroup.length > 0 && photosOnTop) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
@@ -154,7 +149,7 @@ class Scheduler {
     await this.sendMessageText(tgId, message, buttonsArray);
 
     // Send photos in the end if photosOnTop === true
-    if (photos.length > 0 && !photosOnTop) {
+    if (mediaGroup.length > 0 && !photosOnTop) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
@@ -168,6 +163,7 @@ class Scheduler {
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
   ): Promise<boolean> {
+    // Send text part with buttons
     const sendResult = await this.bot
       .telegram
       .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
