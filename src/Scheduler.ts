@@ -91,7 +91,7 @@ class Scheduler {
     let counter = 0;
     // Sent message to each recipient
     for (const recipient of recipients) {
-      const sentResult = await this.sentMessageToUser(
+      const sentResult = await this.sendMessageToUser(
         recipient.tg.id,
         message,
         buttonsArray,
@@ -110,30 +110,59 @@ class Scheduler {
     await this.dbManager.markNotificationAsSent(message._id);
   }
 
-  private async sentMessageToUser(
+  /** Send a single message to a single recepient.
+   * @param {ObjectId} [tgId] Recipient's Telegram ID
+   * @param {ScheduledMessage} [message] Message object to be sent.
+   * @param {(InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][]}
+   * [buttonsArray] Inline buttons to be attached to the message.
+   * @param {string[]} [photos] Array of links to photos.
+   * @param {boolean} [photosOnTop] Photos position.
+   * True: at the top of the message.
+   * False: at the bottom.
+   * @returns {boolean} True - sent successfully, False - sending failed.
+   */
+  private async sendMessageToUser(
     tgId: number,
     message: ScheduledMessage,
     buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
     photos: string[],
+    photosOnTop: boolean = true,
   ): Promise<boolean> {
+    let sendResult: any;
     // Send photos if they exists
-    // TODO: Find out how to check if photo has valid link
     if (photos.length > 0) {
       const mediaArray: any[] = [];
       for (const photo of photos) {
-        const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
-        mediaArray.push(inputPhoto);
+        if (await isValidUrl(photo)) {
+          const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
+          mediaArray.push(inputPhoto);
+        }
       }
       const mediaGroup: MediaGroup = [...mediaArray];
-      await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
-    }
 
-    // Send text with buttons
-    const sendResult = await this.bot
-      .telegram
-      .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+      if (photosOnTop) {
+        // Send photos
+        await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
+        // Send text with buttons
+        sendResult = await this.bot
+          .telegram
+          .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+      } else {
+        // Send text with buttons
+        sendResult = await this.bot
+          .telegram
+          .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+        // Send photos
+        await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
+      }
+    } else {
+      // Send text with buttons
+      sendResult = await this.bot
+        .telegram
+        .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+    }
 
     if (sendResult) {
       return true;
