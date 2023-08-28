@@ -130,8 +130,8 @@ class Scheduler {
     photos: string[],
     photosOnTop: boolean = true,
   ): Promise<boolean> {
-    let sendResult: any;
-    // Send photos if they exists
+    let mediaGroup: MediaGroup;
+    // Put photos in MediaGroup
     if (photos.length > 0) {
       const mediaArray: any[] = [];
       for (const photo of photos) {
@@ -140,33 +140,50 @@ class Scheduler {
           mediaArray.push(inputPhoto);
         }
       }
-      const mediaGroup: MediaGroup = [...mediaArray];
-
-      if (photosOnTop) {
-        // Send photos
-        await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
-        // Send text with buttons
-        sendResult = await this.bot
-          .telegram
-          .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
-      } else {
-        // Send text with buttons
-        sendResult = await this.bot
-          .telegram
-          .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
-        // Send photos
-        await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
-      }
+      mediaGroup = [...mediaArray];
     } else {
-      // Send text with buttons
-      sendResult = await this.bot
-        .telegram
-        .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+      mediaGroup = [];
     }
 
-    if (sendResult) {
-      return true;
+    // Send photos first if photosOnTop === true
+    if (photos.length > 0 && photosOnTop) {
+      await this.sendMessagePhotos(tgId, mediaGroup);
     }
+
+    // Send message text with buttons
+    await this.sendMessageText(tgId, message, buttonsArray);
+
+    // Send photos in the end if photosOnTop === true
+    if (photos.length > 0 && !photosOnTop) {
+      await this.sendMessagePhotos(tgId, mediaGroup);
+    }
+
+    return true;
+  }
+
+  private async sendMessageText(
+    tgId: number,
+    message: ScheduledMessage,
+    buttonsArray: (
+      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+    )[][],
+  ): Promise<boolean> {
+    const sendResult = await this.bot
+      .telegram
+      .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+
+    if (sendResult) return true;
+    return false;
+  }
+
+  private async sendMessagePhotos(
+    tgId: number,
+    mediaGroup: MediaGroup,
+  ): Promise<boolean> {
+    // Send photos
+    const sendResult = await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
+
+    if (sendResult) return true;
     return false;
   }
 }
