@@ -305,23 +305,19 @@ class DBManager {
 
   /** Get messages array from DB.
    * @param {string} [messageName] Name of the message entry in DB.
-   * @returns {string[]} String array of messages.
+   * @returns {Message | null} Message object or null if not exists.
    */
-  async getMessagesArray(messageName: string): Promise<string[]> {
-    const messages: string[] = [];
+  async getMessage(messageName: string): Promise<Message | null> {
+    let message: Message | null = null;
 
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<Message>('messages');
-      const msg = await collection.findOne<Message>({ name: messageName });
-
-      if (msg && msg?.value.length > 0) {
-        messages.push(...msg.value);
-      }
+      message = await collection.findOne<Message>({ name: messageName });
     }
 
-    return messages;
+    return message;
   }
 
   async addSponsor(user: Sponsor): Promise<boolean> {

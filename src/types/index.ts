@@ -102,6 +102,7 @@ export type Message = {
   _id?: ObjectId;
   name: string;
   value: string[];
+  images: string[];
 };
 
 export type ScheduledMessage = {
