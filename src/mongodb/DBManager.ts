@@ -261,6 +261,24 @@ class DBManager {
     return result;
   }
 
+  async removeParticipantFromEvent(
+    eventId: ObjectId,
+    participant: Participant,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Event>('events');
+
+      result = await collection
+        .updateOne({ _id: eventId }, { $pull: { participants: participant._id } });
+    }
+
+    return result;
+  }
+
   /** Add event details to participant entry.
    * @param {ObjectId} [eventId] Participant to add.
    * @param {ObjectId} [participantId] Participant to add.
