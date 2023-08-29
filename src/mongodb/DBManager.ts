@@ -10,7 +10,6 @@ import {
   ParticipantEventDetails,
   LogEntry,
   TelegramUser,
-  ScheduledMessage,
   EventWithParticipants,
 } from '../types';
 import { statuses } from '../constants';
@@ -81,7 +80,7 @@ class DBManager {
     }
   }
 
-  async insertOrUpdateDocumentToCollection<T>(
+  async insertOrUpdateDocumentToCollection(
     collectionName: string,
     query: any,
     data: any,
@@ -92,7 +91,7 @@ class DBManager {
       }
       const collection = this.instance.collection(collectionName);
       const options = { upsert: true };
-      const result = await collection.updateOne(query, { $set: data }, options);
+      const result = await collection.updateOne(query, data, options);
       return result;
     } catch (error) {
       console.error('Error adding document:', error);
@@ -326,27 +325,6 @@ class DBManager {
   }
 
   // SCHEDULER METHODS
-
-  /** Mark Scheduled Message as SENT in the DB.
-   * @param {ObjectId} [messageId] Scheduled Message ID
-   * @returns {boolean} True - marked successfully, False - marking failed.
-   */
-  async markNotificationAsSent(
-    messageId: ObjectId,
-  ): Promise<UpdateResult> {
-    let result: UpdateResult;
-
-    if (!this.instance) {
-      throw new Error('No DB instance.');
-    } else {
-      /* eslint @typescript-eslint/no-unused-vars: 0 */
-      const collection = this.instance.collection<ScheduledMessage>('notifications');
-      result = await collection
-        .updateOne({ _id: messageId }, { $set: { sent: new Date() } });
-    }
-
-    return result;
-  }
 
   // PRIVATE CLASS METHODS
 

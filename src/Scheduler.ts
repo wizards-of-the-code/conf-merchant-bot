@@ -117,7 +117,7 @@ class Scheduler {
     }
 
     // Mark notification as sent in DB
-    await this.dbManager.markNotificationAsSent(message._id);
+    await this.dbManager.insertOrUpdateDocumentToCollection('notifications', { _id: message._id }, { $set: { sent: new Date() } });
   }
 
   /** Send a single message to a single recepient.
