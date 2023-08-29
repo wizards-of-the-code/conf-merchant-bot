@@ -321,6 +321,24 @@ class DBManager {
     return result;
   }
 
+  async removeEventDetailsToParticipant(
+    eventId: ObjectId,
+    participant: Participant,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+
+      result = await collection
+        .updateOne({ _id: participant._id }, { $pull: { events: { event_id: eventId } } });
+    }
+
+    return result;
+  }
+
   /** Get messages array from DB.
    * @param {string} [messageName] Name of the message entry in DB.
    * @returns {Message | null} Message object or null if not exists.
