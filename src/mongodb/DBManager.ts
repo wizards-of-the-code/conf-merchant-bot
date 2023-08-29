@@ -149,10 +149,11 @@ class DBManager {
       await this.logToDB(
         {
           id: participant.tg.id,
+          username: participant.tg.username,
           first_name: participant.tg.first_name,
         },
         statuses.NEW_PARTICIPANT,
-        `New participant @${participant.tg.first_name} added`,
+        `New participant @${participant.tg.username} added`,
       );
 
       return result.insertedId;
@@ -180,10 +181,11 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
+        username: participant.tg.username,
         first_name: participant.tg.first_name,
       },
       statuses.EVENT_UPDATE,
-      `To event ${eventId} added participant @${participant.tg.first_name}`,
+      `To event ${eventId} added participant @${participant.tg.username}`,
     );
 
     return result;
@@ -210,6 +212,7 @@ class DBManager {
         event_id: eventId,
         is_payed: false,
         role,
+        attended: false,
       };
 
       result = await collection
@@ -220,10 +223,11 @@ class DBManager {
     await this.logToDB(
       {
         id: participant.tg.id,
+        username: participant.tg.username,
         first_name: participant.tg.first_name,
       },
       statuses.PARTICIPANT_UPDATE,
-      `Participant @${participant.tg.first_name} added to event: ${eventId}`,
+      `Participant @${participant.tg.username} added to event: ${eventId}`,
     );
 
     return result;
@@ -231,23 +235,19 @@ class DBManager {
 
   /** Get messages array from DB.
    * @param {string} [messageName] Name of the message entry in DB.
-   * @returns {string[]} String array of messages.
+   * @returns {Message | null} Message object or null if not exists.
    */
-  async getMessagesArray(messageName: string): Promise<string[]> {
-    const messages: string[] = [];
+  async getMessage(messageName: string): Promise<Message | null> {
+    let message: Message | null = null;
 
     if (!this.instance) {
       throw new Error('No DB instance.');
     } else {
       const collection = this.instance.collection<Message>('messages');
-      const msg = await collection.findOne<Message>({ name: messageName });
-
-      if (msg && msg?.value.length > 0) {
-        messages.push(...msg.value);
-      }
+      message = await collection.findOne<Message>({ name: messageName });
     }
 
-    return messages;
+    return message;
   }
 
   async addSponsor(user: Sponsor): Promise<boolean> {

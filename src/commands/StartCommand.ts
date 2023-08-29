@@ -13,18 +13,14 @@ import TelegramBot from '../TelegramBot';
 import { IBotContext } from '../context/IBotContext';
 import { messages } from '../constants';
 import selectRole from '../actions/selectRole';
+import sendMessageWithPhotos from '../utils/sendMessageWithPhotos';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
-  // Get messages array from DB
-  const startMessages = await bot.dbManager.getMessagesArray(messages.START_MESSAGES);
+  // Get message from DB
+  const startMessage = await bot.dbManager.getMessage(messages.START_MESSAGES);
 
-  // Send start messages
-  for (const msg of startMessages) {
-    /* eslint-disable no-await-in-loop --
-        * The general idea to wait until each Context reply should be finished
-        * until next one should run :)
-        */
-    await ctx.reply(msg);
+  if (startMessage) {
+    await sendMessageWithPhotos(startMessage, ctx);
   }
 
   const buttonsArray: (

@@ -10,6 +10,7 @@ export default async function addParticipant(
   try {
     const user: TelegramUser = {
       id: ctx.from!.id,
+      username: ctx.from!.username!,
       first_name: ctx.from!.first_name,
       last_name: ctx.from!.last_name,
     };
@@ -18,6 +19,7 @@ export default async function addParticipant(
       event_id: eventId,
       is_payed: false,
       role,
+      attended: false,
     };
 
     const newUser: Participant = {
