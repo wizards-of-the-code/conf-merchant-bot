@@ -14,6 +14,7 @@ import { IBotContext } from '../context/IBotContext';
 import { messages } from '../constants';
 import selectRole from '../actions/selectRole';
 import sendMessageWithPhotos from '../utils/sendMessageWithPhotos';
+import sponsorship from '../actions/sponsorship';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
@@ -33,7 +34,7 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
     [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
     [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
-    [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
+    [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
   ];
 
   await ctx.reply(
@@ -62,7 +63,6 @@ class StartCommand extends Command {
         sendStartMessage(this.bot, ctx);
       }
     });
-
     // ACTION HANDLERS
 
     // Action: Get all events
@@ -76,6 +76,7 @@ class StartCommand extends Command {
     // Action: Participate in selected event
     participate(this.bot);
 
+    sponsorship(this.bot);
     // Action: Show speakers for a selected event
     getEventSpeakers(this.bot);
 

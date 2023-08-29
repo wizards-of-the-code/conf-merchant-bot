@@ -4,7 +4,7 @@ import { Sponsor, TelegramUser } from '../types';
 import TelegramBot from '../TelegramBot';
 
 const sponsorship = async (bot: TelegramBot) => {
-  bot.action('action_become_sponsor', async (ctx) => {
+  bot.action('become_sponsor', async (ctx) => {
     if (ctx.from) {
       const user: TelegramUser = {
         id: ctx.from?.id,
@@ -16,7 +16,7 @@ const sponsorship = async (bot: TelegramBot) => {
         tg: user,
         donation: '',
       };
-      const result: boolean = await bot.dbManager.addSponsor(sponsor);
+      const result = await bot.dbManager.addDocumentToCollection('sponsors', { 'tg.id': user.id }, sponsor);
       const buttonsArray: (
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [];

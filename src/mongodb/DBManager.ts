@@ -13,7 +13,6 @@ import {
   Message,
   ScheduledMessage,
   EventWithParticipants,
-  Sponsor,
 } from '../types';
 import { statuses } from '../constants';
 
@@ -85,15 +84,17 @@ class DBManager {
 
   async addDocumentToCollection<T>(
     collectionName: string,
-    data: any, // Use a specific type for 'data'
-  ): Promise<ObjectId | null> {
+    query: any,
+    data: any,
+  ) {
     try {
       if (!this.instance) {
         throw new Error('No database instance found.');
       }
       const collection = this.instance.collection(collectionName);
-      const result: InsertOneResult = await collection.insertOne(data);
-      return result.insertedId;
+      const options = { upsert: true };
+      const result = await collection.updateOne(query, { $set: data }, options);
+      return result;
     } catch (error) {
       console.error('Error adding document:', error);
       throw new Error('Failed to add document to collection.');
@@ -248,28 +249,6 @@ class DBManager {
     }
 
     return message;
-  }
-
-  async addSponsor(user: Sponsor): Promise<boolean> {
-    const sponsors: Sponsor[] = await this.getCollectionData('sponsors', {});
-
-    const isAlreadySponsor = sponsors.find(
-      (sponsor) => sponsor.tg.id === user.tg.id,
-    );
-
-    if (isAlreadySponsor) {
-      return false;
-    }
-
-    this.insertOne('sponsors', user);
-    return true;
-  }
-
-  async addSponsor2<T>(
-    collectionName: string,
-    user: any,
-  ) {
-    this.insertOne(collectionName, user);
   }
 
   // LOGGER METHODS

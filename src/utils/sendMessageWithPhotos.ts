@@ -1,5 +1,5 @@
 import { Message } from '../types';
-import { IBotContext } from '../context/BotContext.interface';
+import { IBotContext } from '../context/IBotContext';
 
 /**
  * Send a message with images from Standard Messages DB collection.
