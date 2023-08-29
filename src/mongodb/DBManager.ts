@@ -10,7 +10,6 @@ import {
   ParticipantEventDetails,
   LogEntry,
   TelegramUser,
-  Message,
   ScheduledMessage,
   EventWithParticipants,
 } from '../types';
@@ -82,7 +81,7 @@ class DBManager {
     }
   }
 
-  async addDocumentToCollection<T>(
+  async insertOrUpdateDocumentToCollection<T>(
     collectionName: string,
     query: any,
     data: any,
@@ -302,23 +301,6 @@ class DBManager {
     return result;
   }
 
-  /** Get messages array from DB.
-   * @param {string} [messageName] Name of the message entry in DB.
-   * @returns {Message | null} Message object or null if not exists.
-   */
-  async getMessage(messageName: string): Promise<Message | null> {
-    let message: Message | null = null;
-
-    if (!this.instance) {
-      throw new Error('No DB instance.');
-    } else {
-      const collection = this.instance.collection<Message>('messages');
-      message = await collection.findOne<Message>({ name: messageName });
-    }
-
-    return message;
-  }
-
   // LOGGER METHODS
 
   /** Add a new participant.
@@ -344,26 +326,6 @@ class DBManager {
   }
 
   // SCHEDULER METHODS
-
-  /** Get all Scheduled Messages from DB which are ACTIVE and NOT SENT yet.
-   * @returns {ScheduledMessage[]} Array of ScheduledMessages.
-   */
-  async getScheduledNotifications(): Promise<ScheduledMessage[]> {
-    const arr: ScheduledMessage[] = [];
-
-    if (!this.instance) {
-      throw new Error('No DB instance.');
-    } else {
-      const collection = this.instance.collection<ScheduledMessage>('notifications');
-      const cursor = collection.find({ is_active: true, sent: null });
-
-      for await (const doc of cursor) {
-        arr.push({ ...doc });
-      }
-    }
-
-    return arr;
-  }
 
   /** Mark Scheduled Message as SENT in the DB.
    * @param {ObjectId} [messageId] Scheduled Message ID

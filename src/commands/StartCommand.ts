@@ -16,10 +16,11 @@ import selectRole from '../actions/selectRole';
 import sendMessageWithPhotos from '../utils/sendMessageWithPhotos';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
+import { Message } from '../types';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
-  const startMessage = await bot.dbManager.getMessage(messages.START_MESSAGES);
+  const startMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.START_MESSAGES });
 
   if (startMessage) {
     await sendMessageWithPhotos(startMessage, ctx);

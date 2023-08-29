@@ -16,7 +16,7 @@ const sponsorship = async (bot: TelegramBot) => {
         tg: user,
         donation: '',
       };
-      const result = await bot.dbManager.addDocumentToCollection('sponsors', { 'tg.id': user.id }, sponsor);
+      const result = await bot.dbManager.insertOrUpdateDocumentToCollection('sponsors', { 'tg.id': user.id }, sponsor);
       const buttonsArray: (
         InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
       )[][] = [];
