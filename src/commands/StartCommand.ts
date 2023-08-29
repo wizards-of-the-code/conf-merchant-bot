@@ -13,33 +13,14 @@ import TelegramBot from '../TelegramBot';
 import { IBotContext } from '../context/BotContext.interface';
 import { messages } from '../constants';
 import selectRole from '../actions/selectRole';
+import sendMessageWithPhotos from '../utils/sendMessageWithPhotos';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
-  // Get messages array from DB
+  // Get message from DB
   const startMessage = await bot.dbManager.getMessage(messages.START_MESSAGES);
 
   if (startMessage) {
-    // Send images if they exists
-    if (startMessage.images.length > 0) {
-      for (const image of startMessage.images) {
-        /* eslint-disable no-await-in-loop --
-            * The general idea to wait until each Context reply should be finished
-            * until next one should run :)
-            */
-        await ctx.sendPhoto(image);
-      }
-    }
-
-    // Send messages
-    if (startMessage.value.length > 0) {
-      for (const msg of startMessage.value) {
-        /* eslint-disable no-await-in-loop --
-            * The general idea to wait until each Context reply should be finished
-            * until next one should run :)
-            */
-        await ctx.reply(msg);
-      }
-    }
+    await sendMessageWithPhotos(startMessage, ctx);
   }
 
   const buttonsArray: (
