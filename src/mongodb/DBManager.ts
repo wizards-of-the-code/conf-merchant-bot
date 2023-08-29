@@ -192,6 +192,40 @@ class DBManager {
     return result;
   }
 
+  /** Remove a participant from event.
+   * @param {ObjectId} [eventId] Event ID.
+   * @param {Participant} [participant] Participant to remove.
+   * @returns {UpdateResult}
+   */
+  async removeParticipantFromEvent(
+    eventId: ObjectId,
+    participant: Participant,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Event>('events');
+
+      result = await collection
+        .updateOne({ _id: eventId }, { $pull: { participants: participant._id } });
+    }
+
+    // Log event to DB
+    await this.logToDB(
+      {
+        id: participant.tg.id,
+        username: participant.tg.username,
+        first_name: participant.tg.first_name,
+      },
+      statuses.EVENT_UPDATE,
+      `From event ${eventId} removed participant @${participant.tg.username}`,
+    );
+
+    return result;
+  }
+
   /** Add event details to participant entry.
    * @param {ObjectId} [eventId] Participant to add.
    * @param {ObjectId} [participantId] Participant to add.
@@ -229,6 +263,40 @@ class DBManager {
       },
       statuses.PARTICIPANT_UPDATE,
       `Participant @${participant.tg.username} added to event: ${eventId}`,
+    );
+
+    return result;
+  }
+
+  /** Remove event details from participant entry.
+   * @param {ObjectId} [eventId] Participant to remove.
+   * @param {Participant} [participant] Participant to add.
+   * @returns {UpdateResult} UpdateResult
+   */
+  async removeEventDetailsFromParticipant(
+    eventId: ObjectId,
+    participant: Participant,
+  ): Promise<UpdateResult> {
+    let result: UpdateResult;
+
+    if (!this.instance) {
+      throw new Error('No DB instance.');
+    } else {
+      const collection = this.instance.collection<Participant>('participants');
+
+      result = await collection
+        .updateOne({ _id: participant._id }, { $pull: { events: { event_id: eventId } } });
+    }
+
+    // Log event to DB
+    await this.logToDB(
+      {
+        id: participant.tg.id,
+        username: participant.tg.username,
+        first_name: participant.tg.first_name,
+      },
+      statuses.PARTICIPANT_UPDATE,
+      `Participant @${participant.tg.username} removed from event: ${eventId}`,
     );
 
     return result;

@@ -2,7 +2,9 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import { ScheduleItem, Speaker, Event } from '../types';
+import {
+  Event, Participant, ScheduleItem, Speaker,
+} from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
@@ -16,7 +18,6 @@ export const sendEventInfoMessage = async (
   try {
     const eventId: ObjectId = new ObjectId(eventIdParam);
     const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
-
     if (!event) {
       // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
       sendStartMessage(bot, ctx);
@@ -25,6 +26,20 @@ export const sendEventInfoMessage = async (
     // Save event to current session context
     ctx.session.selectedEvent = event;
     ctx.session.userId = ctx.from?.id;
+    const participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+    // Check if user is already participate in the event
+    let isAlreadyParticipate = false;
+    let isAlreadyPaid = false;
+    if (participant) {
+      const eventDetails = participant.events.find(
+        (e) => e.event_id.toString() === event!._id!.toString(),
+      );
+
+      if (eventDetails) {
+        isAlreadyParticipate = true;
+        isAlreadyPaid = eventDetails.is_payed;
+      }
+    }
 
     try {
       ctx.deleteMessage();
@@ -35,10 +50,13 @@ export const sendEventInfoMessage = async (
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      [Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')],
-      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
+      [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
     ];
 
+    // Register button if user is not already participate
+    if (!isAlreadyParticipate) {
+      buttonsArray.unshift([Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')]);
+    }
     const schedule = await bot.dbManager.getCollectionData<ScheduleItem>('schedule', { event_id: eventId });
     // TODO: Change unshift to push later
     if (schedule.length > 0) {
@@ -64,7 +82,11 @@ export const sendEventInfoMessage = async (
       buttonsArray.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
     }
 
-    // TODO: Implement "Back to menu" button
+    // Cancel registration if user already participating but not paid yet
+    if (isAlreadyParticipate && !isAlreadyPaid) {
+      buttonsArray.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
+    }
+
     buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
 
     // Message string array
