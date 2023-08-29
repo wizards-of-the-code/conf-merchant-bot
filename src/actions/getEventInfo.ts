@@ -38,10 +38,16 @@ export const sendEventInfoMessage = async (
 
     // Check if user is already participate in the event
     let isAlreadyParticipate = false;
+    let isAlreadyPaid = false;
     if (participant) {
-      isAlreadyParticipate = participant.events.some(
+      const eventDetails = participant.events.find(
         (e) => e.event_id.toString() === event!._id!.toString(),
       );
+
+      if (eventDetails) {
+        isAlreadyParticipate = true;
+        isAlreadyPaid = eventDetails.is_payed;
+      }
     }
 
     try {
@@ -56,12 +62,9 @@ export const sendEventInfoMessage = async (
       [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
     ];
 
+    // Register button if user is not already participate
     if (!isAlreadyParticipate) {
-      // TODO: Change unshift to push later
       buttonsArray.unshift([Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')]);
-    } else {
-      // TODO: Change unshift to push later
-      buttonsArray.unshift([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
     }
 
     const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId!);
@@ -87,6 +90,11 @@ export const sendEventInfoMessage = async (
 
     if (await isValidUrl(event.tg_channel)) {
       buttonsArray.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
+    }
+
+    // Cancel registration if user already participating but not paid yet
+    if (isAlreadyParticipate && !isAlreadyPaid) {
+      buttonsArray.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
     }
 
     buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
