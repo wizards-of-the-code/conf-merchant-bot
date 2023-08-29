@@ -2,7 +2,9 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import { Event, ScheduleItem, Speaker } from '../types';
+import {
+  Event, Participant, ScheduleItem, Speaker,
+} from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/BotContext.interface';
 // eslint-disable-next-line import/no-cycle
@@ -13,9 +15,12 @@ export const sendEventInfoMessage = async (
   ctx: IBotContext,
   eventIdParam: string,
 ) => {
-  // Get action id from context
+  // Get event id from context
   let eventId: ObjectId;
   let event: Event | null = null;
+
+  // Get participant from DB
+  const participant: Participant | null = await bot.dbManager.getParticipant(ctx.from!.id);
 
   try {
     eventId = new ObjectId(eventIdParam);
@@ -31,6 +36,14 @@ export const sendEventInfoMessage = async (
     // Save event to current session context
     ctx.session.selectedConf = event;
 
+    // Check if user is already participate in the event
+    let isAlreadyParticipate = false;
+    if (participant) {
+      isAlreadyParticipate = participant.events.some(
+        (e) => e.event_id.toString() === event!._id!.toString(),
+      );
+    }
+
     try {
       ctx.deleteMessage();
     } catch (e) {
@@ -40,9 +53,16 @@ export const sendEventInfoMessage = async (
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      [Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')],
       [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
     ];
+
+    if (!isAlreadyParticipate) {
+      // TODO: Change unshift to push later
+      buttonsArray.unshift([Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')]);
+    } else {
+      // TODO: Change unshift to push later
+      buttonsArray.unshift([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
+    }
 
     const schedule: ScheduleItem[] = await bot.dbManager.getEventScheduleItems(eventId!);
     // TODO: Change unshift to push later
@@ -69,7 +89,6 @@ export const sendEventInfoMessage = async (
       buttonsArray.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
     }
 
-    // TODO: Implement "Back to menu" button
     buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
 
     // Message string array

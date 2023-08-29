@@ -14,6 +14,7 @@ import { IBotContext } from '../context/BotContext.interface';
 import { messages } from '../constants';
 import selectRole from '../actions/selectRole';
 import sendMessageWithPhotos from '../utils/sendMessageWithPhotos';
+import cancelParticipation from '../actions/cancelParticipation';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
@@ -75,6 +76,9 @@ class StartCommand extends Command {
 
     // Action: Participate in selected event
     participate(this.bot);
+
+    // Action: Cancel participation in selected event
+    cancelParticipation(this.bot);
 
     // Action: Show speakers for a selected event
     getEventSpeakers(this.bot);
