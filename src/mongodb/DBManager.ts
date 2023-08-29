@@ -276,6 +276,17 @@ class DBManager {
         .updateOne({ _id: eventId }, { $pull: { participants: participant._id } });
     }
 
+    // Log event to DB
+    await this.logToDB(
+      {
+        id: participant.tg.id,
+        username: participant.tg.username,
+        first_name: participant.tg.first_name,
+      },
+      statuses.EVENT_UPDATE,
+      `From event ${eventId} removed participant @${participant.tg.username}`,
+    );
+
     return result;
   }
 
@@ -335,6 +346,17 @@ class DBManager {
       result = await collection
         .updateOne({ _id: participant._id }, { $pull: { events: { event_id: eventId } } });
     }
+
+    // Log event to DB
+    await this.logToDB(
+      {
+        id: participant.tg.id,
+        username: participant.tg.username,
+        first_name: participant.tg.first_name,
+      },
+      statuses.PARTICIPANT_UPDATE,
+      `Participant @${participant.tg.username} removed from event: ${eventId}`,
+    );
 
     return result;
   }
