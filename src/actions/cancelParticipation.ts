@@ -24,7 +24,7 @@ const cancelParticipation = async (bot: TelegramBot) => {
 
       if (removeFromEventResult.modifiedCount > 0) {
         // Add event details to Participant entry
-        await bot.dbManager.removeEventDetailsToParticipant(new ObjectId(eventId), participant);
+        await bot.dbManager.removeEventDetailsFromParticipant(new ObjectId(eventId), participant);
         // TODO: Handle result of addEventDetailsToParticipant
 
         userMessage = `Ваша регистрация на конференцию "${event!.name}" успешно отменена.`;

@@ -261,6 +261,11 @@ class DBManager {
     return result;
   }
 
+  /** Remove a participant from event.
+   * @param {ObjectId} [eventId] Event ID.
+   * @param {Participant} [participant] Participant to remove.
+   * @returns {UpdateResult}
+   */
   async removeParticipantFromEvent(
     eventId: ObjectId,
     participant: Participant,
@@ -332,7 +337,12 @@ class DBManager {
     return result;
   }
 
-  async removeEventDetailsToParticipant(
+  /** Remove event details from participant entry.
+   * @param {ObjectId} [eventId] Participant to remove.
+   * @param {Participant} [participant] Participant to add.
+   * @returns {UpdateResult} UpdateResult
+   */
+  async removeEventDetailsFromParticipant(
     eventId: ObjectId,
     participant: Participant,
   ): Promise<UpdateResult> {
