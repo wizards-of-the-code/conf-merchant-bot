@@ -29,15 +29,16 @@ const sendMessage = async (
 
   // Send messages
   if (message.value.length > 0) {
-    let counter = 0;
+    // Index for finding last message
+    let index = 0;
     for (const msg of message.value) {
-      if (counter < message.value.length - 1 || buttons.length === 0) {
+      if (index < message.value.length - 1 || buttons.length === 0) {
         /* eslint-disable no-await-in-loop --
             * The general idea to wait until each Context reply should be finished
             * until next one should run :)
             */
         await ctx.reply(msg);
-        counter += 1;
+        index += 1;
       } else {
         await ctx.reply(msg, Markup.inlineKeyboard(buttons));
       }
