@@ -50,7 +50,7 @@ export const sendEventInfoMessage = async (
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
+      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
     ];
 
     // Register button if user is not already participate

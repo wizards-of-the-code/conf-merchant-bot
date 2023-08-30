@@ -1,8 +1,13 @@
 import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
-import { Participant, TelegramUser, Event } from '../types';
+import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import {
+  Participant, TelegramUser, Event, Message,
+} from '../types';
 import TelegramBot from '../TelegramBot';
 import parseActionParam from '../utils/parseActionParam';
+import sendMessage from '../utils/sendMessage';
+import switchRoleMessage from '../utils/switchRoleMessage';
 
 const participate = async (bot: TelegramBot) => {
   bot.action(/action_participate_/, async (ctx) => {
@@ -36,31 +41,40 @@ const participate = async (bot: TelegramBot) => {
       participant._id = participantId;
     }
 
-    // If yes - add him to participates array of Event object
-    const addToEventResult = await bot
-      .dbManager
-      .addParticipantToEvent(new ObjectId(eventId), participant);
+    // Add him to participates array of Event object
+    await bot.dbManager.addParticipantToEvent(new ObjectId(eventId), participant);
 
-    let userMessage: string;
+    // Add event details to Participant entry
+    await bot.dbManager.addEventDetailsToParticipant(new ObjectId(eventId), participant!, role);
 
-    if (addToEventResult.modifiedCount > 0) {
-      // Add event details to Participant entry
-      await bot.dbManager.addEventDetailsToParticipant(new ObjectId(eventId), participant!, role);
-      // TODO: Handle result of addEventDetailsToParticipant
-
-      userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
-    } else {
-      // TODO: Easier to hide the button or change it to "Unsibscribe" in the future
-      userMessage = 'Вы уже записаны на эту конференцию! :)';
-    }
+    const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
 
     ctx.editMessageReplyMarkup(undefined);
-    ctx.reply(userMessage, Markup.inlineKeyboard(
-      [
-        Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
-        Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-      ],
-    ));
+
+    const buttons: (
+      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+    )[][] = [[
+      Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+      Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+    ]];
+
+    // Get message from DB
+    const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: switchRoleMessage(role) });
+
+    if (roleMessage) {
+      /* If role need special message - send confirmation first and then
+         send roleMessages with buttons attache to the last one */
+      await ctx.reply(userMessage);
+      await sendMessage(roleMessage, ctx, buttons);
+    } else {
+      // Else just send confirmation message with buttons
+      ctx.reply(userMessage, Markup.inlineKeyboard(
+        [
+          Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+          Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+        ],
+      ));
+    }
   });
 };
 
