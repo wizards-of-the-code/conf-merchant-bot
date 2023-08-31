@@ -1,6 +1,6 @@
 import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
-import { Event, ScheduleItem } from '../types';
+import { Event } from '../types';
 
 const getEventSchedule = async (bot: TelegramBot) => {
   bot.action(/action_get_schedule_/, async (ctx) => {
@@ -10,18 +10,13 @@ const getEventSchedule = async (bot: TelegramBot) => {
       // TODO: Implement logs and store this errors there
       console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
     } else {
-      /* eslint-disable max-len */
-      const scheduleItemsArr = await bot.dbManager.getCollectionData<ScheduleItem>('schedule', { event_id: event._id });
-
       // Remove keyboard from last message
       ctx.editMessageReplyMarkup(undefined);
 
       const messageArray: String[] = [`🗓 Расписание событий <b>${event.name}</b>:\n`];
 
-      // TODO: Add filtration by date
-
       // Collect all Schedule Items in one message
-      for (const item of scheduleItemsArr) {
+      for (const item of event.schedule) {
         messageArray.push(`<b>${item.time}: ${item.title}</b>`);
       }
 
