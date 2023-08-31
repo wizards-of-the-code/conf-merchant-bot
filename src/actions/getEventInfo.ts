@@ -93,7 +93,7 @@ export const sendEventInfoMessage = async (
     const messageArray: String[] = [
       `<b>Локация:</b> ${event.location.city}, ${event.location.country}`,
       `${event.description}`,
-      `<b>Дата и время:</b>  ${event.datetime}`,
+      `<b>Дата и время:</b>  ${new Date(event.datetime).toLocaleDateString()}`,
       `<b>Цена:</b>  ${event.currency} ${event.current_price}`,
     ];
 

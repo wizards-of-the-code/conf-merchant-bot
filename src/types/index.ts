@@ -6,7 +6,7 @@ export type Event = {
   description: string;
   tickets_link: string;
   link: string;
-  datetime: string;
+  datetime: Date;
   current_price: string;
   currency: string;
   tg_channel: string;
