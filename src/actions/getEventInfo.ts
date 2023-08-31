@@ -3,7 +3,7 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import {
-  Event, Participant, ScheduleItem, Speaker,
+  Event, Participant, Speaker,
 } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
@@ -50,16 +50,16 @@ export const sendEventInfoMessage = async (
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      [Markup.button.callback('🌟 Стать спонсором', 'action_become_sponsor')],
+      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
     ];
 
     // Register button if user is not already participate
     if (!isAlreadyParticipate) {
       buttonsArray.unshift([Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')]);
     }
-    const schedule = await bot.dbManager.getCollectionData<ScheduleItem>('schedule', { event_id: eventId });
+
     // TODO: Change unshift to push later
-    if (schedule.length > 0) {
+    if (event.schedule.length > 0) {
       buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
@@ -93,7 +93,7 @@ export const sendEventInfoMessage = async (
     const messageArray: String[] = [
       `<b>Локация:</b> ${event.location.city}, ${event.location.country}`,
       `${event.description}`,
-      `<b>Дата и время:</b>  ${event.datetime}`,
+      `<b>Дата и время:</b>  ${new Date(event.datetime).toLocaleDateString()}`,
       `<b>Цена:</b>  ${event.currency} ${event.current_price}`,
     ];
 

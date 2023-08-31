@@ -13,7 +13,7 @@ import TelegramBot from '../TelegramBot';
 import { IBotContext } from '../context/IBotContext';
 import { messages } from '../constants';
 import selectRole from '../actions/selectRole';
-import sendMessageWithPhotos from '../utils/sendMessageWithPhotos';
+import sendMessage from '../utils/sendMessage';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../types';
@@ -24,7 +24,7 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const startMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.START_MESSAGES });
 
   if (startMessage) {
-    await sendMessageWithPhotos(startMessage, ctx);
+    await sendMessage(startMessage, ctx);
   }
 
   const buttonsArray: (
