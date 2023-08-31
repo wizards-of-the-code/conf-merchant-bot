@@ -3,7 +3,16 @@ import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
 import { IBotContext } from '../context/IBotContext';
 import Paginator from '../utils/paginator';
-import { ObjectId } from 'mongodb';
+
+function formatDateToDdMmYyyy(isoDateString: string): string {
+  const date = new Date(isoDateString);
+
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear().toString();
+
+  return `${day}.${month}.${year}`;
+}
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const events = await bot.dbManager.getCollectionData<Event>('events', { is_active: true });
@@ -13,24 +22,24 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     console.log('Error when trying to delete old message');
   }
 
-  // const confs = events.map((event) =>
-  // [Markup.button.callback(`${event.location.city}, ${event.location.country}, ${event.datetime}`
-  // , `action_get_info_${event._id!.toString()}`)]);
-
   const paginatorOptions = {
     items: events,
-    itemsPerPage: 2,
-    itemToString: (item: any) => item.name.toString(),
+    itemsPerPage: 5,
+    itemToString: (event: any) => [event.location.city, event.location.country, formatDateToDdMmYyyy(event.datetime)].join(', '),
     linkItem: (event: any) => event._id.toString(),
   };
-  const paginator = new Paginator('Выберите мероприятие', paginatorOptions);
+
+  const message = 'Выберите интересующее вас мероприятие: ';
+  const paginator = new Paginator(message, paginatorOptions);
   paginator.sendPage(ctx);
-  // console.log(paginator);
-  // ctx.reply(
-  //   'Какая именно конференция вас интересует?',
-  //   Markup.inlineKeyboard([...confs,
-  //     [Markup.button.callback('prev', 'page_0'), Markup.button.callback('next', 'page_1')]]),
-  // );
+
+  bot.action('prev_page', () => {
+    paginator.handlePreviousPage(ctx);
+  });
+
+  bot.action('next_page', () => {
+    paginator.handleNextPage(ctx);
+  });
 };
 
 const getEvents = async (bot: TelegramBot) => {

@@ -14,10 +14,13 @@ class Paginator<T> {
 
   private message: string;
 
+  private messageId: number | undefined;
+
   constructor(message: string, options: PaginatorOptions<T>) {
     this.options = options;
     this.currentPage = 0;
     this.message = message;
+    this.messageId = -1;
   }
 
   private getPageItems(): T[] {
@@ -30,15 +33,53 @@ class Paginator<T> {
     return buttons;
   }
 
-  sendPage(ctx: Context): void {
+  async sendPage(ctx: Context): Promise<void> {
     const buttons = this.createButtons();
+    const paginationButtons = [];
+    if (this.options.items.length <= this.options.itemsPerPage) {
+      ctx.reply(this.message, Markup.inlineKeyboard(buttons));
+      return;
+    }
 
-    buttons.push([
-      Markup.button.callback('⬅️ Previous', 'prev_page'),
-      Markup.button.callback('Next ➡️', 'next_page'),
-    ]);
+    if (this.currentPage !== 0) {
+      paginationButtons.push(
+        Markup.button.callback('⬅️ Назад', 'prev_page'),
+      );
+    }
 
-    ctx.reply(this.message, Markup.inlineKeyboard(buttons));
+    if (this.currentPage !== Math.ceil(this.options.items.length / this.options.itemsPerPage) - 1) {
+      paginationButtons.push(
+        Markup.button.callback('Вперед ➡️', 'next_page'),
+      );
+    }
+
+    buttons.push(paginationButtons);
+    if (this.messageId !== -1) {
+      ctx.telegram.editMessageText(
+        ctx.chat?.id,
+        this.messageId,
+        undefined,
+        this.message,
+        Markup.inlineKeyboard(buttons),
+      );
+    } else {
+      const message = await ctx.reply(this.message, Markup.inlineKeyboard(buttons));
+      this.messageId = message.message_id;
+    }
+  }
+
+  handlePreviousPage(ctx: Context): void {
+    this.currentPage = Math.max(0, this.currentPage - 1);
+    this.sendPage(ctx);
+  }
+
+  handleNextPage(ctx: Context): void {
+    this.currentPage = Math.min(
+      Math.ceil(this.options.items.length / this.options.itemsPerPage) - 1,
+      this.currentPage + 1,
+    );
+
+    this.sendPage(ctx);
   }
 }
 

@@ -17,7 +17,7 @@ import sendMessageWithPhotos from '../utils/sendMessageWithPhotos';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../types';
-import paginator from '../actions/paginator';
+// import paginator from '../actions/paginator';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
@@ -89,7 +89,7 @@ class StartCommand extends Command {
     // Action: Show schedule for a selected event
     getEventSchedule(this.bot);
 
-    paginator(this.bot);
+    // paginator(this.bot);
 
     // Enable graceful stop
     process.once('SIGINT', () => this.bot.stop('SIGINT'));
