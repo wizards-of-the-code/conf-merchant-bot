@@ -8,11 +8,13 @@ export type Event = {
   link: string;
   datetime: Date;
   current_price: string;
+  partner_price: string;
   currency: string;
   tg_channel: string;
   is_active: boolean;
   location: Location;
   participants: ObjectId[];
+  schedule: ScheduleItem[];
 };
 
 export type TelegramUser = {
@@ -81,9 +83,7 @@ export type Sponsor = {
 };
 
 export type ScheduleItem = {
-  _id: ObjectId;
-  event_id: ObjectId;
-  date: string;
+  date: Date;
   time: string;
   title: string;
 };
