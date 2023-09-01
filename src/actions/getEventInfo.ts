@@ -97,7 +97,8 @@ export const sendEventInfoMessage = async (
       `<b>Цена:</b>  ${event.currency} ${event.current_price}`,
     ];
 
-    ctx.replyWithHTML(messageArray.join('\n\n'), Markup.inlineKeyboard(buttonsArray));
+    const message = await ctx.replyWithHTML(messageArray.join('\n\n'), Markup.inlineKeyboard(buttonsArray));
+    ctx.session.currentMessage = message.message_id;
   } catch (e) {
     console.log('Incorrect ID string, starting standard \\start sequence.');
     sendStartMessage(bot, ctx);

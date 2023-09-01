@@ -1,4 +1,5 @@
-import { Markup, Context } from 'telegraf';
+import { Markup } from 'telegraf';
+import { IBotContext } from '../context/IBotContext';
 
 interface PaginatorOptions<T> {
   items: T[];
@@ -29,11 +30,13 @@ class Paginator<T> {
   }
 
   private createButtons() {
-    const buttons = this.getPageItems().map((item) => [Markup.button.callback(this.options.itemToString(item), `action_get_info_${this.options.linkItem(item)}`)]);
+    const buttons = this.getPageItems().map((item) => [
+      Markup.button.callback(this.options.itemToString(item), this.options.linkItem(item)),
+    ]);
     return buttons;
   }
 
-  async sendPage(ctx: Context): Promise<void> {
+  async sendPage(ctx: IBotContext): Promise<void> {
     const buttons = this.createButtons();
     const paginationButtons = [];
     if (this.options.items.length <= this.options.itemsPerPage) {
@@ -54,26 +57,28 @@ class Paginator<T> {
     }
 
     buttons.push(paginationButtons);
-    if (this.messageId !== -1) {
+
+    if (this.messageId === -1) {
+      const message = await ctx.reply(this.message, Markup.inlineKeyboard(buttons));
+      ctx.session.currentMessage = message.message_id;
+      this.messageId = message.message_id;
+    } else {
       ctx.telegram.editMessageText(
         ctx.chat?.id,
-        this.messageId,
+        ctx.session.currentMessage,
         undefined,
         this.message,
         Markup.inlineKeyboard(buttons),
       );
-    } else {
-      const message = await ctx.reply(this.message, Markup.inlineKeyboard(buttons));
-      this.messageId = message.message_id;
     }
   }
 
-  handlePreviousPage(ctx: Context): void {
+  handlePreviousPage(ctx: IBotContext): void {
     this.currentPage = Math.max(0, this.currentPage - 1);
     this.sendPage(ctx);
   }
 
-  handleNextPage(ctx: Context): void {
+  handleNextPage(ctx: IBotContext): void {
     this.currentPage = Math.min(
       Math.ceil(this.options.items.length / this.options.itemsPerPage) - 1,
       this.currentPage + 1,

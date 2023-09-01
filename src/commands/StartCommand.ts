@@ -17,7 +17,6 @@ import sendMessage from '../utils/sendMessage';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../types';
-// import paginator from '../actions/paginator';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB

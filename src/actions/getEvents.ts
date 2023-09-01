@@ -1,4 +1,3 @@
-// import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
 import { IBotContext } from '../context/IBotContext';
@@ -26,11 +25,11 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     items: events,
     itemsPerPage: 5,
     itemToString: (event: any) => [event.location.city, event.location.country, formatDateToDdMmYyyy(event.datetime)].join(', '),
-    linkItem: (event: any) => event._id.toString(),
+    linkItem: (event: any) => `action_get_info_${event._id.toString()}`,
   };
 
-  const message = 'Выберите интересующее вас мероприятие: ';
-  const paginator = new Paginator(message, paginatorOptions);
+  const messageText = 'Выберите интересующее вас мероприятие: ';
+  const paginator = new Paginator(messageText, paginatorOptions);
   paginator.sendPage(ctx);
 
   bot.action('prev_page', () => {
