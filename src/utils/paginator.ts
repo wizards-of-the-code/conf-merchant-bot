@@ -9,19 +9,20 @@ interface PaginatorOptions<T> {
 }
 
 class Paginator<T> {
-  private currentPage: number;
+  private currentPage: number = 0;
 
-  private readonly options: PaginatorOptions<T>;
+  private messageId: number | undefined = -1;
 
   private message: string;
 
-  private messageId: number | undefined;
+  private lastPage: number;
+
+  private readonly options: PaginatorOptions<T>;
 
   constructor(message: string, options: PaginatorOptions<T>) {
     this.options = options;
-    this.currentPage = 0;
     this.message = message;
-    this.messageId = -1;
+    this.lastPage = Math.ceil(this.options.items.length / this.options.itemsPerPage) - 1;
   }
 
   private getPageItems(): T[] {
@@ -46,13 +47,13 @@ class Paginator<T> {
 
     if (this.currentPage !== 0) {
       paginationButtons.push(
-        Markup.button.callback('⬅️ Назад', 'prev_page'),
+        Markup.button.callback('« Назад', 'prev_page'),
       );
     }
 
-    if (this.currentPage !== Math.ceil(this.options.items.length / this.options.itemsPerPage) - 1) {
+    if (this.currentPage !== this.lastPage) {
       paginationButtons.push(
-        Markup.button.callback('Вперед ➡️', 'next_page'),
+        Markup.button.callback('Вперед »', 'next_page'),
       );
     }
 
@@ -79,11 +80,7 @@ class Paginator<T> {
   }
 
   handleNextPage(ctx: IBotContext): void {
-    this.currentPage = Math.min(
-      Math.ceil(this.options.items.length / this.options.itemsPerPage) - 1,
-      this.currentPage + 1,
-    );
-
+    this.currentPage = Math.min(this.lastPage, this.currentPage + 1);
     this.sendPage(ctx);
   }
 }
