@@ -3,7 +3,9 @@ import { InlineKeyboardButton, InputMediaPhoto } from 'telegraf/typings/core/typ
 import { Markup } from 'telegraf';
 import { MediaGroup } from 'telegraf/typings/telegram-types';
 import DBManager from './mongodb/DBManager';
-import { ScheduledMessage, EventWithParticipants, ParticipantShort } from './types';
+import {
+  ScheduledMessage, EventWithParticipants, ParticipantShort, Media,
+} from './types';
 import TelegramBot from './TelegramBot';
 import { isValidUrl } from './utils/isValidUrl';
 
@@ -36,13 +38,18 @@ class Scheduler {
           message.datetime_to_send <= new Date()
         ));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
+        // console.log('ready to send:', toSentArr);
 
         // Take toSentArray with messages, ready for sending
         for (const message of toSentArr) {
           // Find event object
-          const recipients = events.find((event) => (
-            event._id.toString() === message.event_id.toString()
-          ))?.participants;
+          const recipients = events.find(
+            (event) => (
+              event._id.toString() === message.event_id.toString()
+            ),
+          )?.participants;
+
+          console.log('recipients', recipients);
 
           if (recipients && recipients.length > 0) {
             /* eslint-disable no-await-in-loop --
@@ -66,6 +73,7 @@ class Scheduler {
     message: ScheduledMessage,
     recipients: ParticipantShort[],
   ) {
+    console.log('message to sent');
     // Construct telegram message buttons
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
@@ -84,14 +92,18 @@ class Scheduler {
     // Add photos
     let mediaGroup: MediaGroup;
     // Put photos in MediaGroup
-    if (message.photos.length > 0) {
+    if (message.images.length > 0) {
+      // Get image paths from DB
+      const media = await this.dbManager.getCollectionData<Media>('media', {});
+      console.log(media);
+
       const mediaArray: InputMediaPhoto[] = [];
-      for (const photo of message.photos) {
-        if (await isValidUrl(photo)) {
-          const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
-          mediaArray.push(inputPhoto);
-        }
-      }
+      // for (const image of message.images) {
+      //   if (await isValidUrl(image.)) {
+      //     const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
+      //     mediaArray.push(inputPhoto);
+      //   }
+      // }
       mediaGroup = [...mediaArray];
     } else {
       mediaGroup = [];
@@ -140,7 +152,7 @@ class Scheduler {
     mediaGroup: MediaGroup,
   ): Promise<boolean> {
     // Send photos first if photosOnTop === true
-    if (mediaGroup.length > 0 && message.photos_on_top) {
+    if (mediaGroup.length > 0 && message.images_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
@@ -148,7 +160,7 @@ class Scheduler {
     await this.sendMessageText(tgId, message, buttonsArray);
 
     // Send photos in the end if photosOnTop === true
-    if (mediaGroup.length > 0 && !message.photos_on_top) {
+    if (mediaGroup.length > 0 && !message.images_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
