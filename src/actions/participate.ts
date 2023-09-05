@@ -96,7 +96,7 @@ const participate = async (bot: TelegramBot) => {
     if (roleMessage) {
       // If a role message is available, send a confirmation and then the role message with buttons
       await ctx.reply(userMessage);
-      await sendMessage(roleMessage, ctx, buttons);
+      await sendMessage(roleMessage, ctx, bot, buttons);
     } else {
       // Else, just send a confirmation message with buttons
       ctx.reply(userMessage, Markup.inlineKeyboard(buttons));
