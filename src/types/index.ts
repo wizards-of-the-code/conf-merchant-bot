@@ -61,7 +61,7 @@ export type Participant = {
 
 export type ParticipantShort = {
   tg: {
-    id: number;
+    tg_id: number;
     first_name: string;
     last_name?: string;
   }

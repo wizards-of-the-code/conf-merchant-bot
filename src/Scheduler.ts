@@ -40,6 +40,7 @@ class Scheduler {
         ));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
         // console.log('ready to send:', toSentArr);
+        // console.log('events', events);
 
         // Take toSentArray with messages, ready for sending
         for (const message of toSentArr) {
@@ -49,6 +50,8 @@ class Scheduler {
               event._id.toString() === message.event_id.toString()
             ),
           )?.participants;
+
+          console.log(recipients);
 
           if (recipients && recipients.length > 0) {
             /* eslint-disable no-await-in-loop --
@@ -117,7 +120,7 @@ class Scheduler {
     // Sent message to each recipient
     for (const recipient of recipients) {
       const sentResult = await this.sendMessageToUser(
-        recipient.tg.id,
+        recipient.tg.tg_id,
         message,
         buttonsArray,
         mediaGroup,
@@ -192,8 +195,6 @@ class Scheduler {
   ): Promise<boolean> {
     // Send photos
     const sendResult = await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
-    console.log('sendResult', sendResult);
-    console.log('mediaGroup', mediaGroup);
 
     if (sendResult) return true;
     return false;
