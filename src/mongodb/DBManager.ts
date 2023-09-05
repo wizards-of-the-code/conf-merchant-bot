@@ -12,16 +12,15 @@ import {
 interface Item extends Document { }
 
 class DBManager {
-  instance: Db | undefined;
+  private instance: Db | undefined;
 
-  uri: string;
+  private uri: string;
 
-  dbName: string;
+  private dbName: string;
 
-  client: MongoClient;
+  private client: MongoClient;
 
   constructor(private readonly configService: IConfigService) {
-    this.instance = undefined;
     this.uri = `mongodb+srv://${configService.get('MONGO_USERNAME')}:${configService.get('MONGO_PASSWORD')}@botdb.ixjj9ng.mongodb.net/`;
     this.dbName = `${configService.get('MONGO_DB_NAME')}`;
     this.client = new MongoClient(this.uri);

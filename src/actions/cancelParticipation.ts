@@ -16,31 +16,38 @@ const cancelParticipation = async (bot: TelegramBot) => {
 
     if (!participant) {
       console.log('User is not participated');
-    } else {
-      const logData: LogEntry = {
-        datetime: new Date(),
-        event: event?._id,
-        initiator: participant.tg,
-        status: statuses.EVENT_UPDATE,
-        message: `From event ${event?.name} removed participant @${participant.tg.username}`,
-      };
-
-      await bot
-        .dbManager
-        .insertOrUpdateDocumentToCollection('events', { _id: event?._id }, { $pull: { participants: participant._id } }, logData);
-
-      await bot
-        .dbManager
-        .insertOrUpdateDocumentToCollection('participants', { _id: participant._id }, { $pull: { events: { event_id: event?._id } } });
-      // TODO: Handle result of addEventDetailsToParticipant
-      ctx.editMessageReplyMarkup(undefined);
-      ctx.reply(`Ваша регистрация на конференцию "${event!.name}" успешно отменена.`, Markup.inlineKeyboard(
-        [
-          Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
-          Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-        ],
-      ));
+      return;
     }
+
+    const logData: LogEntry = {
+      datetime: new Date(),
+      event: event?._id,
+      initiator: participant.tg,
+      status: statuses.EVENT_UPDATE,
+      message: `From event ${event?.name} removed participant @${participant.tg.username}`,
+    };
+
+    await bot.dbManager.insertOrUpdateDocumentToCollection(
+      'events',
+      { _id: event?._id },
+      { $pull: { participants: participant._id } },
+      logData,
+    );
+
+    await bot.dbManager.insertOrUpdateDocumentToCollection(
+      'participants',
+      { _id: participant._id },
+      { $pull: { events: { event_id: event?._id } } },
+    );
+
+    // TODO: Handle result of addEventDetailsToParticipant
+    ctx.editMessageReplyMarkup(undefined);
+    ctx.reply(`Ваша регистрация на конференцию "${event!.name}" успешно отменена.`, Markup.inlineKeyboard(
+      [
+        Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+        Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+      ],
+    ));
   });
 };
 

@@ -5,7 +5,6 @@ import Paginator from '../utils/paginator';
 
 function formatDateToDdMmYyyy(isoDateString: string): string {
   const date = new Date(isoDateString);
-
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear().toString();
@@ -14,12 +13,13 @@ function formatDateToDdMmYyyy(isoDateString: string): string {
 }
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
-  const events = await bot.dbManager.getCollectionData<Event>('events', { is_active: true });
   try {
     ctx.deleteMessage();
   } catch (e) {
     console.log('Error when trying to delete old message');
   }
+
+  const events = await bot.dbManager.getCollectionData<Event>('events', { is_active: true });
 
   const paginatorOptions = {
     items: events,
@@ -32,13 +32,8 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const paginator = new Paginator(messageText, paginatorOptions);
   paginator.sendPage(ctx);
 
-  bot.action('prev_page', () => {
-    paginator.handlePreviousPage(ctx);
-  });
-
-  bot.action('next_page', () => {
-    paginator.handleNextPage(ctx);
-  });
+  bot.action('prev_page', () => { paginator.handlePreviousPage(ctx); });
+  bot.action('next_page', () => { paginator.handleNextPage(ctx); });
 };
 
 const getEvents = async (bot: TelegramBot) => {
