@@ -1,7 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
-import { Participant, Event } from '../types';
+import { Participant, Event, LogEntry } from '../types';
 import TelegramBot from '../TelegramBot';
+import { statuses } from '../constants';
 
 const cancelParticipation = async (bot: TelegramBot) => {
   bot.action(/action_cancel_participation/, async (ctx) => {
@@ -16,24 +17,24 @@ const cancelParticipation = async (bot: TelegramBot) => {
     if (!participant) {
       console.log('User is not participated');
     } else {
-      const removeFromEventResult = await bot
+      const logData: LogEntry = {
+        datetime: new Date(),
+        event: event?._id,
+        initiator: participant.tg,
+        status: statuses.EVENT_UPDATE,
+        message: `From event ${event?.name} removed participant @${participant.tg.username}`,
+      };
+
+      await bot
         .dbManager
-        .removeParticipantFromEvent(new ObjectId(eventId), participant);
+        .insertOrUpdateDocumentToCollection('events', { _id: event?._id }, { $pull: { participants: participant._id } }, logData);
 
-      let userMessage: string;
-
-      if (removeFromEventResult.modifiedCount > 0) {
-        // Add event details to Participant entry
-        await bot.dbManager.removeEventDetailsFromParticipant(new ObjectId(eventId), participant);
-        // TODO: Handle result of addEventDetailsToParticipant
-
-        userMessage = `Ваша регистрация на конференцию "${event!.name}" успешно отменена.`;
-      } else {
-        userMessage = 'По какой-то причине вы и не были записаны на эту конференцию.';
-      }
-
+      await bot
+        .dbManager
+        .insertOrUpdateDocumentToCollection('participants', { _id: participant._id }, { $pull: { events: { event_id: event?._id } } });
+      // TODO: Handle result of addEventDetailsToParticipant
       ctx.editMessageReplyMarkup(undefined);
-      ctx.reply(userMessage, Markup.inlineKeyboard(
+      ctx.reply(`Ваша регистрация на конференцию "${event!.name}" успешно отменена.`, Markup.inlineKeyboard(
         [
           Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
           Markup.button.callback('🔼 В главное меню', 'action_get_events'),

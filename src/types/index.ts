@@ -90,9 +90,10 @@ export type ScheduleItem = {
 
 export type LogEntry = {
   _id?: ObjectId;
+  event: ObjectId | undefined;
   datetime: Date;
-  event: string;
   message?: string;
+  status?: string;
   initiator: TelegramUser;
 };
 

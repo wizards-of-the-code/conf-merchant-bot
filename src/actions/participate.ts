@@ -2,12 +2,13 @@ import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import {
-  Participant, TelegramUser, Event, Message,
+  Participant, TelegramUser, Event, Message, LogEntry, ParticipantEventDetails,
 } from '../types';
 import TelegramBot from '../TelegramBot';
 import parseActionParam from '../utils/parseActionParam';
 import sendMessage from '../utils/sendMessage';
 import switchRoleMessage from '../utils/switchRoleMessage';
+import { statuses } from '../constants';
 
 const participate = async (bot: TelegramBot) => {
   bot.action(/action_participate_/, async (ctx) => {
@@ -22,6 +23,7 @@ const participate = async (bot: TelegramBot) => {
     // Check if user if already in DB
     let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
     let participantId: ObjectId | undefined;
+    let logData: LogEntry;
 
     if (!participant) {
       // If no - create new user first
@@ -37,15 +39,39 @@ const participate = async (bot: TelegramBot) => {
         events: [],
       };
 
-      participantId = await bot.dbManager.insertParticipant(participant);
+      logData = {
+        datetime: new Date(),
+        initiator: user,
+        event: event?._id,
+        status: statuses.NEW_PARTICIPANT,
+        message: `New participant @${user.username} added`,
+      };
+
+      participantId = await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { 'tg.id': user.id }, { $set: participant }, logData);
       participant._id = participantId;
     }
 
     // Add him to participates array of Event object
-    await bot.dbManager.addParticipantToEvent(new ObjectId(eventId), participant);
+    logData = {
+      datetime: new Date(),
+      initiator: participant.tg,
+      event: event?._id,
+      status: statuses.EVENT_UPDATE,
+      message: `To event ${event?.name} added participant @${participant.tg.username}`,
+    };
+    await bot
+      .dbManager
+      .insertOrUpdateDocumentToCollection('events', { _id: event?._id }, { $addToSet: { participants: participant._id } }, logData);
 
     // Add event details to Participant entry
-    await bot.dbManager.addEventDetailsToParticipant(new ObjectId(eventId), participant!, role);
+    const eventDetails: ParticipantEventDetails = {
+      event_id: eventId!,
+      is_payed: false,
+      role,
+      attended: false,
+    };
+
+    await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { _id: participant._id }, { $push: { events: eventDetails } });
 
     const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
 
@@ -53,10 +79,14 @@ const participate = async (bot: TelegramBot) => {
 
     const buttons: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [[
-      Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
-      Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-    ]];
+    )[][] = [
+      [
+        Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation'),
+      ],
+      [
+        Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+        Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+      ]];
 
     // Get message from DB
     const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: switchRoleMessage(role) });
@@ -68,12 +98,15 @@ const participate = async (bot: TelegramBot) => {
       await sendMessage(roleMessage, ctx, buttons);
     } else {
       // Else just send confirmation message with buttons
-      ctx.reply(userMessage, Markup.inlineKeyboard(
+      ctx.reply(userMessage, Markup.inlineKeyboard([
+        [
+          Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation'),
+        ],
         [
           Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
           Markup.button.callback('🔼 В главное меню', 'action_get_events'),
         ],
-      ));
+      ]));
     }
   });
 };
