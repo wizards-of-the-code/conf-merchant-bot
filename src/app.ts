@@ -6,6 +6,7 @@ import Command from './commands/Command';
 import Scheduler from './Scheduler';
 import DBManager from './mongodb/DBManager';
 import StartCommand from './commands/StartCommand';
+import setupListeners from './listeners/setupListeners';
 
 class App {
   bot: TelegramBot;
@@ -28,6 +29,8 @@ class App {
     // Adding listeners for commands
     this.commands = [new StartCommand(this.bot)];
     this.commands.forEach((command) => command.handle());
+
+    setupListeners(this.bot);
 
     // Launching bot itself
     this.bot.launch();
