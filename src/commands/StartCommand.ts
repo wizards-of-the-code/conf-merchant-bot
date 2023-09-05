@@ -23,7 +23,7 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const startMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.START_MESSAGES });
 
   if (startMessage) {
-    await sendMessage(startMessage, ctx);
+    await sendMessage(startMessage, ctx, bot);
   }
 
   const buttonsArray: (
