@@ -2,6 +2,7 @@ import cron, { ScheduledTask } from 'node-cron';
 import { InlineKeyboardButton, InputMediaPhoto } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
 import { MediaGroup } from 'telegraf/typings/telegram-types';
+import { ObjectId } from 'mongodb';
 import DBManager from './mongodb/DBManager';
 import {
   ScheduledMessage, EventWithParticipants, ParticipantShort, Media,
@@ -28,7 +29,7 @@ class Scheduler {
     /* eslint no-console: 0 */
     console.log('Scheduler initialized');
 
-    const minutelyTask: ScheduledTask = cron.schedule('*/30 * * * * *', async () => {
+    const minutelyTask: ScheduledTask = cron.schedule('*/15 * * * * *', async () => {
       // Every minute check DB for changes ragarding active MANUAL messages
       const messages = await this.dbManager.getCollectionData<ScheduledMessage>('notifications', { is_active: true, sent: null });
 
@@ -48,8 +49,6 @@ class Scheduler {
               event._id.toString() === message.event_id.toString()
             ),
           )?.participants;
-
-          console.log('recipients', recipients);
 
           if (recipients && recipients.length > 0) {
             /* eslint-disable no-await-in-loop --
@@ -73,7 +72,6 @@ class Scheduler {
     message: ScheduledMessage,
     recipients: ParticipantShort[],
   ) {
-    console.log('message to sent');
     // Construct telegram message buttons
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
@@ -93,17 +91,21 @@ class Scheduler {
     let mediaGroup: MediaGroup;
     // Put photos in MediaGroup
     if (message.images.length > 0) {
+      const paths = message.images.map((item) => new ObjectId(item.media_id));
+
       // Get image paths from DB
-      const media = await this.dbManager.getCollectionData<Media>('media', {});
-      console.log(media);
+      const media = await this.dbManager.getCollectionData<Media>(
+        'media',
+        { _id: { $in: paths } },
+      );
 
       const mediaArray: InputMediaPhoto[] = [];
-      // for (const image of message.images) {
-      //   if (await isValidUrl(image.)) {
-      //     const inputPhoto: InputMediaPhoto = { type: 'photo', media: photo };
-      //     mediaArray.push(inputPhoto);
-      //   }
-      // }
+      for (const image of media) {
+        // Get file right from the server's volume
+        const fullPath = `/var/payload-admin/media/${image.filename}`;
+        const inputPhoto: InputMediaPhoto = { type: 'photo', media: fullPath };
+        mediaArray.push(inputPhoto);
+      }
       mediaGroup = [...mediaArray];
     } else {
       mediaGroup = [];
@@ -189,6 +191,8 @@ class Scheduler {
   ): Promise<boolean> {
     // Send photos
     const sendResult = await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
+    console.log('sendResult', sendResult);
+    console.log('mediaGroup', mediaGroup);
 
     if (sendResult) return true;
     return false;
