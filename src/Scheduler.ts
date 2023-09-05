@@ -106,7 +106,7 @@ class Scheduler {
 
         console.log('path', fullPath);
 
-        const inputPhoto: InputMediaPhoto = { type: 'photo', media: fullPath };
+        const inputPhoto: InputMediaPhoto = { type: 'photo', media: { source: fullPath } };
         mediaArray.push(inputPhoto);
       }
       mediaGroup = [...mediaArray];
