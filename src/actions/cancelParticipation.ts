@@ -12,7 +12,7 @@ const cancelParticipation = async (bot: TelegramBot) => {
     const event = await bot.dbManager.getDocumentData<Event>('events', { _id: new ObjectId(eventId) });
 
     // Get participant from DB
-    const participant: Participant | null = await bot.dbManager.getDocumentData('participants', { 'tg.id': ctx.from!.id });
+    const participant: Participant | null = await bot.dbManager.getDocumentData('participants', { 'tg.tg_id': ctx.from!.id });
 
     if (!participant) {
       console.log('User is not participated');
