@@ -36,7 +36,7 @@ const sendMessage = async (
           * The general idea to wait until each Context reply should be finished
           * until next one should run :)
           */
-      await ctx.sendPhoto(fullPath);
+      await ctx.sendPhoto({ source: fullPath });
     }
   }
 
