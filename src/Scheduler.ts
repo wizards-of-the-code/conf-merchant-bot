@@ -104,8 +104,6 @@ class Scheduler {
         // Get file right from the server's volume
         const fullPath = `/var/payload-admin/media/${image.filename}`;
 
-        console.log('path', fullPath);
-
         const inputPhoto: InputMediaPhoto = { type: 'photo', media: { source: fullPath } };
         mediaArray.push(inputPhoto);
       }
@@ -113,8 +111,6 @@ class Scheduler {
     } else {
       mediaGroup = [];
     }
-
-    console.log('mediaGroup', mediaGroup);
 
     // Counter for checking if all messages has been sent or not
     let counter = 0;
