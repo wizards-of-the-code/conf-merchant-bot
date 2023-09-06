@@ -2,15 +2,7 @@ import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
 import { IBotContext } from '../context/IBotContext';
 import Paginator from '../utils/paginator';
-
-function formatDateToDdMmYyyy(isoDateString: string): string {
-  const date = new Date(isoDateString);
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString();
-
-  return `${day}.${month}.${year}`;
-}
+import formatDateToDdMmYyyy from '../utils/dateFormat';
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   try {
