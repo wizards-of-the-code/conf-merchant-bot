@@ -89,7 +89,7 @@ class DBManager {
       const insertResult = await collection.updateOne(query, data, options);
 
       if (logData) {
-        await this.insertOne('log', logData);
+        await this.insertOne('logs', logData);
       }
 
       if (insertResult.upsertedId) {
