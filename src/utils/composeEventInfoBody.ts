@@ -7,31 +7,31 @@ import formatDateToDdMmYyyy from './dateFormat';
  * @returns {string} Formatted string for Event Info telegram message.
  */
 const composeEventInfoBody = (event: Event): string => {
-  const messageArray: String[] = [];
+  const textLines: String[] = [];
 
-  messageArray.push(`<b>Конфа:</b> ${event.name}`);
+  textLines.push(`<b>Конфа:</b> ${event.name}`);
 
   if (event.location.city && event.location.country) {
-    messageArray.push(`<b>Локация:</b> ${event.location.city}, ${event.location.country}`);
+    textLines.push(`<b>Локация:</b> ${event.location.city}, ${event.location.country}`);
   }
 
   if (event.description) {
-    messageArray.push(`${event.description}`);
+    textLines.push(`${event.description}`);
   }
 
   if (event.datetime) {
-    messageArray.push(`<b>Дата проведения:</b> ${formatDateToDdMmYyyy(event.datetime)}`);
+    textLines.push(`<b>Дата проведения:</b> ${formatDateToDdMmYyyy(event.datetime)}`);
   }
 
   if (event.currency && event.current_price) {
-    messageArray.push(`<b>Цена:</b> ${event.currency} ${event.current_price}`);
+    textLines.push(`<b>Цена:</b> ${event.currency} ${event.current_price}`);
   }
 
   if (event.currency && event.partner_price) {
-    messageArray.push(`<b>Цена для "+1":</b> ${event.currency} ${event.partner_price}`);
+    textLines.push(`<b>Цена для "+1":</b> ${event.currency} ${event.partner_price}`);
   }
 
-  return messageArray.join('\n\n');
+  return textLines.join('\n\n');
 };
 
 export default composeEventInfoBody;
