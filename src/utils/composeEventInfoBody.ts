@@ -1,5 +1,11 @@
 import { Event } from '../types/index';
+import formatDateToDdMmYyyy from './dateFormat';
 
+/**
+ * Composes Event Info message as string depending on the parameters presented in the Event object.
+ * @param {Event} event - Event object.
+ * @returns {string} Formatted string for Event Info telegram message.
+ */
 const composeEventInfoBody = (event: Event): string => {
   const messageArray: String[] = [];
 
@@ -14,7 +20,7 @@ const composeEventInfoBody = (event: Event): string => {
   }
 
   if (event.datetime) {
-    messageArray.push(`<b>Дата проведения:</b> ${event.datetime}`);
+    messageArray.push(`<b>Дата проведения:</b> ${formatDateToDdMmYyyy(event.datetime)}`);
   }
 
   if (event.currency && event.current_price) {
