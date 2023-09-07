@@ -6,7 +6,7 @@ import formatDateToDdMmYyyy from '../utils/dateFormat';
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   try {
-    ctx.deleteMessage();
+    await ctx.deleteMessage();
   } catch (e) {
     console.log('Error when trying to delete old message');
   }

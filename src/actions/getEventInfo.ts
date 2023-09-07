@@ -43,7 +43,7 @@ export const sendEventInfoMessage = async (
     }
 
     try {
-      ctx.deleteMessage();
+      await ctx.deleteMessage();
     } catch (e) {
       console.log('Error when trying to delete old message');
     }
