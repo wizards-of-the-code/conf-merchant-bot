@@ -9,6 +9,7 @@ import {
 } from './types';
 import TelegramBot from './TelegramBot';
 import { isValidUrl } from './utils/isValidUrl';
+import 'dotenv/config';
 
 class Scheduler {
   tasks: ScheduledTask[];
@@ -105,7 +106,7 @@ class Scheduler {
       const mediaArray: InputMediaPhoto[] = [];
       for (const image of media) {
         // Get file right from the server's volume
-        const fullPath = `/var/payload-admin/media/${image.filename}`;
+        const fullPath = `${process.env.MEDIA_PATH}/${image.filename}`;
 
         const inputPhoto: InputMediaPhoto = { type: 'photo', media: { source: fullPath } };
         mediaArray.push(inputPhoto);
