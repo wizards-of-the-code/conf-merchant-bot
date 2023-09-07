@@ -9,7 +9,7 @@ const createSponsor = async (ctx: any) => {
   }
 
   const user: TelegramUser = {
-    id: ctx.from.id,
+    tg_id: ctx.from.id,
     username: ctx.from.username!,
     first_name: ctx.from.first_name,
     last_name: ctx.from.last_name,
@@ -20,7 +20,7 @@ const createSponsor = async (ctx: any) => {
     donation: '',
   };
 
-  return ctx.dbManager.insertOrUpdateDocumentToCollection('sponsors', { 'tg.id': user.id }, { $set: sponsor });
+  return ctx.dbManager.insertOrUpdateDocumentToCollection('sponsors', { 'tg.tg_id': user.tg_id }, { $set: sponsor });
 };
 
 const sponsorship = async (bot: TelegramBot) => {
