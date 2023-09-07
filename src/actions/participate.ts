@@ -1,9 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
-import {
-  Participant, TelegramUser, Event, Message,
-} from '../types';
+import { Participant, TelegramUser, Event, Message } from '../types';
 import TelegramBot from '../TelegramBot';
 import parseActionParam from '../utils/parseActionParam';
 import sendMessage from '../utils/sendMessage';
@@ -20,7 +18,9 @@ const participate = async (bot: TelegramBot) => {
     const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
 
     // Check if user if already in DB
-    let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+    let participant = await bot.dbManager.getDocumentData<Participant>('participants', {
+      'tg.id': ctx.from!.id,
+    });
     let participantId: ObjectId | undefined;
 
     if (!participant) {
@@ -51,15 +51,17 @@ const participate = async (bot: TelegramBot) => {
 
     ctx.editMessageReplyMarkup(undefined);
 
-    const buttons: (
-      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [[
-      Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
-      Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-    ]];
+    const buttons: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][] = [
+      [
+        Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+        Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+      ],
+    ];
 
     // Get message from DB
-    const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: switchRoleMessage(role) });
+    const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', {
+      name: switchRoleMessage(role),
+    });
 
     if (roleMessage) {
       /* If role need special message - send confirmation first and then
@@ -68,12 +70,13 @@ const participate = async (bot: TelegramBot) => {
       await sendMessage(roleMessage, ctx, buttons);
     } else {
       // Else just send confirmation message with buttons
-      ctx.reply(userMessage, Markup.inlineKeyboard(
-        [
+      ctx.reply(
+        userMessage,
+        Markup.inlineKeyboard([
           Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
           Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-        ],
-      ));
+        ]),
+      );
     }
   });
 };

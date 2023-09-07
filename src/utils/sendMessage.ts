@@ -12,17 +12,15 @@ import { IBotContext } from '../context/IBotContext';
 const sendMessage = async (
   message: Message,
   ctx: IBotContext,
-  buttons: (
-    InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-  )[][] = [],
+  buttons: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][] = [],
 ) => {
   // Send images if they exists
   if (message.images.length > 0) {
     for (const image of message.images) {
       /* eslint-disable no-await-in-loop --
-          * The general idea to wait until each Context reply should be finished
-          * until next one should run :)
-          */
+       * The general idea to wait until each Context reply should be finished
+       * until next one should run :)
+       */
       await ctx.sendPhoto(image);
     }
   }
@@ -34,9 +32,9 @@ const sendMessage = async (
     for (const msg of message.value) {
       if (index < message.value.length - 1 || buttons.length === 0) {
         /* eslint-disable no-await-in-loop --
-            * The general idea to wait until each Context reply should be finished
-            * until next one should run :)
-            */
+         * The general idea to wait until each Context reply should be finished
+         * until next one should run :)
+         */
         await ctx.reply(msg);
         index += 1;
       } else {

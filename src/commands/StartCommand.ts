@@ -20,18 +20,23 @@ import { Message } from '../types';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
-  const startMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.START_MESSAGES });
+  const startMessage = await bot.dbManager.getDocumentData<Message>('messages', {
+    name: messages.START_MESSAGES,
+  });
 
   if (startMessage) {
     await sendMessage(startMessage, ctx);
   }
 
-  const buttonsArray: (
-    InlineKeyboardButton.UrlButton | InlineKeyboardButton.CallbackButton
-  )[][] = [
+  const buttonsArray: (InlineKeyboardButton.UrlButton | InlineKeyboardButton.CallbackButton)[][] = [
     [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
     [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
-    [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
+    [
+      Markup.button.url(
+        'Discord',
+        'https://discord.com/channels/1109396222604738612/1109397021271539783',
+      ),
+    ],
     [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
     [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
     [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
@@ -39,12 +44,7 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
   ];
 
-  await ctx.reply(
-    'Наши социальные сети:',
-    Markup.inlineKeyboard([
-      ...buttonsArray,
-    ]),
-  );
+  await ctx.reply('Наши социальные сети:', Markup.inlineKeyboard([...buttonsArray]));
 
   setTimeout(() => sendEventsMessage(bot, ctx), 2000);
 };

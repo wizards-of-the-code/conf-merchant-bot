@@ -1,6 +1,10 @@
 import {
-  MongoClient, Db, Document,
-  OptionalUnlessRequiredId, ObjectId, UpdateResult,
+  MongoClient,
+  Db,
+  Document,
+  OptionalUnlessRequiredId,
+  ObjectId,
+  UpdateResult,
   InsertOneResult,
 } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
@@ -14,7 +18,7 @@ import {
 } from '../types';
 import { statuses } from '../constants';
 
-interface Item extends Document { }
+interface Item extends Document {}
 
 class DBManager {
   instance: Db | undefined;
@@ -27,7 +31,9 @@ class DBManager {
 
   constructor(private readonly configService: IConfigService) {
     this.instance = undefined;
-    this.uri = `mongodb+srv://${configService.get('MONGO_USERNAME')}:${configService.get('MONGO_PASSWORD')}@botdb.ixjj9ng.mongodb.net/`;
+    this.uri = `mongodb+srv://${configService.get('MONGO_USERNAME')}:${configService.get(
+      'MONGO_PASSWORD',
+    )}@botdb.ixjj9ng.mongodb.net/`;
     this.dbName = `${configService.get('MONGO_DB_NAME')}`;
     this.client = new MongoClient(this.uri);
   }
@@ -45,10 +51,7 @@ class DBManager {
     }
   }
 
-  async getCollectionData<T>(
-    collectionName: string,
-    selectionCondition: any,
-  ): Promise<T[]> {
+  async getCollectionData<T>(collectionName: string, selectionCondition: any): Promise<T[]> {
     try {
       if (!this.instance) {
         throw new Error('Database instance not available.');
@@ -63,10 +66,7 @@ class DBManager {
     }
   }
 
-  async getDocumentData<T>(
-    collectionName: string,
-    selectionCondition: any,
-  ): Promise<T | null> {
+  async getDocumentData<T>(collectionName: string, selectionCondition: any): Promise<T | null> {
     try {
       if (!this.instance) {
         throw new Error('Database instance not available.');
@@ -80,11 +80,7 @@ class DBManager {
     }
   }
 
-  async insertOrUpdateDocumentToCollection(
-    collectionName: string,
-    query: any,
-    data: any,
-  ) {
+  async insertOrUpdateDocumentToCollection(collectionName: string, query: any, data: any) {
     try {
       if (!this.instance) {
         throw new Error('No database instance found.');
@@ -172,8 +168,10 @@ class DBManager {
     } else {
       const collection = this.instance.collection<Event>('events');
 
-      result = await collection
-        .updateOne({ _id: eventId }, { $addToSet: { participants: participant._id } });
+      result = await collection.updateOne(
+        { _id: eventId },
+        { $addToSet: { participants: participant._id } },
+      );
     }
 
     // Log event to DB
@@ -206,8 +204,10 @@ class DBManager {
     } else {
       const collection = this.instance.collection<Event>('events');
 
-      result = await collection
-        .updateOne({ _id: eventId }, { $pull: { participants: participant._id } });
+      result = await collection.updateOne(
+        { _id: eventId },
+        { $pull: { participants: participant._id } },
+      );
     }
 
     // Log event to DB
@@ -248,8 +248,10 @@ class DBManager {
         attended: false,
       };
 
-      result = await collection
-        .updateOne({ _id: participant._id }, { $push: { events: eventDetails } });
+      result = await collection.updateOne(
+        { _id: participant._id },
+        { $push: { events: eventDetails } },
+      );
     }
 
     // Log event to DB
@@ -282,8 +284,10 @@ class DBManager {
     } else {
       const collection = this.instance.collection<Participant>('participants');
 
-      result = await collection
-        .updateOne({ _id: participant._id }, { $pull: { events: { event_id: eventId } } });
+      result = await collection.updateOne(
+        { _id: participant._id },
+        { $pull: { events: { event_id: eventId } } },
+      );
     }
 
     // Log event to DB
@@ -308,11 +312,7 @@ class DBManager {
    * @param {string} [message] Optional log message.
    * @returns {boolean} True - logged successfully, False - logging failed.
    */
-  async logToDB(
-    initiator: TelegramUser,
-    event: string,
-    message?: string,
-  ): Promise<boolean> {
+  async logToDB(initiator: TelegramUser, event: string, message?: string): Promise<boolean> {
     const logEntry: LogEntry = {
       datetime: new Date(),
       initiator,

@@ -1,38 +1,69 @@
 import { message } from 'telegraf/filters';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import tagUser from './helpers';
+import { addMessageToSession, deletePreveiosWelcomeMessage, getErrorMsg } from './helpers';
 
-export enum WelcomeMessageEnum {
-  Common = 'For new members',
-  CommonWithLink = 'For new members with link',
+export enum CollectionEnum {
+  Welcome = 'message-for-new-members',
 }
 
-export type WelcomeMessage = { message: string, title: string, _id: ObjectId, link?: string };
+export type WelcomeMessage = { message: string; title: string; _id: ObjectId; link?: string };
 
 /**
  * @param {TelegramBot} bot;
  */
 const onNewChatMembers = (bot: TelegramBot) => {
-  bot.on(message('new_chat_members'), (ctx) => {
-    (async () => {
-      try {
-        const collection = await bot.dbManager.getCollectionData<WelcomeMessage>('message-for-new-members', { title: WelcomeMessageEnum.CommonWithLink });
-        if (!collection.length) {
-          throw new Error('Collection of message for new user is empty');
-        }
-        const msgObj = collection[0];
+  bot.on(message('new_chat_members'), async (ctx) => {
+    try {
+      const { chat } = ctx;
+      if ('title' in chat) {
+        const collectionMessage = await bot.dbManager.getCollectionData<WelcomeMessage>(
+          CollectionEnum.Welcome,
+          {
+            forChat: chat.title,
+          },
+        );
 
-        if (!msgObj.link) {
-          ctx.reply(`${tagUser(ctx)}, ${msgObj.message}`);
-        } else {
-          await ctx.replyWithHTML(`${tagUser(ctx)}, <a href="${msgObj.link}">${msgObj.message}</a>`);
+        const collectionFooter = await bot.dbManager.getCollectionData<WelcomeMessage>(
+          CollectionEnum.Welcome,
+          {
+            title: 'Footer',
+          },
+        );
+
+        if (!collectionFooter.length || !collectionMessage.length) {
+          throw new Error(`Welcome message for "${chat.title}" is not found`);
         }
-      } catch (e) {
-        console.error(e);
-        throw e;
+
+        const msgObj = collectionMessage[0];
+        const footerObj = collectionFooter[0];
+
+        const newMember = ctx.message.new_chat_members[0];
+        const newMemberName = newMember.username ? `@${newMember.username}` : newMember.first_name;
+
+        const sentWelcomeMessage = await ctx.replyWithHTML(
+          `${newMemberName}, ${msgObj.message} \n\n${footerObj.message}`,
+        );
+
+        if (ctx.session.messages?.length) {
+          const prvieousMessage = ctx.session.messages.pop();
+          await deletePreveiosWelcomeMessage(ctx, prvieousMessage);
+        }
+
+        addMessageToSession(
+          {
+            messageId: sentWelcomeMessage.message_id,
+            chatId: sentWelcomeMessage.chat.id,
+          },
+          ctx,
+        );
+
+        // Deletes message that says that user is joined the group
+        await ctx.deleteMessage(ctx.message.message_id);
       }
-    })();
+    } catch (e) {
+      console.error(getErrorMsg(e));
+    }
   });
 };
 

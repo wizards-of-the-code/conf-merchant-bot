@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/app.js",
-    "dev": "nodemon -e ts --exec \"tsc && node ./dist/app.js\""
+    "dev": "nodemon -e ts --exec \"tsc && node ./dist/app.js\"",
+    "format": "prettier --write \"**/*.{ts,md}\""
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "nodemon": "^3.0.1",
+    "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   },

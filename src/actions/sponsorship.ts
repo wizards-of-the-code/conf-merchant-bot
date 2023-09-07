@@ -16,15 +16,22 @@ const sponsorship = async (bot: TelegramBot) => {
         tg: user,
         donation: '',
       };
-      const result = await bot.dbManager.insertOrUpdateDocumentToCollection('sponsors', { 'tg.id': user.id }, { $set: sponsor });
+      const result = await bot.dbManager.insertOrUpdateDocumentToCollection(
+        'sponsors',
+        { 'tg.id': user.id },
+        { $set: sponsor },
+      );
       const buttonsArray: (
-        InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+        | InlineKeyboardButton.CallbackButton
+        | InlineKeyboardButton.UrlButton
       )[][] = [];
       const message: Array<string> = [];
 
       if (result) {
         ctx.editMessageReplyMarkup(undefined);
-        buttonsArray.push([Markup.button.url('Заполнить анкету спонсора', 'https://peredelanoconf.com/')]);
+        buttonsArray.push([
+          Markup.button.url('Заполнить анкету спонсора', 'https://peredelanoconf.com/'),
+        ]);
         message.push('Спасибо за Вашу поддержку!');
       } else {
         message.push('Вы снова наш спонсор, спасибо Вам!');

@@ -8,17 +8,22 @@ const cancelParticipation = async (bot: TelegramBot) => {
     const eventId = ctx.session.selectedEvent!._id;
 
     // TODO: Check if event exists
-    const event = await bot.dbManager.getDocumentData<Event>('events', { _id: new ObjectId(eventId) });
+    const event = await bot.dbManager.getDocumentData<Event>('events', {
+      _id: new ObjectId(eventId),
+    });
 
     // Get participant from DB
-    const participant: Participant | null = await bot.dbManager.getDocumentData('participants', { 'tg.id': ctx.from!.id });
+    const participant: Participant | null = await bot.dbManager.getDocumentData('participants', {
+      'tg.id': ctx.from!.id,
+    });
 
     if (!participant) {
       console.log('User is not participated');
     } else {
-      const removeFromEventResult = await bot
-        .dbManager
-        .removeParticipantFromEvent(new ObjectId(eventId), participant);
+      const removeFromEventResult = await bot.dbManager.removeParticipantFromEvent(
+        new ObjectId(eventId),
+        participant,
+      );
 
       let userMessage: string;
 
@@ -33,12 +38,13 @@ const cancelParticipation = async (bot: TelegramBot) => {
       }
 
       ctx.editMessageReplyMarkup(undefined);
-      ctx.reply(userMessage, Markup.inlineKeyboard(
-        [
+      ctx.reply(
+        userMessage,
+        Markup.inlineKeyboard([
           Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
           Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-        ],
-      ));
+        ]),
+      );
     }
   });
 };

@@ -8,11 +8,11 @@ import { messages } from '../constants';
  */
 const switchRoleMessage = (role: string) => {
   switch (role) {
-    case ('volunteer'):
+    case 'volunteer':
       return messages.VOLUNTEER_MESSAGES;
-    case ('organizer'):
+    case 'organizer':
       return messages.ORGANIZER_MESSAGES;
-    case ('speaker'):
+    case 'speaker':
       return messages.SPEAKER_MESSAGES;
     default:
       return null;

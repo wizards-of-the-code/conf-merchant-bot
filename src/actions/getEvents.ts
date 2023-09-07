@@ -11,11 +11,16 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     console.log('Error when trying to delete old message');
   }
 
-  const confs = eventsArr.map((event) => [Markup.button.callback(`${event.location.city}, ${event.location.country}, ${new Date(event.datetime).toLocaleDateString()}`, `action_get_info_${event._id!.toString()}`)]);
+  const confs = eventsArr.map((event) => [
+    Markup.button.callback(
+      `${event.location.city}, ${event.location.country}, ${new Date(
+        event.datetime,
+      ).toLocaleDateString()}`,
+      `action_get_info_${event._id!.toString()}`,
+    ),
+  ]);
 
-  ctx.reply('Какая именно конференция вас интересует?', Markup.inlineKeyboard([
-    ...confs,
-  ]));
+  ctx.reply('Какая именно конференция вас интересует?', Markup.inlineKeyboard([...confs]));
 };
 
 const getEvents = async (bot: TelegramBot) => {

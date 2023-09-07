@@ -28,27 +28,28 @@ class Scheduler {
 
     const minutelyTask: ScheduledTask = cron.schedule('*/30 * * * * *', async () => {
       // Every minute check DB for changes ragarding active MANUAL messages
-      const messages = await this.dbManager.getCollectionData<ScheduledMessage>('notifications', { is_active: true, sent: null });
+      const messages = await this.dbManager.getCollectionData<ScheduledMessage>('notifications', {
+        is_active: true,
+        sent: null,
+      });
 
       if (messages.length > 0) {
         // Filter ready for sending messages
-        const toSentArr = messages.filter((message) => (
-          message.datetime_to_send <= new Date()
-        ));
+        const toSentArr = messages.filter((message) => message.datetime_to_send <= new Date());
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
 
         // Take toSentArray with messages, ready for sending
         for (const message of toSentArr) {
           // Find event object
-          const recipients = events.find((event) => (
-            event._id.toString() === message.event_id.toString()
-          ))?.participants;
+          const recipients = events.find(
+            (event) => event._id.toString() === message.event_id.toString(),
+          )?.participants;
 
           if (recipients && recipients.length > 0) {
             /* eslint-disable no-await-in-loop --
-            * The general idea to wait until each message will be sent
-            * until next message executes
-            */
+             * The general idea to wait until each message will be sent
+             * until next message executes
+             */
             await this.sentNotifications(message, recipients);
           }
         }
@@ -62,14 +63,10 @@ class Scheduler {
     process.prependOnceListener('SIGTERM', () => this.tasks.forEach((task) => task.stop()));
   }
 
-  private async sentNotifications(
-    message: ScheduledMessage,
-    recipients: ParticipantShort[],
-  ) {
+  private async sentNotifications(message: ScheduledMessage, recipients: ParticipantShort[]) {
     // Construct telegram message buttons
-    const buttonsArray: (
-      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [];
+    const buttonsArray: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][] =
+      [];
 
     // Add links
     if (message.links.length > 0) {
@@ -117,7 +114,11 @@ class Scheduler {
     }
 
     // Mark notification as sent in DB
-    await this.dbManager.insertOrUpdateDocumentToCollection('notifications', { _id: message._id }, { $set: { sent: new Date() } });
+    await this.dbManager.insertOrUpdateDocumentToCollection(
+      'notifications',
+      { _id: message._id },
+      { $set: { sent: new Date() } },
+    );
   }
 
   /** Send a single message to a single recepient.
@@ -134,9 +135,7 @@ class Scheduler {
   private async sendMessageToUser(
     tgId: number,
     message: ScheduledMessage,
-    buttonsArray: (
-      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][],
+    buttonsArray: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][],
     mediaGroup: MediaGroup,
   ): Promise<boolean> {
     // Send photos first if photosOnTop === true
@@ -158,23 +157,20 @@ class Scheduler {
   private async sendMessageText(
     tgId: number,
     message: ScheduledMessage,
-    buttonsArray: (
-      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][],
+    buttonsArray: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][],
   ): Promise<boolean> {
     // Send text part with buttons
-    const sendResult = await this.bot
-      .telegram
-      .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+    const sendResult = await this.bot.telegram.sendMessage(
+      tgId,
+      message.text,
+      Markup.inlineKeyboard(buttonsArray),
+    );
 
     if (sendResult) return true;
     return false;
   }
 
-  private async sendMessagePhotos(
-    tgId: number,
-    mediaGroup: MediaGroup,
-  ): Promise<boolean> {
+  private async sendMessagePhotos(tgId: number, mediaGroup: MediaGroup): Promise<boolean> {
     // Send photos
     const sendResult = await this.bot.telegram.sendMediaGroup(tgId, mediaGroup);
 

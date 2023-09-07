@@ -15,13 +15,12 @@ class App {
 
   scheduler: Scheduler;
 
-  constructor(private readonly configService: IConfigService, dbManager: DBManager) {
-    this.bot = new TelegramBot(
-      this.configService.get('BOT_TOKEN'),
-      dbManager,
-    );
-    this.bot.use((
-      new LocalSession({ database: 'sessions.json' })).middleware());
+  constructor(
+    private readonly configService: IConfigService,
+    dbManager: DBManager,
+  ) {
+    this.bot = new TelegramBot(this.configService.get('BOT_TOKEN'), dbManager);
+    this.bot.use(new LocalSession({ database: 'sessions.json' }).middleware());
     this.scheduler = new Scheduler('0 0 19 * * *', dbManager, this.bot);
   }
 

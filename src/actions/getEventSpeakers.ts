@@ -12,7 +12,9 @@ const getEventSpeakers = async (bot: TelegramBot) => {
       // TODO: Implement logs and store this errors there
       console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
     } else {
-      const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: event._id });
+      const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', {
+        event_id: event._id,
+      });
       // Remove keyboard from last message
       ctx.editMessageReplyMarkup(undefined);
 
@@ -27,24 +29,22 @@ const getEventSpeakers = async (bot: TelegramBot) => {
         ];
 
         /* eslint-disable no-await-in-loop --
-        * The general idea to wait until each Context reply should be finished
-        * until next one should run :)
-        */
-        await ctx.replyWithHTML(
-          messageArray.join('\n'),
-          {
-            parse_mode: 'HTML',
-          },
-        );
+         * The general idea to wait until each Context reply should be finished
+         * until next one should run :)
+         */
+        await ctx.replyWithHTML(messageArray.join('\n'), {
+          parse_mode: 'HTML',
+        });
       }
 
       // Reply footer with menu buttons
-      ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
-        [
+      ctx.reply(
+        'Что делаем дальше?',
+        Markup.inlineKeyboard([
           Markup.button.callback('◀️ Назад', `action_get_info_${event._id}`),
           Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-        ],
-      ));
+        ]),
+      );
     }
   });
 };

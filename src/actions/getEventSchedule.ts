@@ -20,20 +20,18 @@ const getEventSchedule = async (bot: TelegramBot) => {
         messageArray.push(`<b>${item.time}: ${item.title}</b>`);
       }
 
-      await ctx.replyWithHTML(
-        messageArray.join('\n'),
-        {
-          parse_mode: 'HTML',
-        },
-      );
+      await ctx.replyWithHTML(messageArray.join('\n'), {
+        parse_mode: 'HTML',
+      });
 
       // Reply footer with menu buttons
-      ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
-        [
+      ctx.reply(
+        'Что делаем дальше?',
+        Markup.inlineKeyboard([
           Markup.button.callback('◀️ Назад', `action_get_info_${event._id}`),
           Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-        ],
-      ));
+        ]),
+      );
     }
   });
 };

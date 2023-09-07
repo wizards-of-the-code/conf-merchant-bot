@@ -2,9 +2,7 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import {
-  Event, Participant, Speaker,
-} from '../types';
+import { Event, Participant, Speaker } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
@@ -26,7 +24,9 @@ export const sendEventInfoMessage = async (
     // Save event to current session context
     ctx.session.selectedEvent = event;
     ctx.session.userId = ctx.from?.id;
-    const participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+    const participant = await bot.dbManager.getDocumentData<Participant>('participants', {
+      'tg.id': ctx.from!.id,
+    });
     // Check if user is already participate in the event
     let isAlreadyParticipate = false;
     let isAlreadyPaid = false;
@@ -47,11 +47,8 @@ export const sendEventInfoMessage = async (
       console.log('Error when trying to delete old message');
     }
 
-    const buttonsArray: (
-      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [
-      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
-    ];
+    const buttonsArray: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][] =
+      [[Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')]];
 
     // Register button if user is not already participate
     if (!isAlreadyParticipate) {
@@ -60,13 +57,19 @@ export const sendEventInfoMessage = async (
 
     // TODO: Change unshift to push later
     if (event.schedule.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
+      buttonsArray.unshift([
+        Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`),
+      ]);
     }
 
-    const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: eventId });
+    const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', {
+      event_id: eventId,
+    });
     // TODO: Change unshift to push later
     if (speakers.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
+      buttonsArray.unshift([
+        Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`),
+      ]);
     }
 
     // Add link buttons if event has filled with valid fields
@@ -84,10 +87,15 @@ export const sendEventInfoMessage = async (
 
     // Cancel registration if user already participating but not paid yet
     if (isAlreadyParticipate && !isAlreadyPaid) {
-      buttonsArray.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
+      buttonsArray.push([
+        Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation'),
+      ]);
     }
 
-    buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
+    buttonsArray.push([
+      Markup.button.callback('◀️ Назад', 'action_get_events'),
+      Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+    ]);
 
     // Message string array
     const messageArray: String[] = [
