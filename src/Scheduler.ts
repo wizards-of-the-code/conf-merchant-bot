@@ -29,8 +29,8 @@ class Scheduler {
     /* eslint no-console: 0 */
     console.log('Scheduler initialized');
 
-    const minutelyTask: ScheduledTask = cron.schedule('*/15 * * * * *', async () => {
-      // Every minute check DB for changes ragarding active MANUAL messages
+    const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
+      // Every minute check DB for changes ragarding active messages
       const messages = await this.dbManager.getCollectionData<ScheduledMessage>('notifications', { is_active: true, sent: null });
 
       if (messages.length > 0) {
