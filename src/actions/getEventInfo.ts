@@ -42,11 +42,11 @@ export const sendEventInfoMessage = async (
       }
     }
 
-    try {
-      await ctx.deleteMessage();
-    } catch (e) {
-      console.log('Error when trying to delete old message');
-    }
+    await ctx.deleteMessage().catch(
+      (error) => {
+        console.error('Error when trying to delete message: ', error);
+      },
+    );
 
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
