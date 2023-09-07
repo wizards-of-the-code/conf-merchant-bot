@@ -7,7 +7,7 @@ import formatDateToDdMmYyyy from './dateFormat';
  * @returns {string} Formatted string for Event Info telegram message.
  */
 const composeEventInfoBody = (event: Event): string => {
-  const textLines: String[] = [];
+  const textLines: string[] = [];
 
   textLines.push(`<b>Конфа:</b> ${event.name}`);
 
