@@ -1,7 +1,13 @@
 import { message } from 'telegraf/filters';
+import { fmt, mention } from 'telegraf/format';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
-import { addMessageToSession, deletePreveiosWelcomeMessage, getErrorMsg } from './helpers';
+import {
+  addBackslashBeforeSpecialChars,
+  addMessageToSession,
+  deletePreveiosWelcomeMessage,
+  getErrorMsg,
+} from './helpers';
 
 export enum CollectionEnum {
   Welcome = 'message-for-new-members',
@@ -15,7 +21,11 @@ export type WelcomeMessage = { message: string; title: string; _id: ObjectId; li
 const onNewChatMembers = (bot: TelegramBot) => {
   bot.on(message('new_chat_members'), async (ctx) => {
     try {
+      // Deletes message that says that user has joined the group
+      await ctx.deleteMessage(ctx.message.message_id);
+
       const { chat } = ctx;
+
       if ('title' in chat) {
         const collectionMessage = await bot.dbManager.getCollectionData<WelcomeMessage>(
           CollectionEnum.Welcome,
@@ -39,10 +49,18 @@ const onNewChatMembers = (bot: TelegramBot) => {
         const footerObj = collectionFooter[0];
 
         const newMember = ctx.message.new_chat_members[0];
-        const newMemberName = newMember.username ? `[@${newMember.username}](tg://user?id=${newMember.id})` : '';
 
-        const sentWelcomeMessage = await ctx.replyWithMarkdownV2(
-          `${newMemberName}\, ${msgObj.message} \n\n${footerObj.message}`,
+        const newMemberName = addBackslashBeforeSpecialChars(
+          newMember.username ?? newMember.first_name,
+        );
+
+        const newMemberMention = `[@${newMemberName}](tg://user?id=${newMember.id})`;
+
+        const sentWelcomeMessage = await ctx.sendMessage(
+          `${newMemberMention} ${msgObj.message}\n\n${footerObj.message}`,
+          {
+            parse_mode: 'MarkdownV2',
+          },
         );
 
         if (ctx.session.messages?.length) {
@@ -57,14 +75,10 @@ const onNewChatMembers = (bot: TelegramBot) => {
           },
           ctx,
         );
-
-        // Deletes message that says that user is joined the group
-        await ctx.deleteMessage(ctx.message.message_id);
       }
     } catch (e) {
       console.error(getErrorMsg(e));
     }
   });
 };
-
 export default onNewChatMembers;

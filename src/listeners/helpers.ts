@@ -63,3 +63,11 @@ export const deletePreveiosWelcomeMessage = async (
     }
   }
 };
+
+/**
+ * Adds backslash before special chars
+ * @example Abc_df, -> Abc\_df\,
+ * @param {string} text
+ * @return {string}
+ * */
+export const addBackslashBeforeSpecialChars = (text: string): string => text.replace(/[^A-ZА-Я0-9]/gi, '\\$&');
