@@ -41,19 +41,19 @@ const sendMessage = async (
   }
 
   // Send messages
-  if (message.messages.length > 0) {
+  if (message.messageList.length > 0) {
     // Index for finding last message
     let index = 0;
-    for (const msg of message.messages) {
-      if (index < message.messages.length - 1 || buttons.length === 0) {
+    for (const messageItem of message.messageList) {
+      if (index < message.messageList.length - 1 || buttons.length === 0) {
         /* eslint-disable no-await-in-loop --
             * The general idea to wait until each Context reply should be finished
             * until next one should run :)
             */
-        await ctx.reply(msg);
+        await ctx.reply(messageItem);
         index += 1;
       } else {
-        await ctx.reply(msg, Markup.inlineKeyboard(buttons));
+        await ctx.reply(messageItem, Markup.inlineKeyboard(buttons));
       }
     }
   }

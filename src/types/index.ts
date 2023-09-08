@@ -98,7 +98,7 @@ export type LogEntry = {
 export type Message = {
   _id?: ObjectId;
   name: string;
-  messages: {
+  messageList: {
     text: string;
   }[];
   images: {
