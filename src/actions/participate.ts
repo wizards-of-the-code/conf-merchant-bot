@@ -11,12 +11,12 @@ import { statuses } from '../constants';
 
 const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Participant> => {
   // Check if user is already in the DB
-  let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+  let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.tg_id': ctx.from!.id });
 
   if (!participant) {
     // If not, create a new user entry
     const user: TelegramUser = {
-      id: ctx.from!.id,
+      tg_id: ctx.from!.id,
       username: ctx.from!.username!,
       first_name: ctx.from!.first_name,
       last_name: ctx.from!.last_name,
@@ -35,7 +35,7 @@ const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Pa
       message: `New participant @${user.username} added`,
     };
 
-    const participantId = await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { 'tg.id': user.id }, { $set: participant }, logData);
+    const participantId = await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { 'tg.tg_id': user.tg_id }, { $set: participant }, logData);
     participant._id = participantId;
   }
 
@@ -96,7 +96,7 @@ const participate = async (bot: TelegramBot) => {
     if (roleMessage) {
       // If a role message is available, send a confirmation and then the role message with buttons
       await ctx.reply(userMessage);
-      await sendMessage(roleMessage, ctx, buttons);
+      await sendMessage(roleMessage, ctx, bot, buttons);
     } else {
       // Else, just send a confirmation message with buttons
       ctx.reply(userMessage, Markup.inlineKeyboard(buttons));

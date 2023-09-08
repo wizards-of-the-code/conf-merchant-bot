@@ -2,14 +2,15 @@ import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Sponsor, TelegramUser } from '../types';
 import TelegramBot from '../TelegramBot';
+import { IBotContext } from '../context/IBotContext';
 
-const createSponsor = async (ctx: any) => {
+const createSponsor = async (bot: TelegramBot, ctx: IBotContext) => {
   if (!ctx.from) {
     throw new Error('Internal bot error.');
   }
 
   const user: TelegramUser = {
-    id: ctx.from.id,
+    tg_id: ctx.from.id,
     username: ctx.from.username!,
     first_name: ctx.from.first_name,
     last_name: ctx.from.last_name,
@@ -20,12 +21,12 @@ const createSponsor = async (ctx: any) => {
     donation: '',
   };
 
-  return ctx.dbManager.insertOrUpdateDocumentToCollection('sponsors', { 'tg.id': user.id }, { $set: sponsor });
+  return bot.dbManager.insertOrUpdateDocumentToCollection('sponsors', { 'tg.tg_id': user.tg_id }, { $set: sponsor });
 };
 
 const sponsorship = async (bot: TelegramBot) => {
   bot.action('become_sponsor', async (ctx) => {
-    const result = await createSponsor(ctx);
+    const result = await createSponsor(bot, ctx);
 
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
@@ -46,7 +47,7 @@ const sponsorship = async (bot: TelegramBot) => {
       [Markup.button.callback('🔼 В главное меню', 'action_get_events')],
     );
 
-    ctx.replyWithHTML('', Markup.inlineKeyboard(buttonsArray));
+    ctx.replyWithHTML('Больше подробностей:', Markup.inlineKeyboard(buttonsArray));
   });
 };
 

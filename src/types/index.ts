@@ -15,10 +15,11 @@ export type Event = {
   location: Location;
   participants: ObjectId[];
   schedule: ScheduleItem[];
+  speakers: Speaker[];
 };
 
 export type TelegramUser = {
-  id: number;
+  tg_id: number;
   username: string;
   first_name: string;
   last_name?: string;
@@ -61,15 +62,13 @@ export type Participant = {
 
 export type ParticipantShort = {
   tg: {
-    id: number;
+    tg_id: number;
     first_name: string;
     last_name?: string;
   }
 };
 
 export type Speaker = {
-  _id?: ObjectId;
-  event_id: ObjectId;
   name: string;
   position: string;
   topic: string;
@@ -84,7 +83,6 @@ export type Sponsor = {
 
 export type ScheduleItem = {
   date: Date;
-  time: string;
   title: string;
 };
 
@@ -100,20 +98,26 @@ export type LogEntry = {
 export type Message = {
   _id?: ObjectId;
   name: string;
-  value: string[];
-  images: string[];
+  messageList: {
+    text: string;
+  }[];
+  images: {
+    media_id: string;
+  }[];
 };
 
-export type ScheduledMessage = {
+export type Notification = {
   _id: ObjectId;
+  title: string;
   is_active: boolean;
   event_id: ObjectId;
   type: 'manual' | 'auto';
   text: string;
   links: MessageButton[];
-  photos_on_top: boolean;
-  photos: string[];
-  actions: string[];
+  images_on_top: boolean;
+  images: {
+    media_id: string;
+  }[];
   sent: Date | null;
   datetime_to_send: Date;
   days_before_conf?: number;
@@ -122,4 +126,8 @@ export type ScheduledMessage = {
 export type MessageButton = {
   name: string;
   url: string;
+};
+
+export type Media = {
+  filename: string;
 };

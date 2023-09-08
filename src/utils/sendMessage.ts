@@ -1,7 +1,10 @@
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
-import { Message } from '../types';
+import { ObjectId } from 'mongodb';
+import { Media, Message } from '../types';
 import { IBotContext } from '../context/IBotContext';
+import TelegramBot from '../TelegramBot';
+import 'dotenv/config';
 
 /**
  * Send a message with images and/or buttons from Standard Messages DB collection.
@@ -12,35 +15,46 @@ import { IBotContext } from '../context/IBotContext';
 const sendMessage = async (
   message: Message,
   ctx: IBotContext,
+  bot: TelegramBot,
   buttons: (
     InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
   )[][] = [],
 ) => {
   // Send images if they exists
   if (message.images.length > 0) {
-    for (const image of message.images) {
+    const paths = message.images.map((item) => new ObjectId(item.media_id));
+
+    // Get image paths from DB
+    const media = await bot.dbManager.getCollectionData<Media>(
+      'media',
+      { _id: { $in: paths } },
+    );
+
+    for (const image of media) {
+      // Get file right from the server's volume
+      const fullPath = `${process.env.MEDIA_PATH}/${image.filename}`;
       /* eslint-disable no-await-in-loop --
           * The general idea to wait until each Context reply should be finished
           * until next one should run :)
           */
-      await ctx.sendPhoto(image);
+      await ctx.sendPhoto({ source: fullPath });
     }
   }
 
   // Send messages
-  if (message.value.length > 0) {
+  if (message.messageList.length > 0) {
     // Index for finding last message
     let index = 0;
-    for (const msg of message.value) {
-      if (index < message.value.length - 1 || buttons.length === 0) {
+    for (const messageItem of message.messageList) {
+      if (index < message.messageList.length - 1 || buttons.length === 0) {
         /* eslint-disable no-await-in-loop --
             * The general idea to wait until each Context reply should be finished
             * until next one should run :)
             */
-        await ctx.reply(msg);
+        await ctx.reply(messageItem);
         index += 1;
       } else {
-        await ctx.reply(msg, Markup.inlineKeyboard(buttons));
+        await ctx.reply(messageItem, Markup.inlineKeyboard(buttons));
       }
     }
   }

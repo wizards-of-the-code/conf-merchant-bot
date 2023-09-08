@@ -3,7 +3,7 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import {
-  Event, Participant, Speaker,
+  Event, Participant,
 } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
@@ -27,7 +27,7 @@ export const sendEventInfoMessage = async (
     // Save event to current session context
     ctx.session.selectedEvent = event;
     ctx.session.userId = ctx.from?.id;
-    const participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+    const participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.tg_id': ctx.from!.id });
     // Check if user is already participate in the event
     let isAlreadyParticipate = false;
     let isAlreadyPaid = false;
@@ -42,11 +42,11 @@ export const sendEventInfoMessage = async (
       }
     }
 
-    try {
-      ctx.deleteMessage();
-    } catch (e) {
-      console.log('Error when trying to delete old message');
-    }
+    await ctx.deleteMessage().catch(
+      (error) => {
+        console.error('Error when trying to delete message: ', error);
+      },
+    );
 
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
@@ -60,13 +60,12 @@ export const sendEventInfoMessage = async (
     }
 
     // TODO: Change unshift to push later
-    if (event.schedule.length > 0) {
+    if (event.schedule && event.schedule.length > 0) {
       buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
-    const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: eventId });
     // TODO: Change unshift to push later
-    if (speakers.length > 0) {
+    if (event.speakers && event.speakers.length > 0) {
       buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
     }
 
