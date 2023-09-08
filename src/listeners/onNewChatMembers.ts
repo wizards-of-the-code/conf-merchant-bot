@@ -12,7 +12,7 @@ export enum CollectionEnum {
   Welcome = 'message-for-new-members',
 }
 
-export type WelcomeMessage = { message: string; title: string; _id: ObjectId; link?: string };
+export type WelcomeMessage = { message: string; title?: string; _id: ObjectId; forChat?: string };
 
 /**
  * @param {TelegramBot} bot;
