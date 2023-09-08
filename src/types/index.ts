@@ -106,7 +106,7 @@ export type Message = {
   }[];
 };
 
-export type ScheduledMessage = {
+export type Notification = {
   _id: ObjectId;
   title: string;
   is_active: boolean;

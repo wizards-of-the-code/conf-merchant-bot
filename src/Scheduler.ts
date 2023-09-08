@@ -5,7 +5,7 @@ import { MediaGroup } from 'telegraf/typings/telegram-types';
 import { ObjectId } from 'mongodb';
 import DBManager from './mongodb/DBManager';
 import {
-  ScheduledMessage, EventWithParticipants, ParticipantShort, Media,
+  Notification, EventWithParticipants, ParticipantShort, Media,
 } from './types';
 import TelegramBot from './TelegramBot';
 import { isValidUrl } from './utils/isValidUrl';
@@ -32,34 +32,30 @@ class Scheduler {
 
     const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
       // Every minute check DB for changes ragarding active messages
-      const messages = await this.dbManager.getCollectionData<ScheduledMessage>('notifications', { is_active: true, sent: null });
+      const notifications = await this.dbManager.getCollectionData<Notification>('notifications', { is_active: true, sent: null });
 
-      if (messages.length > 0) {
+      if (notifications.length > 0) {
         // Filter ready for sending messages
-        const toSentArr = messages.filter((message) => (
-          message.datetime_to_send <= new Date()
+        const notificationsToSend = notifications.filter((item) => (
+          item.datetime_to_send <= new Date()
         ));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
-        // console.log('ready to send:', toSentArr);
-        // console.log('events', events);
 
-        // Take toSentArray with messages, ready for sending
-        for (const message of toSentArr) {
+        // Take messagesToSent with messages, ready for sending
+        for (const notification of notificationsToSend) {
           // Find event object
           const recipients = events.find(
             (event) => (
-              event._id.toString() === message.event_id.toString()
+              event._id.toString() === notification.event_id.toString()
             ),
           )?.participants;
-
-          console.log(recipients);
 
           if (recipients && recipients.length > 0) {
             /* eslint-disable no-await-in-loop --
             * The general idea to wait until each message will be sent
             * until next message executes
             */
-            await this.sentNotifications(message, recipients);
+            await this.sentNotifications(notification, recipients);
           }
         }
       }
@@ -73,7 +69,7 @@ class Scheduler {
   }
 
   private async sentNotifications(
-    message: ScheduledMessage,
+    notification: Notification,
     recipients: ParticipantShort[],
   ) {
     // Construct telegram message buttons
@@ -82,8 +78,8 @@ class Scheduler {
     )[][] = [];
 
     // Add links
-    if (message.links.length > 0) {
-      for (const link of message.links) {
+    if (notification.links.length > 0) {
+      for (const link of notification.links) {
         // Mandatory link validation - in other case bot will crash
         if (await isValidUrl(link.url)) {
           buttonsArray.push([Markup.button.url(link.name, link.url)]);
@@ -94,8 +90,8 @@ class Scheduler {
     // Add photos
     let mediaGroup: MediaGroup;
     // Put photos in MediaGroup
-    if (message.images.length > 0) {
-      const paths = message.images.map((item) => new ObjectId(item.media_id));
+    if (notification.images.length > 0) {
+      const paths = notification.images.map((item) => new ObjectId(item.media_id));
 
       // Get image paths from DB
       const media = await this.dbManager.getCollectionData<Media>(
@@ -122,7 +118,7 @@ class Scheduler {
     for (const recipient of recipients) {
       const sentResult = await this.sendMessageToUser(
         recipient.tg.tg_id,
-        message,
+        notification,
         buttonsArray,
         mediaGroup,
       );
@@ -136,12 +132,12 @@ class Scheduler {
     }
 
     // Mark notification as sent in DB
-    await this.dbManager.insertOrUpdateDocumentToCollection('notifications', { _id: message._id }, { $set: { sent: new Date() } });
+    await this.dbManager.insertOrUpdateDocumentToCollection('notifications', { _id: notification._id }, { $set: { sent: new Date() } });
   }
 
   /** Send a single message to a single recepient.
    * @param {ObjectId} [tgId] Recipient's Telegram ID
-   * @param {ScheduledMessage} [message] Message object to be sent.
+   * @param {Notification} [notification] Message object to be sent.
    * @param {(InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][]}
    * [buttonsArray] Inline buttons to be attached to the message.
    * @param {MediaGroup} [mediaGroup] Array of links to photos.
@@ -152,22 +148,22 @@ class Scheduler {
    */
   private async sendMessageToUser(
     tgId: number,
-    message: ScheduledMessage,
+    notification: Notification,
     buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
     mediaGroup: MediaGroup,
   ): Promise<boolean> {
     // Send photos first if photosOnTop === true
-    if (mediaGroup.length > 0 && message.images_on_top) {
+    if (mediaGroup.length > 0 && notification.images_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
     // Send message text with buttons
-    await this.sendMessageText(tgId, message, buttonsArray);
+    await this.sendMessageText(tgId, notification, buttonsArray);
 
     // Send photos in the end if photosOnTop === true
-    if (mediaGroup.length > 0 && !message.images_on_top) {
+    if (mediaGroup.length > 0 && !notification.images_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);
     }
 
@@ -176,7 +172,7 @@ class Scheduler {
 
   private async sendMessageText(
     tgId: number,
-    message: ScheduledMessage,
+    notification: Notification,
     buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
@@ -184,7 +180,7 @@ class Scheduler {
     // Send text part with buttons
     const sendResult = await this.bot
       .telegram
-      .sendMessage(tgId, message.text, Markup.inlineKeyboard(buttonsArray));
+      .sendMessage(tgId, notification.text, Markup.inlineKeyboard(buttonsArray));
 
     if (sendResult) return true;
     return false;
