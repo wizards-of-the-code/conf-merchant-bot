@@ -15,6 +15,7 @@ export type Event = {
   location: Location;
   participants: ObjectId[];
   schedule: ScheduleItem[];
+  speakers: Speaker[];
 };
 
 export type TelegramUser = {
@@ -68,8 +69,6 @@ export type ParticipantShort = {
 };
 
 export type Speaker = {
-  _id?: ObjectId;
-  event_id: ObjectId;
   name: string;
   position: string;
   topic: string;

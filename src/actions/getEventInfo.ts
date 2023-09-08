@@ -3,7 +3,7 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import {
-  Event, Participant, Speaker,
+  Event, Participant,
 } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
@@ -60,13 +60,12 @@ export const sendEventInfoMessage = async (
     }
 
     // TODO: Change unshift to push later
-    if (event.schedule.length > 0) {
+    if (event.schedule && event.schedule.length > 0) {
       buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
-    const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: eventId });
     // TODO: Change unshift to push later
-    if (speakers.length > 0) {
+    if (event.speakers && event.speakers.length > 0) {
       buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
     }
 

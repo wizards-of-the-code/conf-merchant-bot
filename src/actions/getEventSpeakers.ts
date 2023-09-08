@@ -27,13 +27,12 @@ const getEventSpeakers = async (bot: TelegramBot) => {
       return;
     }
 
-    const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: event._id });
-
     // Remove keyboard from the last message
     ctx.editMessageReplyMarkup(undefined);
 
-    for (const speaker of speakers) {
-      displaySpeakerDetails(ctx, speaker);
+    for (const speaker of event.speakers) {
+      /* eslint-disable no-await-in-loop */
+      await displaySpeakerDetails(ctx, speaker);
     }
 
     // Reply footer with menu buttons
