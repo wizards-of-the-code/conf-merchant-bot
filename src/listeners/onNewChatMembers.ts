@@ -1,5 +1,4 @@
 import { message } from 'telegraf/filters';
-import { fmt, mention } from 'telegraf/format';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import {
