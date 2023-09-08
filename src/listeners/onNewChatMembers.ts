@@ -39,10 +39,10 @@ const onNewChatMembers = (bot: TelegramBot) => {
         const footerObj = collectionFooter[0];
 
         const newMember = ctx.message.new_chat_members[0];
-        const newMemberName = newMember.username ? `@${newMember.username}` : newMember.first_name;
+        const newMemberName = newMember.username ? `[@${newMember.username}](tg://user?id=${newMember.id})` : '';
 
-        const sentWelcomeMessage = await ctx.replyWithHTML(
-          `${newMemberName}, ${msgObj.message} \n\n${footerObj.message}`,
+        const sentWelcomeMessage = await ctx.replyWithMarkdownV2(
+          `${newMemberName}\, ${msgObj.message} \n\n${footerObj.message}`,
         );
 
         if (ctx.session.messages?.length) {
