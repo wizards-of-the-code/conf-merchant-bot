@@ -7,6 +7,7 @@ import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
 import { sendStartMessage } from '../commands/StartCommand';
+import composeEventInfoBody from '../utils/composeEventInfoBody';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,
@@ -97,15 +98,11 @@ export const sendEventInfoMessage = async (
       Markup.button.callback('🔼 В главное меню', 'action_get_events'),
     ]);
 
-    // Message string array
-    const messageArray: String[] = [
-      `<b>Локация:</b> ${event.location.city}, ${event.location.country}`,
-      `${event.description}`,
-      `<b>Дата и время:</b>  ${new Date(event.datetime).toLocaleDateString()}`,
-      `<b>Цена:</b>  ${event.currency} ${event.current_price}`,
-    ];
-
-    ctx.replyWithHTML(messageArray.join('\n\n'), Markup.inlineKeyboard(buttonsArray));
+    const message = await ctx.replyWithHTML(
+      composeEventInfoBody(event),
+      Markup.inlineKeyboard(buttonsArray),
+    );
+    ctx.session.currentMessage = message.message_id;
   } catch (e) {
     console.log('Incorrect ID string, starting standard \\start sequence.');
     sendStartMessage(bot, ctx);

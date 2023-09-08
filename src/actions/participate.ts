@@ -1,11 +1,46 @@
-import { ObjectId } from 'mongodb';
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
-import { Participant, TelegramUser, Event, Message } from '../types';
+import {
+  Participant, TelegramUser, Event, Message, LogEntry, ParticipantEventDetails,
+} from '../types';
 import TelegramBot from '../TelegramBot';
 import parseActionParam from '../utils/parseActionParam';
 import sendMessage from '../utils/sendMessage';
 import switchRoleMessage from '../utils/switchRoleMessage';
+import { statuses } from '../constants';
+
+const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Participant> => {
+  // Check if user is already in the DB
+  let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+
+  if (!participant) {
+    // If not, create a new user entry
+    const user: TelegramUser = {
+      id: ctx.from!.id,
+      username: ctx.from!.username!,
+      first_name: ctx.from!.first_name,
+      last_name: ctx.from!.last_name,
+    };
+
+    participant = {
+      tg: user,
+      events: [],
+    };
+
+    const logData: LogEntry = {
+      datetime: new Date(),
+      initiator: user,
+      event: undefined,
+      status: statuses.NEW_PARTICIPANT,
+      message: `New participant @${user.username} added`,
+    };
+
+    const participantId = await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { 'tg.id': user.id }, { $set: participant }, logData);
+    participant._id = participantId;
+  }
+
+  return participant;
+};
 
 const participate = async (bot: TelegramBot) => {
   bot.action(/action_participate_/, async (ctx) => {
@@ -14,44 +49,41 @@ const participate = async (bot: TelegramBot) => {
     const role: string = parseActionParam(actionString);
     const eventId = ctx.session.selectedEvent!._id;
 
-    // TODO: Check if event exists
+    // Check if the event exists
     const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
 
-    // Check if user if already in DB
-    let participant = await bot.dbManager.getDocumentData<Participant>('participants', {
-      'tg.id': ctx.from!.id,
-    });
-    let participantId: ObjectId | undefined;
+    // Create or get participant entry
+    const participant = await createParticipantIfNeeded(bot, ctx);
 
-    if (!participant) {
-      // If no - create new user first
-      const user: TelegramUser = {
-        id: ctx.from!.id,
-        username: ctx.from!.username!,
-        first_name: ctx.from!.first_name,
-        last_name: ctx.from!.last_name,
-      };
+    // Add the participant to the event
+    const logData: LogEntry = {
+      datetime: new Date(),
+      initiator: participant.tg,
+      event: event?._id,
+      status: statuses.EVENT_UPDATE,
+      message: `To event ${event?.name} added participant @${participant.tg.username}`,
+    };
 
-      participant = {
-        tg: user,
-        events: [],
-      };
+    await bot.dbManager.insertOrUpdateDocumentToCollection('events', { _id: event?._id }, { $addToSet: { participants: participant._id } }, logData);
 
-      participantId = await bot.dbManager.insertParticipant(participant);
-      participant._id = participantId;
-    }
+    // Add event details to the participant entry
+    const eventDetails: ParticipantEventDetails = {
+      event_id: eventId!,
+      is_payed: false,
+      role,
+      attended: false,
+    };
 
-    // Add him to participates array of Event object
-    await bot.dbManager.addParticipantToEvent(new ObjectId(eventId), participant);
-
-    // Add event details to Participant entry
-    await bot.dbManager.addEventDetailsToParticipant(new ObjectId(eventId), participant!, role);
+    await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { _id: participant._id }, { $push: { events: eventDetails } });
 
     const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
 
     ctx.editMessageReplyMarkup(undefined);
 
-    const buttons: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][] = [
+    const buttons: InlineKeyboardButton.CallbackButton[][] = [
+      // [
+      //   Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation'),
+      // ],
       [
         Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
         Markup.button.callback('🔼 В главное меню', 'action_get_events'),
@@ -59,24 +91,15 @@ const participate = async (bot: TelegramBot) => {
     ];
 
     // Get message from DB
-    const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', {
-      name: switchRoleMessage(role),
-    });
+    const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: switchRoleMessage(role) });
 
     if (roleMessage) {
-      /* If role need special message - send confirmation first and then
-         send roleMessages with buttons attache to the last one */
+      // If a role message is available, send a confirmation and then the role message with buttons
       await ctx.reply(userMessage);
       await sendMessage(roleMessage, ctx, buttons);
     } else {
-      // Else just send confirmation message with buttons
-      ctx.reply(
-        userMessage,
-        Markup.inlineKeyboard([
-          Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
-          Markup.button.callback('🔼 В главное меню', 'action_get_events'),
-        ]),
-      );
+      // Else, just send a confirmation message with buttons
+      ctx.reply(userMessage, Markup.inlineKeyboard(buttons));
     }
   });
 };
