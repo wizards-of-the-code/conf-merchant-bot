@@ -3,15 +3,20 @@ import TelegramBot from '../TelegramBot';
 import { Event, Speaker } from '../types';
 
 const displaySpeakerDetails = async (ctx: any, speaker: Speaker) => {
-  const messageArray: string[] = [
+  const messageLines: string[] = [
     `<b>${speaker.name}</b>`,
-    `<em>${speaker.position}</em>\n`,
-    `<b>Тема доклада:</b> ${speaker.topic}\n`,
-    `${speaker.topic_description}`,
   ];
 
+  // Position is only non-required field for Speaker
+  messageLines.push((speaker.position) ? `<em>${speaker.position}</em>\n` : '');
+
+  messageLines.push(
+    `<b>Тема доклада:</b> ${speaker.topic}\n`,
+    `${speaker.topic_description}`,
+  );
+
   await ctx.replyWithHTML(
-    messageArray.join('\n'),
+    messageLines.join('\n'),
     {
       parse_mode: 'HTML',
     },
