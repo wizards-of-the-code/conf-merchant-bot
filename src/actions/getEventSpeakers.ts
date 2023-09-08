@@ -35,6 +35,8 @@ const getEventSpeakers = async (bot: TelegramBot) => {
     // Remove keyboard from the last message
     ctx.editMessageReplyMarkup(undefined);
 
+    await ctx.reply('👨‍👩‍👧‍👦 Список спикеров конференции:');
+
     for (const speaker of event.speakers) {
       /* eslint-disable no-await-in-loop */
       await displaySpeakerDetails(ctx, speaker);
