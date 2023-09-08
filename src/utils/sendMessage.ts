@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Media, Message } from '../types';
 import { IBotContext } from '../context/IBotContext';
 import TelegramBot from '../TelegramBot';
+import 'dotenv/config';
 
 /**
  * Send a message with images and/or buttons from Standard Messages DB collection.
@@ -31,7 +32,7 @@ const sendMessage = async (
 
     for (const image of media) {
       // Get file right from the server's volume
-      const fullPath = `/var/payload-admin/media/${image.filename}`;
+      const fullPath = `${process.env.MEDIA_PATH}/${image.filename}`;
       /* eslint-disable no-await-in-loop --
           * The general idea to wait until each Context reply should be finished
           * until next one should run :)
