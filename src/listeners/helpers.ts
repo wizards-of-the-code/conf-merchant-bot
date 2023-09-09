@@ -1,21 +1,14 @@
-import { IBotContext, SessionMessage } from '../context/IBotContext';
+import { IBotContext, LastSentWelcomeMessage } from '../context/IBotContext';
 
-export const addMessageToSession = (msg: Omit<SessionMessage, 'timestamp'>, ctx: IBotContext) => {
+export const addLastSentMessageToSession = (
+  msg: Omit<LastSentWelcomeMessage, 'timestamp'>,
+  ctx: IBotContext,
+) => {
   const timestamp = Date.now();
-  ctx.session.messages = ctx.session.messages
-    ? [
-      ...ctx.session.messages,
-      {
-        ...msg,
-        timestamp,
-      },
-    ]
-    : [
-      {
-        ...msg,
-        timestamp,
-      },
-    ];
+  ctx.session.lastSentWelcomeMessage = {
+    ...msg,
+    timestamp,
+  };
 };
 
 /**
@@ -24,15 +17,12 @@ export const addMessageToSession = (msg: Omit<SessionMessage, 'timestamp'>, ctx:
  * @param {number} passedHours
  * @return {boolean}
  * */
-export const checkPassedHours = (timestamp: number, passedHours: number) => {
+export const checkPassedHours = (timestamp: number, passedHours: number): boolean => {
   const now = Date.now();
-
   // Calculate the time difference in milliseconds
   const timeDifference = now - timestamp;
-
   // Convert the time difference from milliseconds to hours
   const hoursDifference = timeDifference / (1000 * 60 * 60);
-
   return hoursDifference > passedHours;
 };
 
@@ -48,14 +38,15 @@ export const getErrorMsg = (err: unknown | Error): string => {
   return JSON.stringify(err);
 };
 
-// eslint-disable-next-line max-len
-export const deletePreveiosWelcomeMessage = async (
-  ctx: IBotContext,
-  preveiosMessage?: SessionMessage,
-) => {
-  if (preveiosMessage && !checkPassedHours(preveiosMessage?.timestamp, 48)) {
+/**
+ * Deletes last sent welcome message
+ * @param {IBotContext} ctx
+ * */
+export const deleteLastSentWelcomeMessage = async (ctx: IBotContext) => {
+  const lastSentWelcome = ctx.session.lastSentWelcomeMessage;
+  if (lastSentWelcome && !checkPassedHours(lastSentWelcome?.timestamp, 48)) {
     try {
-      await ctx.telegram.deleteMessage(preveiosMessage.chatId, preveiosMessage.messageId);
+      await ctx.telegram.deleteMessage(lastSentWelcome.chatId, lastSentWelcome.messageId);
     } catch (e) {
       console.error(
         `\nOccurred error while deleting preveios welcome message.\nError - ${getErrorMsg(e)}`,
