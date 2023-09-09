@@ -1,3 +1,4 @@
+import { escapers } from '@telegraf/entity';
 import { IBotContext, LastSentWelcomeMessage } from '../context/IBotContext';
 
 export const addLastSentMessageToSession = (
@@ -62,4 +63,4 @@ export const deleteLastSentWelcomeMessage = async (ctx: IBotContext) => {
  * @param {string} text
  * @return {string}
  * */
-export const addBackslashBeforeSpecialChars = (text: string): string => text.replace(/[^A-ZА-Я0-9]/gi, '\\$&');
+export const escapeTextForMarkdown2 = (text: string): string => escapers.MarkdownV2(text);

@@ -2,9 +2,9 @@ import { message } from 'telegraf/filters';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import {
-  addBackslashBeforeSpecialChars,
   addLastSentMessageToSession,
   deleteLastSentWelcomeMessage,
+  escapeTextForMarkdown2,
   getErrorMsg,
 } from './helpers';
 
@@ -46,10 +46,9 @@ const onNewChatMembers = (bot: TelegramBot) => {
         const footerObj = collectionFooter[0];
 
         const newMember = ctx.message.new_chat_members[0];
-        const newMemberName = addBackslashBeforeSpecialChars(
-          newMember.username ?? newMember.first_name,
-        );
+        const newMemberName = escapeTextForMarkdown2(newMember.username ?? newMember.first_name);
         const newMemberMention = `[@${newMemberName}](tg://user?id=${newMember.id})`;
+
         const sentWelcomeMessage = await ctx.sendMessage(
           `${newMemberMention} ${msgObj.message}\n\n${footerObj.message}`,
           {

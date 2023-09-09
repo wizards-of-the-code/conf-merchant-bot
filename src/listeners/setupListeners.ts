@@ -5,7 +5,6 @@ import onLeftChatMember from './onLeftChatMember';
 /**
  * @param {TelegramBot} bot;
  */
-
 const setupListeners = (bot: TelegramBot) => {
   onNewChatMembers(bot);
   onLeftChatMember(bot);
