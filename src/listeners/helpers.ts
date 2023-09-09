@@ -1,13 +1,18 @@
 import { escapers } from '@telegraf/entity';
 import { IBotContext, LastSentWelcomeMessage } from '../context/IBotContext';
 
+/**
+ * Writes message to session
+ * @param {Omit<LastSentWelcomeMessage, "timestamp">} message
+ * ctx {IBotContext} ctx
+ * */
 export const addLastSentMessageToSession = (
-  msg: Omit<LastSentWelcomeMessage, 'timestamp'>,
+  message: Omit<LastSentWelcomeMessage, 'timestamp'>,
   ctx: IBotContext,
 ) => {
   const timestamp = Date.now();
   ctx.session.lastSentWelcomeMessage = {
-    ...msg,
+    ...message,
     timestamp,
   };
 };
