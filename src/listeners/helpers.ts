@@ -44,6 +44,7 @@ export const getErrorMsg = (err: unknown | Error): string => {
  * */
 export const deleteLastSentWelcomeMessage = async (ctx: IBotContext) => {
   const lastSentWelcome = ctx.session.lastSentWelcomeMessage;
+  ctx.session.lastSentWelcomeMessage = null;
   if (lastSentWelcome && !checkPassedHours(lastSentWelcome?.timestamp, 48)) {
     try {
       await ctx.telegram.deleteMessage(lastSentWelcome.chatId, lastSentWelcome.messageId);

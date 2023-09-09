@@ -8,7 +8,7 @@ export interface SessionData {
   selectedEvent: Event | null;
   role: string;
   currentMessage: number;
-  lastSentWelcomeMessage?: LastSentWelcomeMessage;
+  lastSentWelcomeMessage?: LastSentWelcomeMessage | null;
 }
 
 export interface IBotContext extends Context {
