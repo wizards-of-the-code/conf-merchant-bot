@@ -74,7 +74,7 @@ class Scheduler {
     recipients: ParticipantShort[],
   ) {
     // Construct telegram message buttons
-    const buttonsArray: (
+    const buttons: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [];
 
@@ -83,7 +83,7 @@ class Scheduler {
       for (const link of notification.links) {
         // Mandatory link validation - in other case bot will crash
         if (await isValidUrl(link.url)) {
-          buttonsArray.push([Markup.button.url(link.name, link.url)]);
+          buttons.push([Markup.button.url(link.name, link.url)]);
         }
       }
     }
@@ -120,7 +120,7 @@ class Scheduler {
       const sentResult = await this.sendMessageToUser(
         recipient.tg.tg_id,
         notification,
-        buttonsArray,
+        buttons,
         mediaGroup,
       );
       if (sentResult) counter += 1;
@@ -140,7 +140,7 @@ class Scheduler {
    * @param {ObjectId} [tgId] Recipient's Telegram ID
    * @param {Notification} [notification] Message object to be sent.
    * @param {(InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][]}
-   * [buttonsArray] Inline buttons to be attached to the message.
+   * [buttons] Inline buttons to be attached to the message.
    * @param {MediaGroup} [mediaGroup] Array of links to photos.
    * @param {boolean} [photosOnTop] Photos position.
    * True: at the top of the message.
@@ -150,7 +150,7 @@ class Scheduler {
   private async sendMessageToUser(
     tgId: number,
     notification: Notification,
-    buttonsArray: (
+    buttons: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
     mediaGroup: MediaGroup,
@@ -161,7 +161,7 @@ class Scheduler {
     }
 
     // Send message text with buttons
-    await this.sendMessageText(tgId, notification, buttonsArray);
+    await this.sendMessageText(tgId, notification, buttons);
 
     // Send photos in the end if photosOnTop === true
     if (mediaGroup.length > 0 && !notification.images_on_top) {
@@ -174,7 +174,7 @@ class Scheduler {
   private async sendMessageText(
     tgId: number,
     notification: Notification,
-    buttonsArray: (
+    buttons: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][],
   ): Promise<boolean> {
@@ -182,7 +182,7 @@ class Scheduler {
     const sendResult = await this.bot
       .telegram
       .sendMessage(tgId, parseRichText(notification.text), {
-        ...Markup.inlineKeyboard(buttonsArray),
+        ...Markup.inlineKeyboard(buttons),
         parse_mode: 'HTML',
         disable_web_page_preview: true,
       });

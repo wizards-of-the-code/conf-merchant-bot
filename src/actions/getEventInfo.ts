@@ -48,13 +48,13 @@ export const sendEventInfoMessage = async (
       },
     );
 
-    const buttonsArray: (
+    const buttons: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [];
 
     // Register button if user is not already participate
     if (!isAlreadyParticipate) {
-      buttonsArray.unshift(
+      buttons.unshift(
         [Markup.button.callback('📝 Зарегистрироваться', 'action_participate_participant')],
         [Markup.button.callback('Стать волонтером', 'action_participate_volunteer')],
         [Markup.button.callback('Хочу организовывать!', 'action_participate_organizer')],
@@ -63,41 +63,42 @@ export const sendEventInfoMessage = async (
 
     // TODO: Change unshift to push later
     if (event.schedule && event.schedule.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
+      buttons.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
     // TODO: Change unshift to push later
     if (event.speakers && event.speakers.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
+      buttons.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
     }
 
     // Add link buttons if event has filled with valid fields
     if (await isValidUrl(event.tickets_link)) {
-      buttonsArray.push([Markup.button.url('🎟 Билеты', event.tickets_link)]);
+      buttons.push([Markup.button.url('🎟 Билеты', event.tickets_link)]);
     }
 
     if (await isValidUrl(event.link)) {
-      buttonsArray.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
+      buttons.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
     }
 
     if (await isValidUrl(event.tg_channel)) {
-      buttonsArray.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
+      buttons.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
     }
 
     // Cancel registration if user already participating but not paid yet
     if (isAlreadyParticipate && !isAlreadyPaid) {
-      buttonsArray.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
+      buttons.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
     }
 
-    buttonsArray.push(
+    buttons.push(
       [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
     );
-    buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
+
+    buttons.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
 
     const message = await ctx.replyWithHTML(
       composeEventInfoBody(event),
       {
-        ...Markup.inlineKeyboard(buttonsArray),
+        ...Markup.inlineKeyboard(buttons),
         disable_web_page_preview: true,
       },
     );
