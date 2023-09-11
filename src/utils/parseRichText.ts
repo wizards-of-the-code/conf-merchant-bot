@@ -1,5 +1,10 @@
 import { escapers } from '@telegraf/entity';
 
+/**
+ * Parse RichText format from Payload CMS to HTML Telegram string.
+ * @param input - input RichText array.
+ * @returns parsed HTML Telegram string.
+ */
 const parseRichText = (input: unknown[]): string => {
   let finalText = '';
 
@@ -43,6 +48,7 @@ const parseRichText = (input: unknown[]): string => {
     finalText += `${parseLine(element.children)}\n`;
   });
 
+  // Remove \n from last element
   return finalText.slice(0, -1);
 };
 
