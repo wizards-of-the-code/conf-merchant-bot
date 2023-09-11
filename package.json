@@ -21,10 +21,10 @@
     "eslint": "^8.46.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.1.0",
+    "lint-staged": "^14.0.1",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "lint-staged": "^14.0.1"
+    "typescript": "^5.1.6"
   },
   "lint-staged": {
     "src/**/*.ts": [
@@ -32,6 +32,7 @@
     ]
   },
   "dependencies": {
+    "@telegraf/entity": "^0.3.0",
     "@types/mongodb": "^4.0.7",
     "@types/node-cron": "^3.0.8",
     "dotenv": "^16.3.1",
