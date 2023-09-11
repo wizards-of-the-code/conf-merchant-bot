@@ -96,7 +96,10 @@ export const sendEventInfoMessage = async (
 
     const message = await ctx.replyWithHTML(
       composeEventInfoBody(event),
-      Markup.inlineKeyboard(buttonsArray),
+      {
+        ...Markup.inlineKeyboard(buttonsArray),
+        disable_web_page_preview: true,
+      },
     );
     ctx.session.currentMessage = message.message_id;
   } catch (e) {
