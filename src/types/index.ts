@@ -99,7 +99,7 @@ export type Message = {
   _id?: ObjectId;
   name: string;
   messageList: {
-    text: string;
+    text: unknown[];
   }[];
   images: {
     media_id: string;

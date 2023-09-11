@@ -5,6 +5,7 @@ import { Media, Message } from '../types';
 import { IBotContext } from '../context/IBotContext';
 import TelegramBot from '../TelegramBot';
 import 'dotenv/config';
+import parseRichText from './parseRichText';
 
 /**
  * Send a message with images and/or buttons from Standard Messages DB collection.
@@ -51,10 +52,17 @@ const sendMessage = async (
             * The general idea to wait until each Context reply should be finished
             * until next one should run :)
             */
-        await ctx.reply(messageItem);
+        await ctx.reply(parseRichText(messageItem.text), {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+        });
         index += 1;
       } else {
-        await ctx.reply(messageItem, Markup.inlineKeyboard(buttons));
+        await ctx.reply(parseRichText(messageItem.text), {
+          ...Markup.inlineKeyboard(buttons),
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+        });
       }
     }
   }
