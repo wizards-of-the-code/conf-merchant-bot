@@ -50,13 +50,15 @@ export const sendEventInfoMessage = async (
 
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [
-      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
-    ];
+    )[][] = [];
 
     // Register button if user is not already participate
     if (!isAlreadyParticipate) {
-      buttonsArray.unshift([Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')]);
+      buttonsArray.unshift(
+        [Markup.button.callback('📝 Зарегистрироваться', 'action_participate_participant')],
+        [Markup.button.callback('Стать волонтером', 'action_participate_volunteer')],
+        [Markup.button.callback('Хочу организовывать!', 'action_participate_organizer')],
+      );
     }
 
     // TODO: Change unshift to push later
@@ -87,6 +89,9 @@ export const sendEventInfoMessage = async (
       buttonsArray.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
     }
 
+    buttonsArray.push(
+      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
+    );
     buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
 
     const message = await ctx.replyWithHTML(

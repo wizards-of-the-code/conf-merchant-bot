@@ -6,8 +6,8 @@ import {
 import TelegramBot from '../TelegramBot';
 import parseActionParam from '../utils/parseActionParam';
 import sendMessage from '../utils/sendMessage';
-import switchRoleMessage from '../utils/switchRoleMessage';
-import { statuses } from '../constants';
+// import switchRoleMessage from '../utils/switchRoleMessage';
+import { statuses, messages } from '../constants';
 
 const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Participant> => {
   // Check if user is already in the DB
@@ -75,9 +75,18 @@ const participate = async (bot: TelegramBot) => {
     };
 
     await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { _id: participant._id }, { $push: { events: eventDetails } });
+    // const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
+    let userMessage: any;
 
-    const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
-
+    // eslint-disable-next-line default-case
+    switch (role) {
+      case 'volunteer':
+        userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.VOLUNTEER_MESSAGES });
+        break;
+      case 'organizer':
+        userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.ORGANIZER_MESSAGES });
+        break;
+    }
     ctx.editMessageReplyMarkup(undefined);
 
     const buttons: InlineKeyboardButton.CallbackButton[][] = [
@@ -90,17 +99,21 @@ const participate = async (bot: TelegramBot) => {
       ],
     ];
 
-    // Get message from DB
-    const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: switchRoleMessage(role) });
+    sendMessage(userMessage, ctx, bot, buttons);
 
-    if (roleMessage) {
-      // If a role message is available, send a confirmation and then the role message with buttons
-      await ctx.reply(userMessage);
-      await sendMessage(roleMessage, ctx, bot, buttons);
-    } else {
-      // Else, just send a confirmation message with buttons
-      ctx.reply(userMessage, Markup.inlineKeyboard(buttons));
-    }
+    // Get message from DB
+    // const roleMessage = await bot.dbManager.getDocumentData<Message>
+    // ('messages', { name: switchRoleMessage(role) });
+
+    // if (roleMessage) {
+    //   // If a role message is available, send a
+    // confirmation and then the role message with buttons
+    //   await ctx.reply(userMessage);
+    //   await sendMessage(roleMessage, ctx, bot, buttons);
+    // } else {
+    //   // Else, just send a confirmation message with buttons
+    //   ctx.reply(userMessage, Markup.inlineKeyboard(buttons));
+    // }
   });
 };
 

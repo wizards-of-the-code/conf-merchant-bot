@@ -1,8 +1,10 @@
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
-import { Sponsor, TelegramUser } from '../types';
+import { Sponsor, TelegramUser, Message } from '../types';
 import TelegramBot from '../TelegramBot';
 import { IBotContext } from '../context/IBotContext';
+import { messages } from '../constants';
+import sendMessage from '../utils/sendMessage';
 
 const createSponsor = async (bot: TelegramBot, ctx: IBotContext) => {
   if (!ctx.from) {
@@ -26,28 +28,20 @@ const createSponsor = async (bot: TelegramBot, ctx: IBotContext) => {
 
 const sponsorship = async (bot: TelegramBot) => {
   bot.action('become_sponsor', async (ctx) => {
-    const result = await createSponsor(bot, ctx);
+    await createSponsor(bot, ctx);
 
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [];
-
-    if (result) {
-      ctx.editMessageReplyMarkup(undefined);
-      buttonsArray.push([Markup.button.url('Заполнить анкету спонсора', 'https://peredelanoconf.com/')]);
-      ctx.reply('Спасибо за Вашу поддержку!');
-    } else {
-      ctx.reply('Вы снова наш спонсор, спасибо Вам!');
-    }
-
-    buttonsArray.push(
+    )[][] = [
+      // TODO: more_info action!!
       [Markup.button.callback('Узнать больше', 'more_info')],
-      [Markup.button.callback('Спонсорский пакет', 'sponsorship_pack')],
-      [Markup.button.callback('Обсудить вопросы', 'discussion')],
       [Markup.button.callback('🔼 В главное меню', 'action_get_events')],
-    );
+    ];
 
-    ctx.replyWithHTML('Больше подробностей:', Markup.inlineKeyboard(buttonsArray));
+    const sponsorMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.SPONSOR_MESSAGES });
+    if (sponsorMessage) {
+      await sendMessage(sponsorMessage, ctx, bot, buttonsArray);
+    }
   });
 };
 
