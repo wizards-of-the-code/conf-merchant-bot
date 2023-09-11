@@ -10,6 +10,7 @@ import {
 import TelegramBot from './TelegramBot';
 import { isValidUrl } from './utils/isValidUrl';
 import 'dotenv/config';
+import parseRichText from './utils/parseRichText';
 
 class Scheduler {
   tasks: ScheduledTask[];
@@ -180,7 +181,11 @@ class Scheduler {
     // Send text part with buttons
     const sendResult = await this.bot
       .telegram
-      .sendMessage(tgId, notification.text, Markup.inlineKeyboard(buttonsArray));
+      .sendMessage(tgId, parseRichText(notification.text), {
+        ...Markup.inlineKeyboard(buttonsArray),
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+      });
 
     if (sendResult) return true;
     return false;
