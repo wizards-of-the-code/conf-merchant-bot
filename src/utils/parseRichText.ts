@@ -1,51 +1,49 @@
 import { escapers } from '@telegraf/entity';
-import {
-  fmt, bold, italic, underline,
-} from 'telegraf/format';
 
-const parseRichText = (input: any[]): string => {
-  console.log('input', input);
-
+const parseRichText = (input: unknown[]): string => {
   let finalText = '';
 
-  const parseLine = (children: unknown[]): string => {
+  function parseLine(children: unknown[]): string {
     let line = '';
 
     children.forEach((child: any) => {
       let textElement;
 
       if (child.text) {
-        textElement = escapers.MarkdownV2(child.text);
+        textElement = escapers.HTML(child.text);
 
         if (child.bold) {
-          textElement = fmt`*${bold`${textElement}`}*`;
+          textElement = `<b>${textElement}</b>`;
         }
 
         if (child.italic) {
-          textElement = fmt`*${italic`${textElement}`}*`;
+          textElement = `<i>${textElement}</i>`;
         }
 
         if (child.underline) {
-          textElement = fmt`*${underline`${textElement}`}*`;
+          textElement = `<u>${textElement}</u>`;
+        }
+
+        if (child.strikethrough) {
+          textElement = `<s>${textElement}</s>`;
         }
 
         line += textElement;
       }
 
       if (child.type && child.type === 'link') {
-        line += `[${child.children[0].text}](${child.url})`;
+        line += `<a href="${child.url}">${escapers.HTML(child.children[0].text)}</a>`;
       }
     });
 
-    console.log('line', line);
     return line;
-  };
+  }
 
   input.forEach((element: any) => {
     finalText += `${parseLine(element.children)}\n`;
   });
 
-  return finalText;
+  return finalText.slice(0, -1);
 };
 
 export default parseRichText;

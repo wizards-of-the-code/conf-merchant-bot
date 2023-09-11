@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 export type Event = {
   _id?: ObjectId;
   name: string;
-  description: string;
+  description: unknown[];
   tickets_link: string;
   link: string;
   datetime: Date;
