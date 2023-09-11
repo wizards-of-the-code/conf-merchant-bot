@@ -1,6 +1,7 @@
 import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import { Event, Speaker } from '../types';
+import parseRichText from '../utils/parseRichText';
 
 const displaySpeakerDetails = async (ctx: any, speaker: Speaker) => {
   const messageLines: string[] = [
@@ -12,13 +13,14 @@ const displaySpeakerDetails = async (ctx: any, speaker: Speaker) => {
 
   messageLines.push(
     `<b>Тема доклада:</b> ${speaker.topic}\n`,
-    `${speaker.topic_description}`,
+    parseRichText(speaker.topic_description),
   );
 
   await ctx.replyWithHTML(
     messageLines.join('\n'),
     {
       parse_mode: 'HTML',
+      disable_web_page_preview: true,
     },
   );
 };

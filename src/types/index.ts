@@ -72,7 +72,7 @@ export type Speaker = {
   name: string;
   position: string;
   topic: string;
-  topic_description: string;
+  topic_description: unknown[];
 };
 
 export type Sponsor = {
