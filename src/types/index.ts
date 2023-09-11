@@ -112,7 +112,7 @@ export type Notification = {
   is_active: boolean;
   event_id: ObjectId;
   type: 'manual' | 'auto';
-  text: string;
+  text: unknown[];
   links: MessageButton[];
   images_on_top: boolean;
   images: {
