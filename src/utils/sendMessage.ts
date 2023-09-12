@@ -23,7 +23,7 @@ const sendMessage = async (
   )[][] = [],
 ) => {
   // Send images if they exists
-  if (message.images.length > 0) {
+  if (message.images && message.images.length > 0) {
     const paths = message.images.map((item) => new ObjectId(item.media_id));
 
     // Get image paths from DB
