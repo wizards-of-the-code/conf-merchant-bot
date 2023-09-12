@@ -95,6 +95,13 @@ export type LogEntry = {
   initiator: TelegramUser;
 };
 
+export type Command = {
+  _id?: ObjectId;
+  command: string;
+  description: string;
+  active: boolean;
+};
+
 export type Message = {
   _id?: ObjectId;
   name: string;
