@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 export type Event = {
   _id?: ObjectId;
   name: string;
-  description: string;
+  description: unknown[];
   tickets_link: string;
   link: string;
   datetime: Date;
@@ -72,7 +72,7 @@ export type Speaker = {
   name: string;
   position: string;
   topic: string;
-  topic_description: string;
+  topic_description: unknown[];
 };
 
 export type Sponsor = {
@@ -99,7 +99,7 @@ export type Message = {
   _id?: ObjectId;
   name: string;
   messageList: {
-    text: string;
+    text: unknown[];
   }[];
   images: {
     media_id: string;
@@ -112,7 +112,7 @@ export type Notification = {
   is_active: boolean;
   event_id: ObjectId;
   type: 'manual' | 'auto';
-  text: string;
+  text: unknown[];
   links: MessageButton[];
   images_on_top: boolean;
   images: {

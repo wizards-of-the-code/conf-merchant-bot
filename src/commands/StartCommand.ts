@@ -26,7 +26,7 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     await sendMessage(startMessage, ctx, bot);
   }
 
-  const buttonsArray: (
+  const buttons: (
     InlineKeyboardButton.UrlButton | InlineKeyboardButton.CallbackButton
   )[][] = [
     [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
@@ -42,7 +42,7 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   await ctx.reply(
     'Наши социальные сети:',
     Markup.inlineKeyboard([
-      ...buttonsArray,
+      ...buttons,
     ]),
   );
 
