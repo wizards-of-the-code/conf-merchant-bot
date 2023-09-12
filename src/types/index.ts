@@ -111,6 +111,7 @@ export type Message = {
   images: {
     media_id: string;
   }[];
+  links: MessageButton[];
 };
 
 export type Notification = {
