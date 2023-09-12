@@ -80,6 +80,9 @@ const participate = async (bot: TelegramBot) => {
 
     // eslint-disable-next-line default-case
     switch (role) {
+      case 'participant':
+        userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.PARTICIPANT_MESSAGES });
+        break;
       case 'volunteer':
         userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.VOLUNTEER_MESSAGES });
         break;
