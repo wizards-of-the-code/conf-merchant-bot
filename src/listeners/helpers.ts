@@ -1,21 +1,7 @@
 import { escapers } from '@telegraf/entity';
-import { IBotContext, LastSentWelcomeMessage } from '../context/IBotContext';
-
-/**
- * Writes message to session
- * @param {Omit<LastSentWelcomeMessage, "timestamp">} message
- * ctx {IBotContext} ctx
- * */
-export const addLastSentMessageToSession = (
-  message: Omit<LastSentWelcomeMessage, 'timestamp'>,
-  ctx: IBotContext,
-) => {
-  const timestamp = Date.now();
-  ctx.session.lastSentWelcomeMessage = {
-    ...message,
-    timestamp,
-  };
-};
+import { IBotContext } from '../context/IBotContext';
+import { CollectionEnum, LastSentWelcomeMessage, WelcomeMessage } from './contracts';
+import DBManager from '../mongodb/DBManager';
 
 /**
  * Checks whether particular hours have passed from timestamp
@@ -45,21 +31,69 @@ export const getErrorMsg = (err: unknown | Error): string => {
 };
 
 /**
+ * Updates last sent welcome message
+ * @param {Omit<LastSentWelcomeMessage, 'timestamp'>} message
+ * @param {DBManager} db
+ * */
+export const updateLastSentWelcomeMessage = async (
+  message: Omit<LastSentWelcomeMessage, 'timestamp'>,
+  db: DBManager,
+) => {
+  await db.insertOrUpdateDocumentToCollection(
+    CollectionEnum.Welcome,
+    { title: 'Last sent welcome message' },
+    {
+      $set: {
+        ...message,
+        timestamp: Date.now(),
+      },
+    },
+  );
+};
+
+/**
  * Deletes last sent welcome message
  * @param {IBotContext} ctx
+ * @param {DBManager} db
  * */
-export const deleteLastSentWelcomeMessage = async (ctx: IBotContext) => {
-  const lastSentWelcome = ctx.session.lastSentWelcomeMessage;
-  ctx.session.lastSentWelcomeMessage = null;
+export const deleteLastSentWelcomeMessage = async (ctx: IBotContext, db: DBManager) => {
+  const lastSentWelcomeMessageObj = await db.getCollectionData<LastSentWelcomeMessage>(
+    CollectionEnum.Welcome,
+    {
+      title: 'Last sent welcome message',
+    },
+  );
+  const lastSentWelcome = lastSentWelcomeMessageObj[0];
   if (lastSentWelcome && !checkPassedHours(lastSentWelcome?.timestamp, 48)) {
-    try {
-      await ctx.telegram.deleteMessage(lastSentWelcome.chatId, lastSentWelcome.messageId);
-    } catch (e) {
-      console.error(
-        `\nOccurred error while deleting preveios welcome message.\nError - ${getErrorMsg(e)}`,
-      );
-    }
+    await ctx.telegram.deleteMessage(lastSentWelcome.chatId, lastSentWelcome.messageId);
   }
+};
+
+/**
+ * Gets welcome message for chat and footer
+ * @param {DBManager} db
+ * @param {string} chatTitle
+ * @return {Promise<{ welcomeMessage: WelcomeMessage, footer: WelcomeMessage}>}
+ * */
+export const getMessageAndFooterForChat = async (
+  db: DBManager,
+  chatTitle: string,
+): Promise<{ welcomeMessage: WelcomeMessage; footer: WelcomeMessage }> => {
+  const collectionMessage = await db.getCollectionData<WelcomeMessage>(CollectionEnum.Welcome, {
+    forChat: chatTitle,
+  });
+  const collectionFooter = await db.getCollectionData<WelcomeMessage>(CollectionEnum.Welcome, {
+    title: 'Footer',
+  });
+  if (!collectionFooter.length || !collectionMessage.length) {
+    throw new Error('Welcome message or Footer is not found');
+  }
+  const msgObj = collectionMessage[0];
+  const footerObj = collectionFooter[0];
+  return {
+    welcomeMessage: msgObj,
+    footer: footerObj,
+  };
 };
 
 /**

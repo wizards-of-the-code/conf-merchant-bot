@@ -1,5 +1,5 @@
 import { message } from 'telegraf/filters';
-import { CollectionEnum, WelcomeMessage } from './onNewChatMembers';
+import { CollectionEnum, WelcomeMessage } from './contracts';
 import TelegramBot from '../TelegramBot';
 import { escapeTextForMarkdown2, getErrorMsg } from './helpers';
 
