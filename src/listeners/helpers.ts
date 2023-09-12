@@ -1,6 +1,11 @@
 import { escapers } from '@telegraf/entity';
 import { IBotContext } from '../context/IBotContext';
-import { CollectionEnum, LastSentWelcomeMessage, WelcomeMessage } from './contracts';
+import {
+  ChatBotCollection,
+  ChatBotCollections,
+  CollectionEnum,
+  SentWelcomeMessage,
+} from './contracts';
 import DBManager from '../mongodb/DBManager';
 
 /**
@@ -31,68 +36,83 @@ export const getErrorMsg = (err: unknown | Error): string => {
 };
 
 /**
- * Updates last sent welcome message
- * @param {Omit<LastSentWelcomeMessage, 'timestamp'>} message
+ * Updates sent messages collecntion
  * @param {DBManager} db
+ * @param {SentWelcomeMessage[]} sentMessage
+ * @param {ChatBotCollection} sentMessages
  * */
-export const updateLastSentWelcomeMessage = async (
-  message: Omit<LastSentWelcomeMessage, 'timestamp'>,
+export const updateSentMessages = async (
   db: DBManager,
+  sentMessage: SentWelcomeMessage,
+  sentMessages: ChatBotCollection,
 ) => {
-  await db.insertOrUpdateDocumentToCollection(
-    CollectionEnum.Welcome,
-    { title: 'Last sent welcome message' },
-    {
-      $set: {
-        ...message,
-        timestamp: Date.now(),
-      },
-    },
-  );
-};
+  try {
+    const messages = sentMessages.messages
+      ? [...sentMessages.messages, sentMessage]
+      : [sentMessage];
 
-/**
- * Deletes last sent welcome message
- * @param {IBotContext} ctx
- * @param {DBManager} db
- * */
-export const deleteLastSentWelcomeMessage = async (ctx: IBotContext, db: DBManager) => {
-  const lastSentWelcomeMessageObj = await db.getCollectionData<LastSentWelcomeMessage>(
-    CollectionEnum.Welcome,
-    {
-      title: 'Last sent welcome message',
-    },
-  );
-  const lastSentWelcome = lastSentWelcomeMessageObj[0];
-  if (lastSentWelcome && !checkPassedHours(lastSentWelcome?.timestamp, 48)) {
-    await ctx.telegram.deleteMessage(lastSentWelcome.chatId, lastSentWelcome.messageId);
+    await db.insertOrUpdateDocumentToCollection(
+      CollectionEnum.Welcome,
+      { title: 'Sent welcome messages' },
+      {
+        $set: {
+          ...sentMessages,
+          messages,
+        },
+      },
+    );
+  } catch (e) {
+    console.error(`While update welcome message: ${getErrorMsg(e)}`);
   }
 };
 
 /**
- * Gets welcome message for chat and footer
+ * Deletes first message from queue
+ * @param {IBotContext} ctx
+ * @param {ChatBotCollection} sentMessages
+ * */
+export const deleteMessageFromQueue = async (
+  ctx: IBotContext,
+  sentMessages: ChatBotCollection,
+) => {
+  try {
+    if (sentMessages.messages?.length) {
+      const firstFromQueue = sentMessages.messages.shift();
+      if (firstFromQueue && !checkPassedHours(firstFromQueue?.timestamp, 48)) {
+        await ctx.telegram.deleteMessage(firstFromQueue?.chatId, firstFromQueue?.messageId);
+      }
+    }
+  } catch (e) {
+    console.error(`While deleting welcome message: ${getErrorMsg(e)}`);
+  }
+};
+
+/**
+ * Gets chatbot collections
  * @param {DBManager} db
  * @param {string} chatTitle
- * @return {Promise<{ welcomeMessage: WelcomeMessage, footer: WelcomeMessage}>}
+ * @return {Promise<ChatBotCollections>}
  * */
-export const getMessageAndFooterForChat = async (
+export const getChatBotCollections = async (
   db: DBManager,
   chatTitle: string,
-): Promise<{ welcomeMessage: WelcomeMessage; footer: WelcomeMessage }> => {
-  const collectionMessage = await db.getCollectionData<WelcomeMessage>(CollectionEnum.Welcome, {
-    forChat: chatTitle,
-  });
-  const collectionFooter = await db.getCollectionData<WelcomeMessage>(CollectionEnum.Welcome, {
-    title: 'Footer',
-  });
-  if (!collectionFooter.length || !collectionMessage.length) {
-    throw new Error('Welcome message or Footer is not found');
+): Promise<ChatBotCollections> => {
+  const chatBotCollections = await db.getCollection<ChatBotCollection>(CollectionEnum.Welcome);
+  const welcomeMessage = chatBotCollections.find((collection) => collection?.forChat === chatTitle)
+    ?.message;
+  const footer = chatBotCollections.find((collection) => collection?.title === 'Footer')?.message;
+  const sentMessages = chatBotCollections.find(
+    (collection) => collection?.title === 'Sent welcome messages',
+  );
+
+  if (!welcomeMessage || !footer || !sentMessages) {
+    throw new Error('While getting collections for chat bot');
   }
-  const msgObj = collectionMessage[0];
-  const footerObj = collectionFooter[0];
+
   return {
-    welcomeMessage: msgObj,
-    footer: footerObj,
+    welcomeMessage,
+    footer,
+    sentMessages,
   };
 };
 

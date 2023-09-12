@@ -1,15 +1,8 @@
-import {
-  MongoClient, Db, Document,
-  OptionalUnlessRequiredId, ObjectId,
-} from 'mongodb';
+import { MongoClient, Db, Document, OptionalUnlessRequiredId, ObjectId } from 'mongodb';
 import { IConfigService } from '../config/ConfigService.interface';
-import {
-  Event,
-  EventWithParticipants,
-  LogEntry,
-} from '../types';
+import { Event, EventWithParticipants, LogEntry } from '../types';
 
-interface Item extends Document { }
+interface Item extends Document {}
 
 class DBManager {
   private instance: Db | undefined;
@@ -21,7 +14,9 @@ class DBManager {
   private client: MongoClient;
 
   constructor(private readonly configService: IConfigService) {
-    this.uri = `mongodb+srv://${configService.get('MONGO_USERNAME')}:${configService.get('MONGO_PASSWORD')}@botdb.ixjj9ng.mongodb.net/`;
+    this.uri = `mongodb+srv://${configService.get('MONGO_USERNAME')}:${configService.get(
+      'MONGO_PASSWORD',
+    )}@botdb.ixjj9ng.mongodb.net/`;
     this.dbName = `${configService.get('MONGO_DB_NAME')}`;
     this.client = new MongoClient(this.uri);
   }
@@ -39,10 +34,7 @@ class DBManager {
     }
   }
 
-  async getCollectionData<T>(
-    collectionName: string,
-    selectionCondition: any,
-  ): Promise<T[]> {
+  async getCollectionData<T>(collectionName: string, selectionCondition: any): Promise<T[]> {
     try {
       if (!this.instance) {
         throw new Error('Database instance not available.');
@@ -57,10 +49,20 @@ class DBManager {
     }
   }
 
-  async getDocumentData<T>(
-    collectionName: string,
-    selectionCondition: any,
-  ): Promise<T | null> {
+  async getCollection<T>(collectionName: string) {
+    try {
+      if (!this.instance) {
+        throw new Error('Database instance not available.');
+      }
+      const collection = await this.instance.collection(collectionName).find().toArray();
+      return collection as T[];
+    } catch (error) {
+      console.error('Error fetching collection data:', error);
+      throw new Error('Failed to fetch data from collection.');
+    }
+  }
+
+  async getDocumentData<T>(collectionName: string, selectionCondition: any): Promise<T | null> {
     try {
       if (!this.instance) {
         throw new Error('Database instance not available.');

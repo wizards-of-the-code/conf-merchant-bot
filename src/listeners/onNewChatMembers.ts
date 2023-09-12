@@ -1,11 +1,11 @@
 import { message } from 'telegraf/filters';
 import TelegramBot from '../TelegramBot';
 import {
-  deleteLastSentWelcomeMessage,
   escapeTextForMarkdown2,
   getErrorMsg,
-  getMessageAndFooterForChat,
-  updateLastSentWelcomeMessage,
+  getChatBotCollections,
+  updateSentMessages,
+  deleteMessageFromQueue,
 } from './helpers';
 
 /**
@@ -19,7 +19,8 @@ const onNewChatMembers = (bot: TelegramBot) => {
 
       const { chat } = ctx;
       if ('title' in chat) {
-        const { welcomeMessage, footer } = await getMessageAndFooterForChat(
+        // I get all chatbot collections at ones, so I don't need to do several requests to the db
+        const { welcomeMessage, footer, sentMessages } = await getChatBotCollections(
           bot.dbManager,
           chat.title,
         );
@@ -28,21 +29,21 @@ const onNewChatMembers = (bot: TelegramBot) => {
         const newMemberName = escapeTextForMarkdown2(newMember.username ?? newMember.first_name);
         const newMemberMention = `[@${newMemberName}](tg://user?id=${newMember.id})`;
 
-        const sentWelcomeMessage = await ctx.sendMessage(
-          `${newMemberMention} ${welcomeMessage.message}\n\n${footer.message}`,
+        const { message_id: messageId } = await ctx.sendMessage(
+          `${newMemberMention} ${welcomeMessage}\n\n${footer}`,
           {
             parse_mode: 'MarkdownV2',
           },
         );
 
-        await deleteLastSentWelcomeMessage(ctx, bot.dbManager);
-        await updateLastSentWelcomeMessage(
-          {
-            chatId: sentWelcomeMessage.chat.id,
-            messageId: sentWelcomeMessage.message_id,
-          },
-          bot.dbManager,
-        );
+        const sentMessage = {
+          chatId: chat.id,
+          messageId,
+          timestamp: Date.now(),
+        };
+
+        await deleteMessageFromQueue(ctx, sentMessages);
+        await updateSentMessages(bot.dbManager, sentMessage, sentMessages);
       }
     } catch (e) {
       console.error(getErrorMsg(e));
