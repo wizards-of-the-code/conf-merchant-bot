@@ -46,13 +46,18 @@ const sendMessage = async (
   // Send messages
   if (message.messageList.length > 0) {
     // Add links if they exists
+    const dbButtons: (
+      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+    )[][] = [];
     if (message.links && message.links.length > 0) {
       for (const link of message.links) {
         // Mandatory link validation - in other case bot will crash
         if (await isValidUrl(link.url)) {
-          buttons.unshift([Markup.button.url(link.name, link.url)]);
+          dbButtons.push([Markup.button.url(link.name, link.url)]);
         }
       }
+      // Add dbButtons to parameter array
+      buttons.unshift(...dbButtons);
     }
 
     // Index for finding last message
@@ -69,6 +74,7 @@ const sendMessage = async (
         });
         index += 1;
       } else {
+        // Last message should be with buttons if they exists
         await ctx.reply(parseRichText(messageItem.text), {
           ...Markup.inlineKeyboard(buttons),
           parse_mode: 'HTML',
