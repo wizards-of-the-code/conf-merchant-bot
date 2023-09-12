@@ -33,8 +33,6 @@ const sponsorship = async (bot: TelegramBot) => {
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      // TODO: more_info action!!
-      [Markup.button.callback('Узнать больше', 'more_info')],
       [Markup.button.callback('🔼 В главное меню', 'action_get_events')],
     ];
 
