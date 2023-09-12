@@ -1,12 +1,7 @@
 import { message } from 'telegraf/filters';
 import TelegramBot from '../TelegramBot';
-import {
-  escapeTextForMarkdown2,
-  getErrorMsg,
-  getChatBotCollections,
-  updateSentMessages,
-  deleteMessageFromQueue,
-} from './helpers';
+import { escapeTextForMarkdown2, getErrorMsg } from './helpers';
+import { getChatBotCollections, updateSentMessages, deleteEarlierMessage } from './dbRequests';
 
 /**
  * @param {TelegramBot} bot;
@@ -42,7 +37,7 @@ const onNewChatMembers = (bot: TelegramBot) => {
           timestamp: Date.now(),
         };
 
-        await deleteMessageFromQueue(ctx, sentMessages);
+        await deleteEarlierMessage(ctx, sentMessages);
         await updateSentMessages(bot.dbManager, sentMessage, sentMessages);
       }
     } catch (e) {
