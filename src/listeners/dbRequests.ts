@@ -67,7 +67,10 @@ export const getChatBotCollections = async (
   db: DBManager,
   chatTitle: string,
 ): Promise<ChatBotCollections> => {
-  const chatBotCollections = await db.getCollection<ChatBotCollection>(CollectionEnum.Welcome);
+  const chatBotCollections = await db.getCollectionData<ChatBotCollection>(
+    CollectionEnum.Welcome,
+    {},
+  );
   const welcomeMessage = chatBotCollections.find((collection) => collection?.forChat === chatTitle)
     ?.message;
   const footer = chatBotCollections.find((collection) => collection?.title === 'Footer')?.message;

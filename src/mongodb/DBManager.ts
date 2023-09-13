@@ -49,19 +49,6 @@ class DBManager {
     }
   }
 
-  async getCollection<T>(collectionName: string) {
-    try {
-      if (!this.instance) {
-        throw new Error('Database instance not available.');
-      }
-      const collection = await this.instance.collection(collectionName).find().toArray();
-      return collection as T[];
-    } catch (error) {
-      console.error('Error fetching collection data:', error);
-      throw new Error('Failed to fetch data from collection.');
-    }
-  }
-
   async getDocumentData<T>(collectionName: string, selectionCondition: any): Promise<T | null> {
     try {
       if (!this.instance) {
