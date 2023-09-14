@@ -23,9 +23,8 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const messageText = 'Выберите интересующее вас мероприятие: ';
   const paginator = new Paginator(messageText, paginatorOptions);
   paginator.sendPage(ctx);
-
-  bot.action('prev_page', () => { paginator.handlePreviousPage(ctx); });
-  bot.action('next_page', () => { paginator.handleNextPage(ctx); });
+  bot.action(`prev_page_${ctx.session.userId}`, () => { paginator.handlePreviousPage(ctx); });
+  bot.action(`next_page_${ctx.session.userId}`, () => { paginator.handleNextPage(ctx); });
 };
 
 const getEvents = async (bot: TelegramBot) => {
