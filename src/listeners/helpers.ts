@@ -34,3 +34,11 @@ export const getErrorMsg = (err: unknown | Error): string => {
  * @return {string}
  * */
 export const escapeTextForMarkdown2 = (text: string): string => escapers.MarkdownV2(text);
+
+/**
+ * Mentions user in Markdown2
+ * @param {string} username
+ * @param {number} id
+ * @return {string}
+ */
+export const mention = (username: string, id: number): string => `[@${username}](tg://user?id=${id})`;

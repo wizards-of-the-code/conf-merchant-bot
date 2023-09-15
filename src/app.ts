@@ -7,6 +7,7 @@ import Scheduler from './Scheduler';
 import DBManager from './mongodb/DBManager';
 import StartCommand from './commands/StartCommand';
 import setupListeners from './listeners/setupListeners';
+import DbMongoose from './mongoose/MongooseManager';
 
 class App {
   bot: TelegramBot;
@@ -15,13 +16,12 @@ class App {
 
   scheduler: Scheduler;
 
-  constructor(private readonly configService: IConfigService, dbManager: DBManager) {
-    this.bot = new TelegramBot(
-      this.configService.get('BOT_TOKEN'),
-      dbManager,
-    );
-    this.bot.use((
-      new LocalSession({ database: 'sessions.json' })).middleware());
+  constructor(
+    private readonly configService: IConfigService,
+    dbManager: DBManager,
+  ) {
+    this.bot = new TelegramBot(this.configService.get('BOT_TOKEN'), dbManager);
+    this.bot.use(new LocalSession({ database: 'sessions.json' }).middleware());
     this.scheduler = new Scheduler('0 0 19 * * *', dbManager, this.bot);
   }
 
@@ -46,6 +46,9 @@ const main = async () => {
   // Connect to database
   const dbManager = new DBManager(config);
   await dbManager.connect();
+
+  const dbMongoose = new DbMongoose(config);
+  await dbMongoose.connect();
 
   // Launch bot
   const bot = new App(config, dbManager);
