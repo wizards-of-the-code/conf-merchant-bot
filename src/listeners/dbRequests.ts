@@ -15,7 +15,7 @@ import {
  * */
 export const handleDeletingPreviousMessage = async (
   ctx: IBotContext,
-  sentMessage: Omit<SentWelcomeMessageType, 'createdAt' | 'updatedAt'>,
+  sentMessage: Omit<SentWelcomeMessageType, 'createdAt' | 'updatedAt' | '_id'>,
 ) => {
   try {
     const previousSentMessage = await SentWelcomeMessage.findOneAndDelete()

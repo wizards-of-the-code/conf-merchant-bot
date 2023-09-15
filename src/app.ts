@@ -7,7 +7,7 @@ import Scheduler from './Scheduler';
 import DBManager from './mongodb/DBManager';
 import StartCommand from './commands/StartCommand';
 import setupListeners from './listeners/setupListeners';
-import DbMongoose from './mongoose/MongooseManager';
+import connectToMongoose from './mongoose/MongooseManager';
 
 class App {
   bot: TelegramBot;
@@ -47,8 +47,7 @@ const main = async () => {
   const dbManager = new DBManager(config);
   await dbManager.connect();
 
-  const dbMongoose = new DbMongoose(config);
-  await dbMongoose.connect();
+  await connectToMongoose(config);
 
   // Launch bot
   const bot = new App(config, dbManager);
