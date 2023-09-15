@@ -16,7 +16,12 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const paginatorOptions = {
     items: events,
     itemsPerPage: 5,
-    itemToString: (event: any) => [event.location.city, event.location.country, formatDateToDdMmYyyy(event.datetime)].join(', '),
+    itemToString: (event: any) => {
+      const label = [event.location.city, event.location.country];
+      // Add date if it exists
+      if (event.datetime) label.push(formatDateToDdMmYyyy(event.datetime));
+      return label.join(', ');
+    },
     linkItem: (event: any) => `action_get_info_${event._id.toString()}`,
   };
 
