@@ -82,7 +82,7 @@ export type Sponsor = {
 };
 
 export type ScheduleItem = {
-  date: Date;
+  time: string;
   title: string;
 };
 

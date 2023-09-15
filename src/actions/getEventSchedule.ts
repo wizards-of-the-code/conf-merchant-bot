@@ -1,14 +1,13 @@
 import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
-import formatTimeToHhMmUTC from '../utils/timeFormat';
 
 const displayEventSchedule = async (ctx: any, event: Event) => {
   const messageLines: string[] = [`🗓 Расписание событий <b>${event.name}</b>:\n`];
 
   // Collect all Schedule Items in one message
   for (const item of event.schedule) {
-    messageLines.push(`<b>${formatTimeToHhMmUTC(item.date)}: ${item.title}</b>`);
+    messageLines.push(`<b>${item.time}</b>\t${item.title}`);
   }
 
   await ctx.replyWithHTML(
