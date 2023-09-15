@@ -1,6 +1,8 @@
 import { Schema, model } from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 export type SentWelcomeMessageType = {
+  _id: ObjectId;
   messageId: number;
   chatId: number;
   createdAt: Date;
@@ -26,6 +28,7 @@ export const SentWelcomeMessage = model<SentWelcomeMessageType>(
 );
 
 export type WelcomeMessageType = {
+  _id: ObjectId;
   message: string;
   forChat: string;
 };
@@ -47,6 +50,7 @@ export const welcomeMessageSchema = new Schema<WelcomeMessageType>(
 export const WelcomeMessage = model<WelcomeMessageType>('Welcome-message', welcomeMessageSchema);
 
 export type FooterType = {
+  _id: ObjectId;
   message: string;
 };
 

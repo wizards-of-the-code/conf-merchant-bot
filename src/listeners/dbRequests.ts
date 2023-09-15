@@ -6,7 +6,7 @@ import {
   SentWelcomeMessage,
   SentWelcomeMessageType,
   WelcomeMessage,
-} from '../schemas/schemas';
+} from '../schemas/chatBotSchemas';
 
 /**
  * Deletes previous sent message, add current sent message to db
