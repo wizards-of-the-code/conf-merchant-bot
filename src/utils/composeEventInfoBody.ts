@@ -1,5 +1,6 @@
 import { Event } from '../types/index';
 import formatDateToDdMmYyyy from './dateFormat';
+import parseRichText from './parseRichText';
 
 /**
  * Composes Event Info message as string depending on the parameters presented in the Event object.
@@ -16,7 +17,7 @@ const composeEventInfoBody = (event: Event): string => {
   }
 
   if (event.description) {
-    textLines.push(`${event.description}`);
+    textLines.push(parseRichText(event.description));
   }
 
   if (event.datetime) {

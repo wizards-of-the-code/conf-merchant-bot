@@ -3,7 +3,7 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import TelegramBot from '../TelegramBot';
 import {
-  Event, Participant, Speaker,
+  Event, Participant,
 } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
 import { IBotContext } from '../context/IBotContext';
@@ -27,7 +27,7 @@ export const sendEventInfoMessage = async (
     // Save event to current session context
     ctx.session.selectedEvent = event;
     ctx.session.userId = ctx.from?.id;
-    const participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+    const participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.tg_id': ctx.from!.id });
     // Check if user is already participate in the event
     let isAlreadyParticipate = false;
     let isAlreadyPaid = false;
@@ -42,57 +42,65 @@ export const sendEventInfoMessage = async (
       }
     }
 
-    try {
-      ctx.deleteMessage();
-    } catch (e) {
-      console.log('Error when trying to delete old message');
-    }
+    await ctx.deleteMessage().catch(
+      (error) => {
+        console.error('Error when trying to delete message: ', error);
+      },
+    );
 
-    const buttonsArray: (
+    const buttons: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [
-      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
-    ];
+    )[][] = [];
 
     // Register button if user is not already participate
     if (!isAlreadyParticipate) {
-      buttonsArray.unshift([Markup.button.callback('📝 Зарегистрироваться', 'action_select_role')]);
+      buttons.unshift(
+        [Markup.button.callback('📝 Зарегистрироваться', 'action_participate_participant')],
+        [Markup.button.callback('Стать волонтером', 'action_participate_volunteer')],
+        [Markup.button.callback('Хочу организовывать!', 'action_participate_organizer')],
+      );
     }
 
     // TODO: Change unshift to push later
-    if (event.schedule.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
+    if (event.schedule && event.schedule.length > 0) {
+      buttons.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
     }
 
-    const speakers = await bot.dbManager.getCollectionData<Speaker>('speakers', { event_id: eventId });
     // TODO: Change unshift to push later
-    if (speakers.length > 0) {
-      buttonsArray.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
+    if (event.speakers && event.speakers.length > 0) {
+      buttons.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
     }
 
     // Add link buttons if event has filled with valid fields
     if (await isValidUrl(event.tickets_link)) {
-      buttonsArray.push([Markup.button.url('🎟 Билеты', event.tickets_link)]);
+      buttons.push([Markup.button.url('🎟 Билеты', event.tickets_link)]);
     }
 
     if (await isValidUrl(event.link)) {
-      buttonsArray.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
+      buttons.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
     }
 
     if (await isValidUrl(event.tg_channel)) {
-      buttonsArray.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
+      buttons.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
     }
 
     // Cancel registration if user already participating but not paid yet
     if (isAlreadyParticipate && !isAlreadyPaid) {
-      buttonsArray.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
+      buttons.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
     }
 
-    buttonsArray.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
+    buttons.push(
+      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
+    );
+
+    buttons.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
 
     const message = await ctx.replyWithHTML(
       composeEventInfoBody(event),
-      Markup.inlineKeyboard(buttonsArray),
+      {
+        ...Markup.inlineKeyboard(buttons),
+        disable_web_page_preview: true,
+      },
     );
     ctx.session.currentMessage = message.message_id;
   } catch (e) {

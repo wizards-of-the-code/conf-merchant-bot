@@ -6,17 +6,17 @@ import {
 import TelegramBot from '../TelegramBot';
 import parseActionParam from '../utils/parseActionParam';
 import sendMessage from '../utils/sendMessage';
-import switchRoleMessage from '../utils/switchRoleMessage';
-import { statuses } from '../constants';
+// import switchRoleMessage from '../utils/switchRoleMessage';
+import { statuses, messages } from '../constants';
 
 const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Participant> => {
   // Check if user is already in the DB
-  let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.id': ctx.from!.id });
+  let participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.tg_id': ctx.from!.id });
 
   if (!participant) {
     // If not, create a new user entry
     const user: TelegramUser = {
-      id: ctx.from!.id,
+      tg_id: ctx.from!.id,
       username: ctx.from!.username!,
       first_name: ctx.from!.first_name,
       last_name: ctx.from!.last_name,
@@ -35,7 +35,7 @@ const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Pa
       message: `New participant @${user.username} added`,
     };
 
-    const participantId = await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { 'tg.id': user.id }, { $set: participant }, logData);
+    const participantId = await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { 'tg.tg_id': user.tg_id }, { $set: participant }, logData);
     participant._id = participantId;
   }
 
@@ -75,9 +75,21 @@ const participate = async (bot: TelegramBot) => {
     };
 
     await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { _id: participant._id }, { $push: { events: eventDetails } });
+    // const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
+    let userMessage: any;
 
-    const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
-
+    // eslint-disable-next-line default-case
+    switch (role) {
+      case 'participant':
+        userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.PARTICIPANT_MESSAGES });
+        break;
+      case 'volunteer':
+        userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.VOLUNTEER_MESSAGES });
+        break;
+      case 'organizer':
+        userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.ORGANIZER_MESSAGES });
+        break;
+    }
     ctx.editMessageReplyMarkup(undefined);
 
     const buttons: InlineKeyboardButton.CallbackButton[][] = [
@@ -90,17 +102,21 @@ const participate = async (bot: TelegramBot) => {
       ],
     ];
 
-    // Get message from DB
-    const roleMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: switchRoleMessage(role) });
+    sendMessage(userMessage, ctx, bot, buttons);
 
-    if (roleMessage) {
-      // If a role message is available, send a confirmation and then the role message with buttons
-      await ctx.reply(userMessage);
-      await sendMessage(roleMessage, ctx, buttons);
-    } else {
-      // Else, just send a confirmation message with buttons
-      ctx.reply(userMessage, Markup.inlineKeyboard(buttons));
-    }
+    // Get message from DB
+    // const roleMessage = await bot.dbManager.getDocumentData<Message>
+    // ('messages', { name: switchRoleMessage(role) });
+
+    // if (roleMessage) {
+    //   // If a role message is available, send a
+    // confirmation and then the role message with buttons
+    //   await ctx.reply(userMessage);
+    //   await sendMessage(roleMessage, ctx, bot, buttons);
+    // } else {
+    //   // Else, just send a confirmation message with buttons
+    //   ctx.reply(userMessage, Markup.inlineKeyboard(buttons));
+    // }
   });
 };
 

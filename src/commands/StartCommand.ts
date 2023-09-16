@@ -17,16 +17,17 @@ import sendMessage from '../utils/sendMessage';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../types';
+import CommandSetter from './CommandSetter';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
   const startMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.START_MESSAGES });
 
   if (startMessage) {
-    await sendMessage(startMessage, ctx);
+    await sendMessage(startMessage, ctx, bot);
   }
 
-  const buttonsArray: (
+  const buttons: (
     InlineKeyboardButton.UrlButton | InlineKeyboardButton.CallbackButton
   )[][] = [
     [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
@@ -42,7 +43,7 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   await ctx.reply(
     'Наши социальные сети:',
     Markup.inlineKeyboard([
-      ...buttonsArray,
+      ...buttons,
     ]),
   );
 
@@ -64,6 +65,9 @@ class StartCommand extends Command {
 
         sendStartMessage(this.bot, ctx);
       }
+
+      const commandSetter = new CommandSetter(this.bot);
+      commandSetter.setCommands();
     });
     // ACTION HANDLERS
 
@@ -87,8 +91,6 @@ class StartCommand extends Command {
 
     // Action: Show schedule for a selected event
     getEventSchedule(this.bot);
-
-    // paginator(this.bot);
 
     // Enable graceful stop
     process.once('SIGINT', () => this.bot.stop('SIGINT'));

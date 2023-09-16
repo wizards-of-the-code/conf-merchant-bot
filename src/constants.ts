@@ -8,6 +8,7 @@ export const statuses = {
 // General messages from database
 export const messages = {
   START_MESSAGES: 'StartMessages',
+  PARTICIPANT_MESSAGES: 'ParticipantMessages',
   VOLUNTEER_MESSAGES: 'VolunteerMessages',
   ORGANIZER_MESSAGES: 'OrganizerMessages',
   SPEAKER_MESSAGES: 'SpeakerMessages',

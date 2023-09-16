@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 export type Event = {
   _id?: ObjectId;
   name: string;
-  description: string;
+  description: unknown[];
   tickets_link: string;
   link: string;
   datetime: Date;
@@ -15,10 +15,11 @@ export type Event = {
   location: Location;
   participants: ObjectId[];
   schedule: ScheduleItem[];
+  speakers: Speaker[];
 };
 
 export type TelegramUser = {
-  id: number;
+  tg_id: number;
   username: string;
   first_name: string;
   last_name?: string;
@@ -61,19 +62,17 @@ export type Participant = {
 
 export type ParticipantShort = {
   tg: {
-    id: number;
+    tg_id: number;
     first_name: string;
     last_name?: string;
   }
 };
 
 export type Speaker = {
-  _id?: ObjectId;
-  event_id: ObjectId;
   name: string;
   position: string;
   topic: string;
-  topic_description: string;
+  topic_description: unknown[];
 };
 
 export type Sponsor = {
@@ -83,7 +82,6 @@ export type Sponsor = {
 };
 
 export type ScheduleItem = {
-  date: Date;
   time: string;
   title: string;
 };
@@ -97,23 +95,37 @@ export type LogEntry = {
   initiator: TelegramUser;
 };
 
+export type Command = {
+  _id?: ObjectId;
+  command: string;
+  description: string;
+  active: boolean;
+};
+
 export type Message = {
   _id?: ObjectId;
   name: string;
-  value: string[];
-  images: string[];
+  messageList: {
+    text: unknown[];
+  }[];
+  images: {
+    media_id: string;
+  }[];
+  links: MessageButton[];
 };
 
-export type ScheduledMessage = {
+export type Notification = {
   _id: ObjectId;
+  title: string;
   is_active: boolean;
   event_id: ObjectId;
   type: 'manual' | 'auto';
-  text: string;
+  text: unknown[];
   links: MessageButton[];
-  photos_on_top: boolean;
-  photos: string[];
-  actions: string[];
+  images_on_top: boolean;
+  images: {
+    media_id: string;
+  }[];
   sent: Date | null;
   datetime_to_send: Date;
   days_before_conf?: number;
@@ -122,4 +134,8 @@ export type ScheduledMessage = {
 export type MessageButton = {
   name: string;
   url: string;
+};
+
+export type Media = {
+  filename: string;
 };

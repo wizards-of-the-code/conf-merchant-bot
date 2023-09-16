@@ -1,4 +1,5 @@
 import { Markup } from 'telegraf';
+// eslint-disable-next-line import/no-cycle
 import { IBotContext } from '../context/IBotContext';
 
 interface PaginatorOptions<T> {
@@ -47,13 +48,13 @@ class Paginator<T> {
 
     if (this.currentPage !== 0) {
       paginationButtons.push(
-        Markup.button.callback('« Назад', 'prev_page'),
+        Markup.button.callback('« Назад', `prev_page_${ctx.session.userId}`),
       );
     }
 
     if (this.currentPage !== this.lastPage) {
       paginationButtons.push(
-        Markup.button.callback('Вперед »', 'next_page'),
+        Markup.button.callback('Вперед »', `next_page_${ctx.session.userId}`),
       );
     }
 
