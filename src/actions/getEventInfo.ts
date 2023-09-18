@@ -10,6 +10,7 @@ import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
 import { sendStartMessage } from '../commands/StartCommand';
 import composeEventInfoBody from '../utils/composeEventInfoBody';
+import parseActionParam from '../utils/parseActionParam';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,
@@ -20,7 +21,6 @@ export const sendEventInfoMessage = async (
     const eventId: ObjectId = new ObjectId(eventIdParam);
     const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
     if (!event) {
-      // console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
       sendStartMessage(bot, ctx);
       return;
     }
@@ -112,7 +112,7 @@ export const sendEventInfoMessage = async (
 const getEventInfo = async (bot: TelegramBot) => {
   bot.action(/action_get_info_/, async (ctx) => {
     const actionString = ctx.match.input;
-    const eventId = actionString.slice(actionString.lastIndexOf('_') + 1);
+    const eventId = parseActionParam(actionString);
     sendEventInfoMessage(bot, ctx, eventId);
   });
 };
