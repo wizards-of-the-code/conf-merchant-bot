@@ -33,7 +33,14 @@ class Scheduler {
 
     const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
       // Every minute check DB for changes ragarding active messages
-      const notifications = await this.dbManager.getCollectionData<Notification>('notifications', { is_active: true, sent: null });
+      const notifications = await this.dbManager.getCollectionData<Notification>(
+        'notifications',
+        {
+          is_active: true,
+          is_finished: false,
+          sent: null,
+        },
+      );
 
       if (notifications.length > 0) {
         // Filter ready for sending messages

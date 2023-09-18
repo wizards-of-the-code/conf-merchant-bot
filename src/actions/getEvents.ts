@@ -11,7 +11,7 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     },
   );
 
-  const events = await bot.dbManager.getCollectionData<Event>('events', { is_active: true });
+  const events = await bot.dbManager.getCollectionData<Event>('events', { is_active: true, is_finished: false });
 
   const paginatorOptions = {
     items: events,

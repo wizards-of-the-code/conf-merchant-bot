@@ -12,6 +12,7 @@ export type Event = {
   currency: string;
   tg_channel: string;
   is_active: boolean;
+  is_finished: boolean;
   location: Location;
   participants: ObjectId[];
   schedule: ScheduleItem[];
