@@ -37,7 +37,6 @@ class Scheduler {
         'notifications',
         {
           is_active: true,
-          is_finished: false,
           sent: null,
         },
       );
