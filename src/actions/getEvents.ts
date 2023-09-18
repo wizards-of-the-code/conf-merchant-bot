@@ -5,6 +5,8 @@ import Paginator from '../utils/paginator';
 import formatDateToDdMmYyyy from '../utils/dateFormat';
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
+  ctx.session.selectedEvent = null;
+
   await ctx.deleteMessage().catch(
     (error) => {
       console.error('Error when trying to delete message: ', error);
