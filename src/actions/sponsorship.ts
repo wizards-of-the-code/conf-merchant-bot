@@ -38,6 +38,9 @@ const sponsorship = async (bot: TelegramBot) => {
 
     const sponsorMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.SPONSOR_MESSAGES });
     if (sponsorMessage) {
+      // Remove keyboard from the last message
+      ctx.editMessageReplyMarkup(undefined);
+
       await sendMessage(sponsorMessage, ctx, bot, buttonsArray);
     }
   });
