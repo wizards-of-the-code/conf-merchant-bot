@@ -2,6 +2,7 @@ import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import { Event, Speaker } from '../types';
 import parseRichText from '../utils/parseRichText';
+import handleExpiredSession from '../utils/handleExpiredSession';
 
 const displaySpeakerDetails = async (ctx: any, speaker: Speaker) => {
   const messageLines: string[] = [
@@ -30,7 +31,7 @@ const getEventSpeakers = async (bot: TelegramBot) => {
     const event: Event | null = ctx.session.selectedEvent;
 
     if (!event) {
-      console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
+      handleExpiredSession(bot, ctx);
       return;
     }
 
