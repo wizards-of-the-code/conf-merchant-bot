@@ -1,6 +1,7 @@
 import { Markup } from 'telegraf';
 import TelegramBot from '../TelegramBot';
 import { Event } from '../types';
+import handleExpiredSession from '../utils/handleExpiredSession';
 
 const displayEventSchedule = async (ctx: any, event: Event) => {
   const messageLines: string[] = [`🗓 Расписание событий <b>${event.name}</b>:\n`];
@@ -31,7 +32,7 @@ const getEventSchedule = async (bot: TelegramBot) => {
     const event: Event | null = ctx.session.selectedEvent;
 
     if (!event) {
-      console.log(`[${new Date().toLocaleTimeString('ru-RU')}]: Error: No event found`);
+      handleExpiredSession(bot, ctx);
       return;
     }
 

@@ -3,9 +3,14 @@ import { Markup } from 'telegraf';
 import { Participant, Event, LogEntry } from '../types';
 import TelegramBot from '../TelegramBot';
 import { statuses } from '../constants';
+import handleExpiredSession from '../utils/handleExpiredSession';
 
 const cancelParticipation = async (bot: TelegramBot) => {
   bot.action(/action_cancel_participation/, async (ctx) => {
+    if (!ctx.session.selectedEvent) {
+      handleExpiredSession(bot, ctx);
+      return;
+    }
     const eventId = ctx.session.selectedEvent!._id;
 
     // TODO: Check if event exists

@@ -8,6 +8,7 @@ import parseActionParam from '../utils/parseActionParam';
 import sendMessage from '../utils/sendMessage';
 // import switchRoleMessage from '../utils/switchRoleMessage';
 import { statuses, messages } from '../constants';
+import handleExpiredSession from '../utils/handleExpiredSession';
 
 const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Participant> => {
   // Check if user is already in the DB
@@ -47,6 +48,11 @@ const participate = async (bot: TelegramBot) => {
     // Get role from actionString
     const actionString = ctx.match.input;
     const role: string = parseActionParam(actionString);
+
+    if (!ctx.session.selectedEvent) {
+      handleExpiredSession(bot, ctx);
+      return;
+    }
     const eventId = ctx.session.selectedEvent!._id;
 
     // Check if the event exists

@@ -22,6 +22,7 @@ export const sendEventInfoMessage = async (
     const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
 
     if (!event) {
+      ctx.session.selectedEvent = null;
       sendStartMessage(bot, ctx);
       return;
     }
@@ -105,6 +106,7 @@ export const sendEventInfoMessage = async (
         disable_web_page_preview: true,
       },
     );
+    ctx.session.selectedEvent = event;
     ctx.session.currentMessage = message.message_id;
   } catch (e) {
     console.log('Incorrect ID string, starting standard \\start sequence.');
