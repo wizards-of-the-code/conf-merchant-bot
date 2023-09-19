@@ -1,3 +1,4 @@
+import './init';
 import LocalSession from 'telegraf-session-local';
 import TelegramBot from './TelegramBot';
 import { IConfigService } from './config/ConfigService.interface';

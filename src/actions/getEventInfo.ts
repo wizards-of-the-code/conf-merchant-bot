@@ -20,13 +20,16 @@ export const sendEventInfoMessage = async (
   try {
     const eventId: ObjectId = new ObjectId(eventIdParam);
     const event = await bot.dbManager.getDocumentData<Event>('events', { _id: eventId });
+
     if (!event) {
       sendStartMessage(bot, ctx);
       return;
     }
+
     // Save event to current session context
     ctx.session.selectedEvent = event;
     ctx.session.userId = ctx.from?.id;
+
     const participant = await bot.dbManager.getDocumentData<Participant>('participants', { 'tg.tg_id': ctx.from!.id });
     // Check if user is already participate in the event
     let isAlreadyParticipate = false;
@@ -113,6 +116,7 @@ const getEventInfo = async (bot: TelegramBot) => {
   bot.action(/action_get_info_/, async (ctx) => {
     const actionString = ctx.match.input;
     const eventId = parseActionParam(actionString);
+
     sendEventInfoMessage(bot, ctx, eventId);
   });
 };
