@@ -11,6 +11,7 @@ import TelegramBot from './TelegramBot';
 import { isValidUrl } from './utils/isValidUrl';
 import 'dotenv/config';
 import parseRichText from './utils/parseRichText';
+import logger from './logger/logger';
 
 class Scheduler {
   tasks: ScheduledTask[];
@@ -27,9 +28,7 @@ class Scheduler {
   }
 
   async init() {
-    // For a server console logs
-    /* eslint no-console: 0 */
-    console.log('Scheduler initialized');
+    logger.info('Scheduler initialized');
 
     const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
       // Every minute check DB for changes ragarding active messages

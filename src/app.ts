@@ -7,6 +7,7 @@ import Command from './commands/Command';
 import Scheduler from './Scheduler';
 import DBManager from './mongodb/DBManager';
 import StartCommand from './commands/StartCommand';
+import logger from './logger/logger';
 
 class App {
   bot: TelegramBot;
@@ -40,6 +41,7 @@ class App {
 
 const main = async () => {
   const config = new ConfigService();
+  logger.info('Bot started');
 
   // Connect to database
   const dbManager = new DBManager(config);

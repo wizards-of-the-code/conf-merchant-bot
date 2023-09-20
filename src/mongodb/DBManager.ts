@@ -8,6 +8,7 @@ import {
   EventWithParticipants,
   LogEntry,
 } from '../types';
+import logger from '../logger/logger';
 
 interface Item extends Document { }
 
@@ -30,12 +31,12 @@ class DBManager {
     try {
       // For a server console logs
       /* eslint no-console: 0 */
-      console.log('Connecting...');
+      logger.info('Connecting to DB...');
       await this.client.connect();
       this.instance = this.client.db(this.dbName);
-      console.log('Connected to MongoDB');
+      logger.info('Connected to MongoDB');
     } catch (error) {
-      console.error('Error connecting to MongoDB:', error);
+      logger.error('Error connecting to MongoDB:', error);
     }
   }
 
