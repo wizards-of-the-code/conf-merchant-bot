@@ -29,8 +29,6 @@ class DBManager {
 
   async connect() {
     try {
-      // For a server console logs
-      /* eslint no-console: 0 */
       logger.info('Connecting to DB...');
       await this.client.connect();
       this.instance = this.client.db(this.dbName);
@@ -53,7 +51,7 @@ class DBManager {
       const result = await collection.find(selectionCondition).toArray();
       return result as T[];
     } catch (error) {
-      console.error('Error fetching collection data:', error);
+      logger.error('Error fetching collection data:', error);
       throw new Error('Failed to fetch data from collection.');
     }
   }
@@ -70,7 +68,7 @@ class DBManager {
       const result: T | null = await collection.findOne<T>(selectionCondition);
       return result;
     } catch (error) {
-      console.error('Error fetching document:', error);
+      logger.error('Error fetching document:', error);
       throw new Error('Failed to fetch document from collection.');
     }
   }
@@ -99,7 +97,7 @@ class DBManager {
 
       return undefined;
     } catch (error) {
-      console.error('Error adding document:', error);
+      logger.error('Error adding document:', error);
       throw new Error('Failed to add document to collection.');
     }
   }

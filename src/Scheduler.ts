@@ -132,9 +132,9 @@ class Scheduler {
     }
 
     if (counter !== recipients.length) {
-      console.log('Warning: Not all messages has been sent!');
+      logger.warn('Warning: Not all messages has been sent!');
     } else {
-      console.log(`${counter} messages successfully sent!`);
+      logger.info(`${counter} messages successfully sent!`);
     }
 
     // Mark notification as sent in DB
@@ -147,7 +147,6 @@ class Scheduler {
    * @param {(InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][]}
    * [buttons] Inline buttons to be attached to the message.
    * @param {MediaGroup} [mediaGroup] Array of links to photos.
-   * @param {boolean} [photosOnTop] Photos position.
    * True: at the top of the message.
    * False: at the bottom.
    * @returns {boolean} True - sent successfully, False - sending failed.

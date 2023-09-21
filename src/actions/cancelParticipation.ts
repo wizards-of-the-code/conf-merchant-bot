@@ -4,6 +4,7 @@ import { Participant, Event, LogEntry } from '../types';
 import TelegramBot from '../TelegramBot';
 import { statuses } from '../constants';
 import handleExpiredSession from '../utils/handleExpiredSession';
+import logger from '../logger/logger';
 
 const cancelParticipation = async (bot: TelegramBot) => {
   bot.action(/action_cancel_participation/, async (ctx) => {
@@ -20,7 +21,7 @@ const cancelParticipation = async (bot: TelegramBot) => {
     const participant: Participant | null = await bot.dbManager.getDocumentData('participants', { 'tg.tg_id': ctx.from!.id });
 
     if (!participant) {
-      console.log('User is not participated');
+      logger.error(`User ${ctx.from?.username} is not participated in event ${ctx.session.selectedEvent.name}`);
       return;
     }
 

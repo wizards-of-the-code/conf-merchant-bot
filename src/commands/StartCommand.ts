@@ -18,6 +18,7 @@ import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../types';
 import CommandSetter from './CommandSetter';
+import logger from '../logger/logger';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
@@ -59,9 +60,10 @@ class StartCommand extends Command {
       // Check for startPayload - parameter to link bot to a certain event (for marketing purposes)
       if (ctx.startPayload) {
         // Call certain event action
+        logger.info('Bot started with payload. User:', ctx.from.username);
         sendEventInfoMessage(this.bot, ctx, ctx.startPayload);
       } else {
-        console.log('No payload, starting standard sequence.');
+        logger.info('Bot started without payload. User:', ctx.from.username);
 
         sendStartMessage(this.bot, ctx);
       }

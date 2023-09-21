@@ -11,6 +11,7 @@ import { IBotContext } from '../context/IBotContext';
 import { sendStartMessage } from '../commands/StartCommand';
 import composeEventInfoBody from '../utils/composeEventInfoBody';
 import parseActionParam from '../utils/parseActionParam';
+import logger from '../logger/logger';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,
@@ -48,7 +49,7 @@ export const sendEventInfoMessage = async (
 
     await ctx.deleteMessage().catch(
       (error) => {
-        console.error('Error when trying to delete message: ', error);
+        logger.error('Error when trying to delete message: ', error);
       },
     );
 
@@ -106,10 +107,10 @@ export const sendEventInfoMessage = async (
         disable_web_page_preview: true,
       },
     );
-    ctx.session.selectedEvent = event;
+
     ctx.session.currentMessage = message.message_id;
   } catch (e) {
-    console.log('Incorrect ID string, starting standard \\start sequence.');
+    logger.error('Something went wrong, starting standard \\start sequence. Error message:', e);
     sendStartMessage(bot, ctx);
   }
 };

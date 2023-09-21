@@ -3,6 +3,7 @@ import { Event } from '../types';
 import { IBotContext } from '../context/IBotContext';
 import Paginator from '../utils/paginator';
 import formatDateToDdMmYyyy from '../utils/dateFormat';
+import logger from '../logger/logger';
 
 export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Clean currently selected event in session
@@ -10,7 +11,7 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
 
   await ctx.deleteMessage().catch(
     (error) => {
-      console.error('Error when trying to delete message: ', error);
+      logger.error('Error when trying to delete message: ', error);
     },
   );
 
