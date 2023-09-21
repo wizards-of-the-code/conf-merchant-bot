@@ -4,7 +4,7 @@ dotenv.config();
 
 export const loggerColors = {
   error: 'red',
-  warn: 'brown',
+  warn: 'yellow',
   info: 'blue',
 };
 
