@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export const loggerColors = {
   error: 'red',
   warn: 'brown',
@@ -15,5 +19,5 @@ export const transportOptions = {
   zippedArchive: true,
   maxSize: '20m',
   maxFiles: '14d',
-  dirname: 'logs',
+  dirname: `${process.env.LOGS_PATH}`,
 };
