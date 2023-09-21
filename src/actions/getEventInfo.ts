@@ -12,6 +12,7 @@ import { sendStartMessage } from '../commands/StartCommand';
 import composeEventInfoBody from '../utils/composeEventInfoBody';
 import parseActionParam from '../utils/parseActionParam';
 import logger from '../logger/logger';
+import getErrorMsg from '../utils/getErrorMessage';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,
@@ -49,7 +50,7 @@ export const sendEventInfoMessage = async (
 
     await ctx.deleteMessage().catch(
       (error) => {
-        logger.error('Error when trying to delete message: ', error);
+        logger.error('Error when trying to delete message: ', getErrorMsg(error));
       },
     );
 
@@ -110,7 +111,7 @@ export const sendEventInfoMessage = async (
 
     ctx.session.currentMessage = message.message_id;
   } catch (e) {
-    logger.error('Something went wrong, starting standard \\start sequence. Error message:', e);
+    logger.error('Something went wrong, starting standard \\start sequence. Error message:', getErrorMsg(e));
     sendStartMessage(bot, ctx);
   }
 };

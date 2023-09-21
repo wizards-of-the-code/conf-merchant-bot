@@ -8,6 +8,7 @@ import Scheduler from './Scheduler';
 import DBManager from './mongodb/DBManager';
 import StartCommand from './commands/StartCommand';
 import logger from './logger/logger';
+import getErrorMsg from './utils/getErrorMessage';
 
 class App {
   bot: TelegramBot;
@@ -33,6 +34,10 @@ class App {
 
     // Launching bot itself
     this.bot.launch();
+
+    this.bot.catch((e) => {
+      logger.error(getErrorMsg(e));
+    });
 
     // Initializing scheduler (everyday at 19:00 for now)
     this.scheduler.init();
