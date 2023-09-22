@@ -36,7 +36,7 @@
     "@types/mongodb": "^4.0.7",
     "@types/node-cron": "^3.0.8",
     "dotenv": "^16.3.1",
-    "mongodb": "^5.7.0",
+    "mongodb": "^5.8.0",
     "mongoose": "^7.4.3",
     "node-cron": "^3.0.2",
     "telegraf": "^4.12.2",
