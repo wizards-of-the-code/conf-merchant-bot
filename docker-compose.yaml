@@ -11,3 +11,4 @@ services:
     command: node ./dist/app.js
     env_file:
       - .env
+    restart: on-failure
