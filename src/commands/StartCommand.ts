@@ -60,10 +60,10 @@ class StartCommand extends Command {
       // Check for startPayload - parameter to link bot to a certain event (for marketing purposes)
       if (ctx.startPayload) {
         // Call certain event action
-        logger.info('Bot started with payload. User:', ctx.from.username);
+        logger.info(`Bot started with payload. User: ${ctx.from.username}`);
         sendEventInfoMessage(this.bot, ctx, ctx.startPayload);
       } else {
-        logger.info('Bot started without payload. User:', ctx.from.username);
+        logger.info(`Bot started without payload. User: ${ctx.from.username}`);
 
         sendStartMessage(this.bot, ctx);
       }

@@ -35,7 +35,7 @@ class DBManager {
       this.instance = this.client.db(this.dbName);
       logger.info('Connected to MongoDB');
     } catch (error) {
-      logger.error('Error connecting to MongoDB:', getErrorMsg(error));
+      logger.error(`Error connecting to MongoDB: ${getErrorMsg(error)}`);
     }
   }
 
@@ -52,7 +52,7 @@ class DBManager {
       const result = await collection.find(selectionCondition).toArray();
       return result as T[];
     } catch (error) {
-      logger.error('Error fetching collection data:', getErrorMsg(error));
+      logger.error(`Error fetching collection data: ${getErrorMsg(error)}`);
       throw new Error('Failed to fetch data from collection.');
     }
   }
@@ -69,7 +69,7 @@ class DBManager {
       const result: T | null = await collection.findOne<T>(selectionCondition);
       return result;
     } catch (error) {
-      logger.error('Error fetching document:', getErrorMsg(error));
+      logger.error(`Error fetching document: ${getErrorMsg(error)}`);
       throw new Error('Failed to fetch document from collection.');
     }
   }
@@ -98,7 +98,7 @@ class DBManager {
 
       return undefined;
     } catch (error) {
-      logger.error('Error adding document:', getErrorMsg(error));
+      logger.error(`Error adding document: ${getErrorMsg(error)}`);
       throw new Error('Failed to add document to collection.');
     }
   }

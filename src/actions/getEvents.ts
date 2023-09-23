@@ -12,7 +12,7 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
 
   await ctx.deleteMessage().catch(
     (error) => {
-      logger.error('Error when trying to delete message: ', getErrorMsg(error));
+      logger.error(`Error when trying to delete message: ${getErrorMsg(error)}`);
     },
   );
 

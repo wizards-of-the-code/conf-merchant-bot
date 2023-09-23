@@ -1,5 +1,7 @@
 import TelegramBot from '../TelegramBot';
+import logger from '../logger/logger';
 import { Command } from '../types';
+import getErrorMsg from '../utils/getErrorMessage';
 
 class CommandSetter {
   private bot: TelegramBot;
@@ -14,7 +16,7 @@ class CommandSetter {
     try {
       return await this.bot.dbManager.getCollectionData<Command>('commands', { active: true });
     } catch (error) {
-      console.error('Failed to fetch commands:', error);
+      logger.error(`Failed to fetch commands: ${getErrorMsg(error)}`);
       return [];
     }
   }

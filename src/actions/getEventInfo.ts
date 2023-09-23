@@ -50,7 +50,7 @@ export const sendEventInfoMessage = async (
 
     await ctx.deleteMessage().catch(
       (error) => {
-        logger.error('Error when trying to delete message: ', getErrorMsg(error));
+        logger.error(`Error when trying to delete message: ${getErrorMsg(error)}`);
       },
     );
 
@@ -111,7 +111,7 @@ export const sendEventInfoMessage = async (
 
     ctx.session.currentMessage = message.message_id;
   } catch (e) {
-    logger.error('Something went wrong, starting standard \\start sequence. Error message:', getErrorMsg(e));
+    logger.error(`Something went wrong, starting standard \\start sequence. Error message: ${getErrorMsg(e)}`);
     sendStartMessage(bot, ctx);
   }
 };
