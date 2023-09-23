@@ -62,8 +62,8 @@ export const sendEventInfoMessage = async (
     if (!isAlreadyParticipate) {
       buttons.unshift(
         [Markup.button.callback('📝 Зарегистрироваться', 'action_participate_participant')],
-        [Markup.button.callback('Стать волонтером', 'action_participate_volunteer')],
-        [Markup.button.callback('Хочу организовывать!', 'action_participate_organizer')],
+        [Markup.button.callback('🙋‍♂️ Стать волонтером', 'action_participate_volunteer')],
+        [Markup.button.callback('😎 Хочу организовывать!', 'action_participate_organizer')],
       );
     }
 
