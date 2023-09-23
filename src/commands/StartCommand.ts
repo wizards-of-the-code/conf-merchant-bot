@@ -16,7 +16,7 @@ import selectRole from '../actions/selectRole';
 import sendMessage from '../utils/sendMessage';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
-import { Message } from '../types';
+import { Message, Social } from '../types';
 import CommandSetter from './CommandSetter';
 import logger from '../logger/logger';
 
@@ -28,18 +28,17 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     await sendMessage(startMessage, ctx, bot);
   }
 
+  const socials = await bot.dbManager.getCollectionData<Social>('socials', {});
+
   const buttons: (
     InlineKeyboardButton.UrlButton | InlineKeyboardButton.CallbackButton
-  )[][] = [
-    [Markup.button.url('Telegram', 'https://t.me/peredelanoconfchannel')],
-    [Markup.button.url('Instagram', 'https://www.instagram.com/peredelanoconf')],
-    [Markup.button.url('Discord', 'https://discord.com/channels/1109396222604738612/1109397021271539783')],
-    [Markup.button.url('Github', 'https://github.com/philippranzhin/peredelanoconf')],
-    [Markup.button.url('Twitter', 'https://twitter.com/peredelano_conf')],
-    [Markup.button.url('Facebook', 'https://www.facebook.com/peredelanoconf')],
-    [Markup.button.url('Официальный сайт', 'https://peredelanoconf.com/')],
-    [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
-  ];
+  )[][] = [];
+
+  for (const social of socials) {
+    buttons.push([Markup.button.url(social.name, social.url)]);
+  }
+
+  buttons.push([Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')]);
 
   await ctx.reply(
     'Наши социальные сети:',

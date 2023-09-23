@@ -140,3 +140,8 @@ export type MessageButton = {
 export type Media = {
   filename: string;
 };
+
+export type Social = {
+  name: string;
+  url: string;
+};
