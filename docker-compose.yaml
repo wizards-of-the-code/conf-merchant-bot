@@ -6,7 +6,7 @@ services:
     build: .
     volumes:
       - ${MEDIA_PATH}:${MEDIA_PATH}
-      - ${SESSIONS_PATH}:${SESSIONS_PATH}
+      - ${SESSIONS_PATH}:/code/sessions
       - ${LOGS_PATH}:/code/logs
     working_dir: /code/
     command: node ./dist/app.js
