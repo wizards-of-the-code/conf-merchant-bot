@@ -3,8 +3,6 @@ import { Event } from '../types';
 import { IBotContext } from '../context/IBotContext';
 import Paginator from '../utils/paginator';
 import formatDateToDdMmYyyy from '../utils/dateFormat';
-import logger from '../logger/logger';
-import getErrorMsg from '../utils/getErrorMessage';
 
 async function populateEventsList(
   bot: TelegramBot,
@@ -13,14 +11,6 @@ async function populateEventsList(
 ): Promise<void> {
   // Clean currently selected event in session
   ctx.session.selectedEvent = null;
-
-  if (ctx.session.currentMessage && ctx.session.currentMessage !== -1) {
-    await ctx.deleteMessage(ctx.session.currentMessage).catch(
-      (error) => {
-        logger.error(`Error when trying to delete message: ${getErrorMsg(error)}`);
-      },
-    );
-  }
 
   const events = await bot.dbManager.getCollectionData<Event>('events', { is_active: true, is_finished: false });
 

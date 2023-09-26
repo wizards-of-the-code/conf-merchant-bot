@@ -15,8 +15,6 @@ interface PaginatorOptions<T> {
 class Paginator<T> {
   bot: TelegramBot;
 
-  private messageId: number | undefined = -1;
-
   private message: string;
 
   private lastPage: number;
@@ -64,13 +62,12 @@ class Paginator<T> {
 
     buttons.push(paginationButtons);
 
-    if (this.messageId === -1) {
+    if (ctx.session.currentMessage === -1) {
       const message = await ctx.reply(this.message, Markup.inlineKeyboard(buttons));
       ctx.session.currentMessage = message.message_id;
-      this.messageId = message.message_id;
     } else {
       ctx.telegram.editMessageText(
-        ctx.chat?.id,
+        ctx.session.userId,
         ctx.session.currentMessage,
         undefined,
         this.message,
