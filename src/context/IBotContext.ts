@@ -6,6 +6,7 @@ export interface SessionData {
   selectedEvent: Event | null;
   role: string;
   currentMessage: number;
+  currentPage: number;
 }
 
 export interface IBotContext extends Context {

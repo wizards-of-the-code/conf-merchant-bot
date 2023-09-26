@@ -19,6 +19,7 @@ import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../types';
 import CommandSetter from './CommandSetter';
 import logger from '../logger/logger';
+import mainMenu from '../actions/mainMenu';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   // Get message from DB
@@ -27,6 +28,8 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   if (startMessage) {
     await sendMessage(startMessage, ctx, bot);
   }
+
+  ctx.session.currentMessage = -1;
 
   const buttons: (
     InlineKeyboardButton.UrlButton | InlineKeyboardButton.CallbackButton
@@ -75,6 +78,9 @@ class StartCommand extends Command {
 
     // Action: Get all events
     getEvents(this.bot);
+
+    // Action: main menu
+    mainMenu(this.bot);
 
     // Action: Get event by name, saved in Session
     getEventInfo(this.bot);

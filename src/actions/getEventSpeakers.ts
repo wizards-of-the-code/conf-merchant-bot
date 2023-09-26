@@ -49,7 +49,7 @@ const getEventSpeakers = async (bot: TelegramBot) => {
     ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
       [
         Markup.button.callback('◀️ Назад', `action_get_info_${event._id}`),
-        Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+        Markup.button.callback('🔼 В главное меню', 'show_main_manu'),
       ],
     ));
   });

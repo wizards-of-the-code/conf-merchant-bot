@@ -1,18 +1,19 @@
 import { Markup } from 'telegraf';
 // eslint-disable-next-line import/no-cycle
 import { IBotContext } from '../context/IBotContext';
+import TelegramBot from '../TelegramBot';
 
 interface PaginatorOptions<T> {
   items: T[];
   itemsPerPage: number;
+  currentPage: number;
+  increment: number;
   itemToString: (item: any) => string;
   linkItem: (item: any) => string;
 }
 
 class Paginator<T> {
-  private currentPage: number = 0;
-
-  private messageId: number | undefined = -1;
+  bot: TelegramBot;
 
   private message: string;
 
@@ -20,14 +21,15 @@ class Paginator<T> {
 
   private readonly options: PaginatorOptions<T>;
 
-  constructor(message: string, options: PaginatorOptions<T>) {
+  constructor(bot: TelegramBot, message: string, options: PaginatorOptions<T>) {
+    this.bot = bot;
     this.options = options;
     this.message = message;
     this.lastPage = Math.ceil(this.options.items.length / this.options.itemsPerPage) - 1;
   }
 
   private getPageItems(): T[] {
-    const startIdx = this.currentPage * this.options.itemsPerPage;
+    const startIdx = this.options.currentPage * this.options.itemsPerPage;
     return this.options.items.slice(startIdx, startIdx + this.options.itemsPerPage);
   }
 
@@ -46,27 +48,26 @@ class Paginator<T> {
       return;
     }
 
-    if (this.currentPage !== 0) {
+    if (this.options.currentPage !== 0) {
       paginationButtons.push(
-        Markup.button.callback('« Назад', `prev_page_${ctx.session.userId}`),
+        Markup.button.callback('« Назад', 'prev_page'),
       );
     }
 
-    if (this.currentPage !== this.lastPage) {
+    if (this.options.currentPage !== this.lastPage) {
       paginationButtons.push(
-        Markup.button.callback('Вперед »', `next_page_${ctx.session.userId}`),
+        Markup.button.callback('Вперед »', 'next_page'),
       );
     }
 
     buttons.push(paginationButtons);
 
-    if (this.messageId === -1) {
+    if (ctx.session.currentMessage === -1) {
       const message = await ctx.reply(this.message, Markup.inlineKeyboard(buttons));
       ctx.session.currentMessage = message.message_id;
-      this.messageId = message.message_id;
     } else {
       ctx.telegram.editMessageText(
-        ctx.chat?.id,
+        ctx.session.userId,
         ctx.session.currentMessage,
         undefined,
         this.message,
@@ -75,13 +76,17 @@ class Paginator<T> {
     }
   }
 
-  handlePreviousPage(ctx: IBotContext): void {
-    this.currentPage = Math.max(0, this.currentPage - 1);
-    this.sendPage(ctx);
-  }
+  handlePage(ctx: IBotContext): void {
+    if (this.options.increment < 0) {
+      this.options.currentPage = Math.max(0, this.options.currentPage + this.options.increment);
+    } else if (this.options.increment > 0) {
+      this.options.currentPage = Math.min(
+        this.lastPage,
+        this.options.currentPage + this.options.increment,
+      );
+    }
 
-  handleNextPage(ctx: IBotContext): void {
-    this.currentPage = Math.min(this.lastPage, this.currentPage + 1);
+    ctx.session.currentPage = this.options.currentPage;
     this.sendPage(ctx);
   }
 }
