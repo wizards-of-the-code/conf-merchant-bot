@@ -76,11 +76,15 @@ class Paginator<T> {
   }
 
   handlePreviousPage(ctx: IBotContext): void {
+    console.log('currentPage', this.currentPage);
+    console.log('lastPage', this.lastPage);
     this.currentPage = Math.max(0, this.currentPage - 1);
     this.sendPage(ctx);
   }
 
   handleNextPage(ctx: IBotContext): void {
+    console.log('currentPage', this.currentPage);
+    console.log('lastPage', this.lastPage);
     this.currentPage = Math.min(this.lastPage, this.currentPage + 1);
     this.sendPage(ctx);
   }
