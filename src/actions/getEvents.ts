@@ -14,11 +14,13 @@ async function populateEventsList(
   // Clean currently selected event in session
   ctx.session.selectedEvent = null;
 
-  await ctx.deleteMessage(ctx.session.currentMessage).catch(
-    (error) => {
-      logger.error(`Error when trying to delete message: ${getErrorMsg(error)}`);
-    },
-  );
+  if (ctx.session.currentMessage && ctx.session.currentMessage !== -1) {
+    await ctx.deleteMessage(ctx.session.currentMessage).catch(
+      (error) => {
+        logger.error(`Error when trying to delete message: ${getErrorMsg(error)}`);
+      },
+    );
+  }
 
   const events = await bot.dbManager.getCollectionData<Event>('events', { is_active: true, is_finished: false });
 
