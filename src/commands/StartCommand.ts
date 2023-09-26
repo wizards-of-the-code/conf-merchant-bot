@@ -28,6 +28,8 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
     await sendMessage(startMessage, ctx, bot);
   }
 
+  ctx.session.currentMessage = -1;
+
   const buttons: (
     InlineKeyboardButton.UrlButton | InlineKeyboardButton.CallbackButton
   )[][] = [
