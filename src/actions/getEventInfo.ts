@@ -112,7 +112,7 @@ export const sendEventInfoMessage = async (
     ctx.session.currentMessage = message.message_id;
   } catch (e) {
     logger.error(`Something went wrong, starting standard \\start sequence. Error message: ${getErrorMsg(e)}`);
-    sendStartMessage(bot, ctx);
+    await sendStartMessage(bot, ctx);
   }
 };
 
@@ -121,7 +121,7 @@ const getEventInfo = async (bot: TelegramBot) => {
     const actionString = ctx.match.input;
     const eventId = parseActionParam(actionString);
 
-    sendEventInfoMessage(bot, ctx, eventId);
+    await sendEventInfoMessage(bot, ctx, eventId);
   });
 };
 

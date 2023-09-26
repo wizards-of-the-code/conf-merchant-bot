@@ -6,11 +6,15 @@ import formatDateToDdMmYyyy from '../utils/dateFormat';
 import logger from '../logger/logger';
 import getErrorMsg from '../utils/getErrorMessage';
 
-export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
+async function populateEventsList(
+  bot: TelegramBot,
+  ctx: IBotContext,
+  increment: number = 0,
+): Promise<void> {
   // Clean currently selected event in session
   ctx.session.selectedEvent = null;
 
-  await ctx.deleteMessage().catch(
+  await ctx.deleteMessage(ctx.session.currentMessage).catch(
     (error) => {
       logger.error(`Error when trying to delete message: ${getErrorMsg(error)}`);
     },
@@ -21,6 +25,8 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   const paginatorOptions = {
     items: events,
     itemsPerPage: 5,
+    increment,
+    currentPage: ctx.session.currentPage || 0,
     itemToString: (event: any) => {
       const label = [event.location.city, event.location.country];
       // Add date if it exists
@@ -31,10 +37,14 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
   };
 
   const messageText = 'Выберите интересующее вас мероприятие: ';
-  const paginator = new Paginator(messageText, paginatorOptions);
-  paginator.sendPage(ctx);
-  bot.action(`prev_page_${ctx.session.userId}`, () => { paginator.handlePreviousPage(ctx); });
-  bot.action(`next_page_${ctx.session.userId}`, () => { paginator.handleNextPage(ctx); });
+  const paginator = new Paginator(bot, messageText, paginatorOptions);
+  paginator.handlePage(ctx);
+}
+
+export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
+  await populateEventsList(bot, ctx);
+  bot.action('prev_page', (userCtx: IBotContext) => { populateEventsList(bot, userCtx, -1); });
+  bot.action('next_page', (userCtx: IBotContext) => { populateEventsList(bot, userCtx, 1); });
 };
 
 const getEvents = async (bot: TelegramBot) => {
