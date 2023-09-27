@@ -33,7 +33,7 @@ const sponsorship = async (bot: TelegramBot) => {
     const buttonsArray: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [
-      [Markup.button.callback('🔼 В главное меню', 'action_get_events')],
+      [Markup.button.callback('🔼 В главное меню', 'show_main_manu')],
     ];
 
     const sponsorMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.SPONSOR_MESSAGES });

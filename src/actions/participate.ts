@@ -104,7 +104,7 @@ const participate = async (bot: TelegramBot) => {
       // ],
       [
         Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
-        Markup.button.callback('🔼 В главное меню', 'action_get_events'),
+        Markup.button.callback('🔼 В главное меню', 'show_main_manu'),
       ],
     ];
 
