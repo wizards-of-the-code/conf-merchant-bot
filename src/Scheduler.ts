@@ -28,10 +28,13 @@ class Scheduler {
   }
 
   async init() {
+    const MESSAGE_BATCH_SIZE = 30;
+    const TIME_BETWEEN_BATCHES_MS = 30000; // 30 seconds
+
     logger.info('Scheduler initialized');
 
     const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
-      // Every minute check DB for changes ragarding active messages
+      // Every minute, check the DB for changes regarding active messages
       const notifications = await this.dbManager.getCollectionData<Notification>(
         'notifications',
         {
@@ -41,28 +44,33 @@ class Scheduler {
       );
 
       if (notifications.length > 0) {
-        // Filter ready for sending messages
+        // Filter ready-for-sending messages
         const notificationsToSend = notifications.filter((item) => (
           item.datetime_to_send <= new Date()
         ));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
 
-        // Take messagesToSent with messages, ready for sending
-        for (const notification of notificationsToSend) {
-          // Find event object
-          const recipients = events.find(
-            (event) => (
-              event._id.toString() === notification.event_id.toString()
-            ),
-          )?.participants;
+        // Split the messages into batches of MESSAGE_BATCH_SIZE
+        for (let i = 0; i < notificationsToSend.length; i += MESSAGE_BATCH_SIZE) {
+          const batch = notificationsToSend.slice(i, i + MESSAGE_BATCH_SIZE);
 
-          if (recipients && recipients.length > 0) {
-            /* eslint-disable no-await-in-loop --
-            * The general idea to wait until each message will be sent
-            * until next message executes
-            */
-            await this.sentNotifications(notification, recipients);
+          // Take messagesToSent with messages, ready for sending
+          for (const notification of batch) {
+            // Find the event object
+            const recipients = events.find(
+              (event) => (
+                event._id.toString() === notification.event_id.toString()
+              ),
+            )?.participants;
+            if (recipients && recipients.length > 0) {
+              // eslint-disable-next-line no-await-in-loop
+              await this.sentNotifications(notification, recipients);
+            }
           }
+
+          // Sleep for TIME_BETWEEN_BATCHES_MS milliseconds before sending the next batch
+          // eslint-disable-next-line no-await-in-loop
+          await this.sleep(TIME_BETWEEN_BATCHES_MS);
         }
       }
     });
@@ -72,6 +80,13 @@ class Scheduler {
     // Enable graceful stop
     process.prependOnceListener('SIGINT', () => this.tasks.forEach((task) => task.stop()));
     process.prependOnceListener('SIGTERM', () => this.tasks.forEach((task) => task.stop()));
+  }
+
+  // Sleep function for delaying message batches
+  // eslint-disable-next-line class-methods-use-this
+  private sleep(ms: number) {
+    // eslint-disable-next-line no-promise-executor-return
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private async sentNotifications(
@@ -87,6 +102,7 @@ class Scheduler {
     if (notification.links.length > 0) {
       for (const link of notification.links) {
         // Mandatory link validation - in other case bot will crash
+        // eslint-disable-next-line no-await-in-loop
         if (await isValidUrl(link.url)) {
           buttons.push([Markup.button.url(link.name, link.url)]);
         }
@@ -122,6 +138,7 @@ class Scheduler {
     let counter = 0;
     // Sent message to each recipient
     for (const recipient of recipients) {
+      // eslint-disable-next-line no-await-in-loop
       const sentResult = await this.sendMessageToUser(
         recipient.tg.tg_id,
         notification,
