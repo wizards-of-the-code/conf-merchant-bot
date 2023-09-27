@@ -99,7 +99,7 @@ export const sendEventInfoMessage = async (
       [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
     );
 
-    buttons.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'action_get_events')]);
+    buttons.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'show_main_manu')]);
 
     const message = await ctx.replyWithHTML(
       composeEventInfoBody(event),

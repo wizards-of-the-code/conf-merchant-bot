@@ -7,6 +7,8 @@ import TelegramBot from '../TelegramBot';
 import 'dotenv/config';
 import parseRichText from './parseRichText';
 import { isValidUrl } from './isValidUrl';
+import getErrorMsg from './getErrorMessage';
+import logger from '../logger/logger';
 
 /**
  * Send a message with images and/or buttons from Standard Messages DB collection.
@@ -39,7 +41,11 @@ const sendMessage = async (
           * The general idea to wait until each Context reply should be finished
           * until next one should run :)
           */
-      await ctx.sendPhoto({ source: fullPath });
+      try {
+        await ctx.sendPhoto({ source: fullPath });
+      } catch (e) {
+        logger.error(`Error on sending photo: ${getErrorMsg(e)}`);
+      }
     }
   }
 
