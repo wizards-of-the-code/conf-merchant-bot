@@ -35,24 +35,22 @@ class Scheduler {
 
     const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
       // Every minute, check the DB for changes regarding active messages
+      const currentDateTime = new Date();
       const notifications = await this.dbManager.getCollectionData<Notification>(
         'notifications',
         {
           is_active: true,
           sent: null,
+          datetime_to_send: { $lte: currentDateTime },
         },
       );
 
       if (notifications.length > 0) {
-        // Filter ready-for-sending messages
-        const notificationsToSend = notifications.filter((item) => (
-          item.datetime_to_send <= new Date()
-        ));
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
 
         // Split the messages into batches of MESSAGE_BATCH_SIZE
-        for (let i = 0; i < notificationsToSend.length; i += MESSAGE_BATCH_SIZE) {
-          const batch = notificationsToSend.slice(i, i + MESSAGE_BATCH_SIZE);
+        for (let i = 0; i < notifications.length; i += MESSAGE_BATCH_SIZE) {
+          const batch = notifications.slice(i, i + MESSAGE_BATCH_SIZE);
 
           // Take messagesToSent with messages, ready for sending
           for (const notification of batch) {

@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/amqplib": "^0.10.2",
     "@types/dotenv": "^8.2.0",
     "@types/node": "^20.4.6",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
@@ -35,6 +36,8 @@
     "@telegraf/entity": "^0.3.0",
     "@types/mongodb": "^4.0.7",
     "@types/node-cron": "^3.0.8",
+    "amqp": "^0.2.7",
+    "amqplib": "^0.10.3",
     "dotenv": "^16.3.1",
     "mongodb": "^5.7.0",
     "mongoose": "^7.4.3",
