@@ -23,7 +23,7 @@ class App {
       dbManager,
     );
     this.bot.use((
-      new LocalSession({ database: './sessions/sessions.json' })).middleware());
+      new LocalSession({ database: `${this.configService.get('SESSIONS_PATH')}/sessions.json` })).middleware());
     this.scheduler = new Scheduler('0 0 19 * * *', dbManager, this.bot);
   }
 
