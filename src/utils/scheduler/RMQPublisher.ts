@@ -1,40 +1,42 @@
 import amqp from 'amqplib';
-import logger from '../../logger/logger';
+import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import { MediaGroup } from 'telegraf/typings/telegram-types';
 import { Notification } from '../../types';
 
 export interface MessageObject {
   recipientId: number,
   notification: Notification,
+  buttons: (
+    InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
+  )[][],
+  mediaGroup: MediaGroup,
 }
 
 class RMQPublisher {
-  private RMQ_URL: string = 'fjfn';
+  private readonly RMQ_HOSTNAME = 'rabbitmq';
 
   private connection?: amqp.Connection;
 
   private channel?: amqp.Channel;
 
-  private exchangeName: string;
+  private queueName: string;
 
-  constructor(exchangeName: string) {
-    this.exchangeName = exchangeName;
+  constructor(queueName: string) {
+    this.queueName = queueName;
   }
 
   async init() {
-    this.connection = await amqp.connect('amqp://your-rabbitmq-host');
+    this.connection = await amqp.connect(`amqp://${this.RMQ_HOSTNAME}`);
     this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue(this.exchangeName, { durable: false });
-    logger.info('RMQPublisher initialized');
+    await this.channel.assertQueue(this.queueName, { durable: false });
   }
 
   async publish(message: MessageObject) {
     if (!this.channel) {
-      throw new Error('RabbitMQ not initialized!');
+      throw new Error('RabbitMQ Publisher not initialized!');
     }
 
-    this.channel.sendToQueue(this.exchangeName, Buffer.from(JSON.stringify(message)));
-    logger.info('message published!');
-    console.log(JSON.stringify(message));
+    this.channel.sendToQueue(this.queueName, Buffer.from(JSON.stringify(message)));
   }
 
   async closeChannel() {

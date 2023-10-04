@@ -13,6 +13,7 @@ import 'dotenv/config';
 import parseRichText from './utils/parseRichText';
 import logger from './logger/logger';
 import RMQPublisher, { MessageObject } from './utils/scheduler/RMQPublisher';
+import RMQConsumer from './utils/scheduler/RMQConsumer';
 
 class Scheduler {
   tasks: ScheduledTask[];
@@ -20,6 +21,8 @@ class Scheduler {
   bot: TelegramBot;
 
   private RMQPublisher: RMQPublisher;
+
+  private RMQConsumer: RMQConsumer;
 
   constructor(
     private readonly cronExpression: string,
@@ -29,10 +32,14 @@ class Scheduler {
     this.tasks = [];
     this.bot = bot;
     this.RMQPublisher = new RMQPublisher('notifications');
+    this.RMQConsumer = new RMQConsumer('notifications', this.bot);
   }
 
   async init() {
-    this.RMQPublisher.init();
+    await this.RMQPublisher.init();
+
+    await this.RMQConsumer.init();
+
     const MESSAGE_BATCH_SIZE = 30;
     const TIME_BETWEEN_BATCHES_MS = 30000; // 30 seconds
 
@@ -144,9 +151,13 @@ class Scheduler {
       const messageObject: MessageObject = {
         recipientId: recipient.tg.tg_id,
         notification,
+        buttons,
+        mediaGroup,
       };
 
-      this.RMQPublisher.publish(messageObject);
+      // eslint-disable-next-line no-await-in-loop
+      await this.RMQPublisher.publish(messageObject);
+
       // eslint-disable-next-line no-await-in-loop
       const sentResult = await this.sendMessageToUser(
         recipient.tg.tg_id,
@@ -185,6 +196,8 @@ class Scheduler {
     )[][],
     mediaGroup: MediaGroup,
   ): Promise<boolean> {
+    await this.RMQConsumer.consumeQueue();
+
     // Send photos first if photosOnTop === true
     if (mediaGroup.length > 0 && notification.images_on_top) {
       await this.sendMessagePhotos(tgId, mediaGroup);

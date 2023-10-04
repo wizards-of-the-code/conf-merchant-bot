@@ -40,7 +40,7 @@ class App {
     });
 
     // Initializing scheduler (everyday at 19:00 for now)
-    this.scheduler.init();
+    await this.scheduler.init();
   }
 }
 
