@@ -12,11 +12,14 @@ import { isValidUrl } from './utils/isValidUrl';
 import 'dotenv/config';
 import parseRichText from './utils/parseRichText';
 import logger from './logger/logger';
+import RMQPublisher, { MessageObject } from './utils/scheduler/RMQPublisher';
 
 class Scheduler {
   tasks: ScheduledTask[];
 
   bot: TelegramBot;
+
+  private RMQPublisher: RMQPublisher;
 
   constructor(
     private readonly cronExpression: string,
@@ -25,9 +28,11 @@ class Scheduler {
   ) {
     this.tasks = [];
     this.bot = bot;
+    this.RMQPublisher = new RMQPublisher('notifications');
   }
 
   async init() {
+    this.RMQPublisher.init();
     const MESSAGE_BATCH_SIZE = 30;
     const TIME_BETWEEN_BATCHES_MS = 30000; // 30 seconds
 
@@ -136,6 +141,12 @@ class Scheduler {
     let counter = 0;
     // Sent message to each recipient
     for (const recipient of recipients) {
+      const messageObject: MessageObject = {
+        recipientId: recipient.tg.tg_id,
+        notification,
+      };
+
+      this.RMQPublisher.publish(messageObject);
       // eslint-disable-next-line no-await-in-loop
       const sentResult = await this.sendMessageToUser(
         recipient.tg.tg_id,

@@ -1,8 +1,10 @@
 import amqp from 'amqplib';
+import logger from '../../logger/logger';
+import { Notification } from '../../types';
 
-interface MessageObject {
+export interface MessageObject {
   recipientId: number,
-  notifiation: Notification,
+  notification: Notification,
 }
 
 class RMQPublisher {
@@ -22,6 +24,7 @@ class RMQPublisher {
     this.connection = await amqp.connect('amqp://your-rabbitmq-host');
     this.channel = await this.connection.createChannel();
     await this.channel.assertQueue(this.exchangeName, { durable: false });
+    logger.info('RMQPublisher initialized');
   }
 
   async publish(message: MessageObject) {
@@ -30,6 +33,8 @@ class RMQPublisher {
     }
 
     this.channel.sendToQueue(this.exchangeName, Buffer.from(JSON.stringify(message)));
+    logger.info('message published!');
+    console.log(JSON.stringify(message));
   }
 
   async closeChannel() {

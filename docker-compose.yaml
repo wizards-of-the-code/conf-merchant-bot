@@ -1,12 +1,16 @@
 version: '3'
 
 services:
-
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "${RABBITMQ_MAINPORT}:5672"  # RabbitMQ main port
+      - "${RABBITMQ_MANAGMENT}:15672"  # RabbitMQ management interface
   bot:
     build: .
     volumes:
       - ${MEDIA_PATH}:${MEDIA_PATH}
-      - ${SESSIONS_PATH}:/code/sessions
+      - ${SESSIONS_PATH}:${SESSIONS_PATH}
       - ${LOGS_PATH}:/code/logs
     working_dir: /code/
     command: node ./dist/app.js
