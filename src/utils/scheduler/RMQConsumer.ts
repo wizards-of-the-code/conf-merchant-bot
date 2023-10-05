@@ -1,10 +1,7 @@
 import amqp from 'amqplib';
-// import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
-import { Markup } from 'telegraf';
-// import { MediaGroup } from 'telegraf/typings/telegram-types';
 import logger from '../../logger/logger';
 import TelegramBot from '../../TelegramBot';
-import parseRichText from '../parseRichText';
+import NotificationController from '../../NotificationController';
 
 class RMQConsumer {
   private readonly RMQ_HOSTNAME = 'rabbitmq';
@@ -17,9 +14,16 @@ class RMQConsumer {
 
   private bot: TelegramBot;
 
-  constructor(queueName: string, bot: TelegramBot) {
+  private notificationController: NotificationController;
+
+  constructor(
+    queueName: string,
+    bot: TelegramBot,
+    notificationController: NotificationController,
+  ) {
     this.queueName = queueName;
     this.bot = bot;
+    this.notificationController = notificationController;
   }
 
   async init() {
@@ -36,28 +40,7 @@ class RMQConsumer {
     try {
       this.channel.consume(this.queueName, async (message) => {
         if (message) {
-          const content = JSON.parse(message.content.toString());
-          const {
-            recipientId, notification, buttons, mediaGroup,
-          } = content;
-
-          if (mediaGroup.length > 0 && notification.images_on_top) {
-            await this.bot.telegram.sendMediaGroup(recipientId, mediaGroup);
-          }
-
-          await this.bot.telegram.sendMessage(
-            recipientId,
-            parseRichText(notification.text),
-            {
-              ...Markup.inlineKeyboard(buttons),
-              parse_mode: 'HTML',
-              disable_web_page_preview: true,
-            },
-          );
-
-          if (mediaGroup.length > 0 && !notification.images_on_top) {
-            await this.bot.telegram.sendMediaGroup(recipientId, mediaGroup);
-          }
+          await this.notificationController.sendMessage(message.content.toString());
 
           this.channel?.ack(message);
         }

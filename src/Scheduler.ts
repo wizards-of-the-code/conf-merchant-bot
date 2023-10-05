@@ -12,8 +12,9 @@ import { isValidUrl } from './utils/isValidUrl';
 import 'dotenv/config';
 import parseRichText from './utils/parseRichText';
 import logger from './logger/logger';
-import RMQPublisher, { NotificationObject } from './utils/scheduler/RMQPublisher';
+import RMQPublisher from './utils/scheduler/RMQPublisher';
 import RMQConsumer from './utils/scheduler/RMQConsumer';
+import NotificationController, { NotificationObject } from './NotificationController';
 
 class Scheduler {
   tasks: ScheduledTask[];
@@ -24,6 +25,8 @@ class Scheduler {
 
   private RMQConsumer: RMQConsumer;
 
+  private notificationController: NotificationController;
+
   constructor(
     private readonly cronExpression: string,
     private readonly dbManager: DBManager,
@@ -31,8 +34,9 @@ class Scheduler {
   ) {
     this.tasks = [];
     this.bot = bot;
+    this.notificationController = new NotificationController(this.dbManager, this.bot);
     this.RMQPublisher = new RMQPublisher('notifications');
-    this.RMQConsumer = new RMQConsumer('notifications', this.bot);
+    this.RMQConsumer = new RMQConsumer('notifications', this.bot, this.notificationController);
   }
 
   async init() {
@@ -150,7 +154,7 @@ class Scheduler {
     for (const recipient of recipients) {
       const messageObject: NotificationObject = {
         recipientId: recipient.tg.tg_id,
-        notification,
+        content: notification,
         buttons,
         mediaGroup,
       };

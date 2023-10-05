@@ -1,16 +1,5 @@
 import amqp from 'amqplib';
-import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
-import { MediaGroup } from 'telegraf/typings/telegram-types';
-import { Notification } from '../../types';
-
-export interface NotificationObject {
-  recipientId: number,
-  notification: Notification,
-  buttons: (
-    InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-  )[][],
-  mediaGroup: MediaGroup,
-}
+import { NotificationObject } from '../../NotificationController';
 
 class RMQPublisher {
   private readonly RMQ_HOSTNAME = 'rabbitmq';
