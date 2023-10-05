@@ -60,8 +60,6 @@ class RMQConsumer {
           }
 
           this.channel?.ack(message);
-
-          logger.info('Consumer message sent');
         }
       });
     } catch (error) {

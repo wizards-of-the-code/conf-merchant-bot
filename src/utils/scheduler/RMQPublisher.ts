@@ -3,7 +3,7 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { MediaGroup } from 'telegraf/typings/telegram-types';
 import { Notification } from '../../types';
 
-export interface MessageObject {
+export interface NotificationObject {
   recipientId: number,
   notification: Notification,
   buttons: (
@@ -31,12 +31,12 @@ class RMQPublisher {
     await this.channel.assertQueue(this.queueName, { durable: false });
   }
 
-  async publish(message: MessageObject) {
+  async publish(notification: NotificationObject) {
     if (!this.channel) {
       throw new Error('RabbitMQ Publisher not initialized!');
     }
 
-    this.channel.sendToQueue(this.queueName, Buffer.from(JSON.stringify(message)));
+    this.channel.sendToQueue(this.queueName, Buffer.from(JSON.stringify(notification)));
   }
 
   async closeChannel() {

@@ -12,7 +12,7 @@ import { isValidUrl } from './utils/isValidUrl';
 import 'dotenv/config';
 import parseRichText from './utils/parseRichText';
 import logger from './logger/logger';
-import RMQPublisher, { MessageObject } from './utils/scheduler/RMQPublisher';
+import RMQPublisher, { NotificationObject } from './utils/scheduler/RMQPublisher';
 import RMQConsumer from './utils/scheduler/RMQConsumer';
 
 class Scheduler {
@@ -148,7 +148,7 @@ class Scheduler {
     let counter = 0;
     // Sent message to each recipient
     for (const recipient of recipients) {
-      const messageObject: MessageObject = {
+      const messageObject: NotificationObject = {
         recipientId: recipient.tg.tg_id,
         notification,
         buttons,
