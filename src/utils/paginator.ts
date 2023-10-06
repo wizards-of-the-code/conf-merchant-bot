@@ -1,7 +1,6 @@
 import { Markup } from 'telegraf';
 // eslint-disable-next-line import/no-cycle
-import { IBotContext } from '../context/IBotContext';
-import TelegramBot from '../TelegramBot';
+import TelegramBot, { BotContext } from '../TelegramBot';
 
 interface PaginatorOptions<T> {
   items: T[];
@@ -40,7 +39,7 @@ class Paginator<T> {
     return buttons;
   }
 
-  async sendPage(ctx: IBotContext): Promise<void> {
+  async sendPage(ctx: BotContext): Promise<void> {
     const buttons = this.createButtons();
     const paginationButtons = [];
     if (this.options.items.length <= this.options.itemsPerPage) {
@@ -76,7 +75,7 @@ class Paginator<T> {
     }
   }
 
-  handlePage(ctx: IBotContext): void {
+  handlePage(ctx: BotContext): void {
     if (this.options.increment < 0) {
       this.options.currentPage = Math.max(0, this.options.currentPage + this.options.increment);
     } else if (this.options.increment > 0) {

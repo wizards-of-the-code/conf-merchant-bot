@@ -4,13 +4,16 @@ import { Markup } from 'telegraf';
 import { ObjectId } from 'mongodb';
 import TelegramBot from './TelegramBot';
 import DBManager from './mongodb/DBManager';
-import { EventWithParticipants, Media, Notification } from './types';
+import {
+  EventWithParticipants, Media, Notification, ParticipantShort,
+} from './types';
 import parseRichText from './utils/parseRichText';
 import { isValidUrl } from './utils/isValidUrl';
+import RMQPublisher from './utils/scheduler/RMQPublisher';
 
 export interface NotificationObject {
   recipientId: number,
-  content: Notification,
+  notification: Notification,
   buttons: (
     InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
   )[][],
@@ -20,11 +23,35 @@ export interface NotificationObject {
 class NotificationController {
   private bot: TelegramBot;
 
+  private RMQpublisher: RMQPublisher;
+
   constructor(
     private readonly dbManager: DBManager,
     bot: TelegramBot,
   ) {
     this.bot = bot;
+    this.RMQpublisher = new RMQPublisher('notifications');
+    this.RMQpublisher.init();
+  }
+
+  async generateAndPublishNotifications() {
+    const notifications: Notification[] = await this.getNotifications();
+
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        // eslint-disable-next-line no-await-in-loop
+        const recipients: ParticipantShort[] | undefined = await this.getRecipients(notification);
+
+        const generatedNotifications = this.contsructNotification(
+          notification,
+          recipients,
+        );
+
+        for (const n of generatedNotifications) {
+          this.RMQpublisher.publish(n);
+        }
+      }
+    }
   }
 
   async getNotifications(): Promise<Notification[]> {
@@ -41,16 +68,24 @@ class NotificationController {
     return notifications;
   }
 
-  async getRecipients() {
+  async getRecipients(notification: Notification): Promise<ParticipantShort[] | undefined> {
     const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
-    // for (const notification of notifications) {
 
-    // }
-    // TODO make notifications iterable!!!
-    return events;
+    const recipients: ParticipantShort[] | undefined = events.find(
+      (event) => (
+        event._id.toString() === notification.event_id.toString()
+      ),
+    )?.participants;
+
+    return recipients;
   }
 
-  async contsructNotification(notification: Notification, recipientId: number) {
+  async contsructNotification(
+    notification: Notification,
+    recipients: ParticipantShort[],
+  ): Promise<NotificationObject[]> {
+    const generatedNotifications: NotificationObject[] = [];
+
     const buttons: (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [];
@@ -61,14 +96,17 @@ class NotificationController {
 
     const mediaGroup: MediaGroup = await this.addMediaGroup(notification);
 
-    const notificationObject: NotificationObject = {
-      recipientId,
-      content: notification,
-      buttons,
-      mediaGroup,
-    };
+    recipients.forEach((recipient) => {
+      const notificationObject: NotificationObject = {
+        recipientId: recipient.tg.tg_id,
+        notification,
+        buttons,
+        mediaGroup,
+      };
+      generatedNotifications.push(notificationObject);
+    });
 
-    return notificationObject;
+    return generatedNotifications;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -109,17 +147,16 @@ class NotificationController {
     return [...mediaArray];
   }
 
-  async sendMessage(message: string) {
-    const content = JSON.parse(message);
+  async sendNotification(notificationItem: string) {
+    const test = JSON.parse(notificationItem);
     const {
       recipientId, notification, buttons, mediaGroup,
-    } = content;
-
+    } = test;
     if (mediaGroup.length > 0 && notification.images_on_top) {
       await this.bot.telegram.sendMediaGroup(recipientId, mediaGroup);
     }
 
-    await this.bot.telegram.sendMessage(
+    const result = await this.bot.telegram.sendMessage(
       recipientId,
       parseRichText(notification.text),
       {
@@ -128,6 +165,8 @@ class NotificationController {
         disable_web_page_preview: true,
       },
     );
+
+    console.log(result);
 
     if (mediaGroup.length > 0 && !notification.images_on_top) {
       await this.bot.telegram.sendMediaGroup(recipientId, mediaGroup);

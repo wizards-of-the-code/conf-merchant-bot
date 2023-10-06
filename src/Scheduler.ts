@@ -43,48 +43,26 @@ class Scheduler {
     await this.RMQPublisher.init();
 
     await this.RMQConsumer.init();
-
-    const MESSAGE_BATCH_SIZE = 30;
-    const TIME_BETWEEN_BATCHES_MS = 30000; // 30 seconds
-
     logger.info('Scheduler initialized');
 
     const minutelyTask: ScheduledTask = cron.schedule('0 */1 * * * *', async () => {
       // Every minute, check the DB for changes regarding active messages
-      const currentDateTime = new Date();
-      const notifications = await this.dbManager.getCollectionData<Notification>(
-        'notifications',
-        {
-          is_active: true,
-          sent: null,
-          datetime_to_send: { $lte: currentDateTime },
-        },
-      );
+      const notifications: Notification[] = await this.notificationController.getNotifications();
 
       if (notifications.length > 0) {
         const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
 
-        // Split the messages into batches of MESSAGE_BATCH_SIZE
-        for (let i = 0; i < notifications.length; i += MESSAGE_BATCH_SIZE) {
-          const batch = notifications.slice(i, i + MESSAGE_BATCH_SIZE);
+        // Take messagesToSent with messages, ready for sending
+        for (const notification of notifications) {
+          // Find the event object
+          const eventMap = new Map(events.map((event) => [event._id.toString(), event]));
+          const event = eventMap.get(notification.event_id.toString());
 
-          // Take messagesToSent with messages, ready for sending
-          for (const notification of batch) {
-            // Find the event object
-            const recipients = events.find(
-              (event) => (
-                event._id.toString() === notification.event_id.toString()
-              ),
-            )?.participants;
-            if (recipients && recipients.length > 0) {
-              // eslint-disable-next-line no-await-in-loop
-              await this.sentNotifications(notification, recipients);
-            }
+          if (event && event.participants.length > 0) {
+            // Send notifications to participants
+            // eslint-disable-next-line no-await-in-loop
+            await this.sentNotifications(notification, event.participants);
           }
-
-          // Sleep for TIME_BETWEEN_BATCHES_MS milliseconds before sending the next batch
-          // eslint-disable-next-line no-await-in-loop
-          await this.sleep(TIME_BETWEEN_BATCHES_MS);
         }
       }
     });
@@ -94,13 +72,6 @@ class Scheduler {
     // Enable graceful stop
     process.prependOnceListener('SIGINT', () => this.tasks.forEach((task) => task.stop()));
     process.prependOnceListener('SIGTERM', () => this.tasks.forEach((task) => task.stop()));
-  }
-
-  // Sleep function for delaying message batches
-  // eslint-disable-next-line class-methods-use-this
-  private sleep(ms: number) {
-    // eslint-disable-next-line no-promise-executor-return
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private async sentNotifications(
@@ -154,7 +125,7 @@ class Scheduler {
     for (const recipient of recipients) {
       const messageObject: NotificationObject = {
         recipientId: recipient.tg.tg_id,
-        content: notification,
+        notification,
         buttons,
         mediaGroup,
       };

@@ -40,7 +40,7 @@ class RMQConsumer {
     try {
       this.channel.consume(this.queueName, async (message) => {
         if (message) {
-          await this.notificationController.sendMessage(message.content.toString());
+          await this.notificationController.sendNotification(message.content.toString());
 
           this.channel?.ack(message);
         }
