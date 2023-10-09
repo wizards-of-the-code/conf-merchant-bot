@@ -9,6 +9,7 @@ import {
 } from './types';
 import parseRichText from './utils/parseRichText';
 import { isValidUrl } from './utils/isValidUrl';
+// eslint-disable-next-line import/no-cycle
 import RMQPublisher from './utils/scheduler/RMQPublisher';
 
 export interface NotificationObject {
@@ -37,19 +38,21 @@ class NotificationController {
   async generateAndPublishNotifications() {
     const notifications: Notification[] = await this.getNotifications();
 
-    if (notifications.length > 0) {
-      for (const notification of notifications) {
-        // eslint-disable-next-line no-await-in-loop
-        const recipients: ParticipantShort[] | undefined = await this.getRecipients(notification);
+    for (const notification of notifications) {
+      // eslint-disable-next-line no-await-in-loop
+      const recipients: ParticipantShort[] | undefined = await this.getRecipients(notification);
 
-        const generatedNotifications = this.contsructNotification(
-          notification,
-          recipients,
-        );
+      // eslint-disable-next-line no-continue
+      if (!recipients) continue;
 
-        for (const n of generatedNotifications) {
-          this.RMQpublisher.publish(n);
-        }
+      // eslint-disable-next-line no-await-in-loop
+      const generatedNotifications = await this.contsructNotification(
+        notification,
+        recipients,
+      );
+
+      for (const n of generatedNotifications) {
+        this.RMQpublisher.publish(n);
       }
     }
   }
@@ -71,60 +74,44 @@ class NotificationController {
   async getRecipients(notification: Notification): Promise<ParticipantShort[] | undefined> {
     const events: EventWithParticipants[] = await this.dbManager.getEventsWithParticipants();
 
-    const recipients: ParticipantShort[] | undefined = events.find(
+    return events.find(
       (event) => (
         event._id.toString() === notification.event_id.toString()
       ),
     )?.participants;
-
-    return recipients;
   }
 
   async contsructNotification(
     notification: Notification,
     recipients: ParticipantShort[],
   ): Promise<NotificationObject[]> {
-    const generatedNotifications: NotificationObject[] = [];
+    const buttons = await this.addLinksButtons(notification);
+    const mediaGroup = await this.addMediaGroup(notification);
 
-    const buttons: (
-      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [];
-
-    if (notification.links.length > 0) {
-      this.addLinksButtons(notification, buttons);
-    }
-
-    const mediaGroup: MediaGroup = await this.addMediaGroup(notification);
-
-    recipients.forEach((recipient) => {
-      const notificationObject: NotificationObject = {
-        recipientId: recipient.tg.tg_id,
-        notification,
-        buttons,
-        mediaGroup,
-      };
-      generatedNotifications.push(notificationObject);
-    });
-
-    return generatedNotifications;
+    return recipients.map((recipient) => ({
+      recipientId: recipient.tg.tg_id,
+      notification,
+      buttons,
+      mediaGroup,
+    }));
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async addLinksButtons(
-    notification: Notification,
-    buttons: (InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton)[][],
-  ) {
+  async addLinksButtons(notification: Notification) {
+    const buttons = [];
+
     for (const link of notification.links) {
-      // Mandatory link validation - in other case bot will crash
       // eslint-disable-next-line no-await-in-loop
       if (await isValidUrl(link.url)) {
         buttons.push([Markup.button.url(link.name, link.url)]);
       }
     }
+
+    return buttons;
   }
 
   async addMediaGroup(notification: Notification) {
-    if (notification.images.length < 0) {
+    if (notification.images.length === 0) {
       return [];
     }
 
@@ -136,22 +123,19 @@ class NotificationController {
       { _id: { $in: paths } },
     );
 
-    const mediaArray: InputMediaPhoto[] = [];
-    for (const image of media) {
-      // Get file right from the server's volume
-      const fullPath = `${process.env.MEDIA_PATH}/${image.filename}`;
+    const mediaArray: InputMediaPhoto[] = media.map((image) => ({
+      type: 'photo',
+      media: { source: `${process.env.MEDIA_PATH}/${image.filename}` },
+    }));
 
-      const inputPhoto: InputMediaPhoto = { type: 'photo', media: { source: fullPath } };
-      mediaArray.push(inputPhoto);
-    }
-    return [...mediaArray];
+    return mediaArray;
   }
 
   async sendNotification(notificationItem: string) {
-    const test = JSON.parse(notificationItem);
     const {
       recipientId, notification, buttons, mediaGroup,
-    } = test;
+    } = JSON.parse(notificationItem);
+
     if (mediaGroup.length > 0 && notification.images_on_top) {
       await this.bot.telegram.sendMediaGroup(recipientId, mediaGroup);
     }
