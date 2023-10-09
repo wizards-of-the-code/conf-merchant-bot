@@ -14,8 +14,10 @@ export type Event = {
   is_active: boolean;
   is_finished: boolean;
   location: Location;
-  participants: ObjectId[];
   schedule: ScheduleItem[];
+  participants: ObjectId[];
+  organizers: ObjectId[];
+  volunteers: ObjectId[];
   speakers: Speaker[];
 };
 
