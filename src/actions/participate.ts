@@ -1,5 +1,6 @@
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
+import { ObjectId } from 'mongodb';
 import {
   Participant, TelegramUser, Event, Message, LogEntry, ParticipantEventDetails,
 } from '../types';
@@ -9,6 +10,24 @@ import sendMessage from '../utils/sendMessage';
 // import switchRoleMessage from '../utils/switchRoleMessage';
 import { statuses, messages } from '../constants';
 import handleExpiredSession from '../utils/handleExpiredSession';
+
+const addParticipantToEvent = async (
+  role: string,
+  eventId: ObjectId | undefined,
+  participantId: ObjectId | undefined,
+  logData: LogEntry,
+  bot: TelegramBot,
+) => {
+  await bot.dbManager.insertOrUpdateDocumentToCollection(
+    'events',
+    { _id: eventId },
+    {
+      $addToSet:
+        { [role]: participantId },
+    },
+    logData,
+  );
+};
 
 const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Participant> => {
   // Check if user is already in the DB
@@ -70,8 +89,6 @@ const participate = async (bot: TelegramBot) => {
       message: `To event ${event?.name} added participant @${participant.tg.username}`,
     };
 
-    await bot.dbManager.insertOrUpdateDocumentToCollection('events', { _id: event?._id }, { $addToSet: { participants: participant._id } }, logData);
-
     // Add event details to the participant entry
     const eventDetails: ParticipantEventDetails = {
       event_id: eventId!,
@@ -80,19 +97,26 @@ const participate = async (bot: TelegramBot) => {
       attended: false,
     };
 
-    await bot.dbManager.insertOrUpdateDocumentToCollection('participants', { _id: participant._id }, { $push: { events: eventDetails } });
+    await bot.dbManager.insertOrUpdateDocumentToCollection(
+      'participants',
+      { _id: participant._id },
+      { $push: { events: eventDetails } },
+    );
     // const userMessage = `Отлично, вы успешно записаны на конференцию ${event!.name}.`;
     let userMessage: any;
 
     // eslint-disable-next-line default-case
     switch (role) {
       case 'participant':
+        addParticipantToEvent('participants', event?._id, participant._id, logData, bot);
         userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.PARTICIPANT_MESSAGES });
         break;
       case 'volunteer':
+        addParticipantToEvent('volunteers', event?._id, participant._id, logData, bot);
         userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.VOLUNTEER_MESSAGES });
         break;
       case 'organizer':
+        addParticipantToEvent('organizers', event?._id, participant._id, logData, bot);
         userMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.ORGANIZER_MESSAGES });
         break;
     }
