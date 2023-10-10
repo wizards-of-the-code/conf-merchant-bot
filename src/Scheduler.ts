@@ -27,7 +27,7 @@ class Scheduler {
     this.bot = bot;
     this.notificationController = new NotificationController(this.dbManager, this.bot);
     this.publisher = new RMQPublisher('notifications');
-    this.consumer = new RMQConsumer('notifications', this.bot, this.notificationController);
+    this.consumer = new RMQConsumer('notifications', this.notificationController);
   }
 
   async init() {

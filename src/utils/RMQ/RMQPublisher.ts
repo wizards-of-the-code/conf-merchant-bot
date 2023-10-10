@@ -1,9 +1,8 @@
 import amqp from 'amqplib';
+// eslint-disable-next-line import/no-cycle
 import { NotificationObject } from '../../NotificationController';
 
 class RMQPublisher {
-  private readonly RMQ_HOSTNAME = 'rabbitmq';
-
   private connection?: amqp.Connection;
 
   private channel?: amqp.Channel;
@@ -15,7 +14,7 @@ class RMQPublisher {
   }
 
   async init() {
-    this.connection = await amqp.connect(`amqp://${this.RMQ_HOSTNAME}`);
+    this.connection = await amqp.connect(`${process.env.RABBITMQ_URL}`);
     this.channel = await this.connection.createChannel();
     await this.channel.assertQueue(this.queueName, { durable: false });
   }

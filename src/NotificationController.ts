@@ -38,23 +38,24 @@ class NotificationController {
   async generateAndPublishNotifications() {
     const notifications: Notification[] = await this.getNotifications();
 
-    for (const notification of notifications) {
-      // eslint-disable-next-line no-await-in-loop
-      const recipients: ParticipantShort[] | undefined = await this.getRecipients(notification);
+    await Promise.all(
+      notifications.map(async (notification) => {
+        const recipients: ParticipantShort[] | undefined = await this.getRecipients(notification);
 
-      // eslint-disable-next-line no-continue
-      if (!recipients) continue;
+        if (!recipients) return;
 
-      // eslint-disable-next-line no-await-in-loop
-      const generatedNotifications = await this.contsructNotification(
-        notification,
-        recipients,
-      );
+        const generatedNotifications = await this.contsructNotification(
+          notification,
+          recipients,
+        );
 
-      for (const item of generatedNotifications) {
-        this.publisher.publish(item);
-      }
-    }
+        await Promise.all(
+          generatedNotifications.map(async (item) => {
+            await this.publisher.publish(item);
+          }),
+        );
+      }),
+    );
   }
 
   async getNotifications(): Promise<Notification[]> {
