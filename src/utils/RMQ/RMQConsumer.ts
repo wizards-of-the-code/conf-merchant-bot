@@ -29,6 +29,7 @@ class RMQConsumer {
   async init() {
     this.connection = await amqp.connect(`amqp://${this.RMQ_HOSTNAME}`);
     this.channel = await this.connection.createChannel();
+    this.channel.prefetch(1);
     this.channel.assertQueue(this.queueName, { durable: false });
     logger.info('RMQConsumer initialized');
   }

@@ -10,7 +10,7 @@ import {
 import parseRichText from './utils/parseRichText';
 import { isValidUrl } from './utils/isValidUrl';
 // eslint-disable-next-line import/no-cycle
-import RMQPublisher from './utils/scheduler/RMQPublisher';
+import RMQPublisher from './utils/RMQ/RMQPublisher';
 
 export interface NotificationObject {
   recipientId: number,
@@ -24,15 +24,15 @@ export interface NotificationObject {
 class NotificationController {
   private bot: TelegramBot;
 
-  private RMQpublisher: RMQPublisher;
+  private publisher: RMQPublisher;
 
   constructor(
     private readonly dbManager: DBManager,
     bot: TelegramBot,
   ) {
     this.bot = bot;
-    this.RMQpublisher = new RMQPublisher('notifications');
-    this.RMQpublisher.init();
+    this.publisher = new RMQPublisher('notifications');
+    this.publisher.init();
   }
 
   async generateAndPublishNotifications() {
@@ -51,8 +51,8 @@ class NotificationController {
         recipients,
       );
 
-      for (const n of generatedNotifications) {
-        this.RMQpublisher.publish(n);
+      for (const item of generatedNotifications) {
+        this.publisher.publish(item);
       }
     }
   }
@@ -140,7 +140,7 @@ class NotificationController {
       await this.bot.telegram.sendMediaGroup(recipientId, mediaGroup);
     }
 
-    const result = await this.bot.telegram.sendMessage(
+    await this.bot.telegram.sendMessage(
       recipientId,
       parseRichText(notification.text),
       {
@@ -149,8 +149,6 @@ class NotificationController {
         disable_web_page_preview: true,
       },
     );
-
-    console.log(result);
 
     if (mediaGroup.length > 0 && !notification.images_on_top) {
       await this.bot.telegram.sendMediaGroup(recipientId, mediaGroup);
