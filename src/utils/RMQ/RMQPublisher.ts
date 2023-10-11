@@ -3,6 +3,8 @@ import amqp from 'amqplib';
 import { NotificationObject } from '../../NotificationController';
 
 class RMQPublisher {
+  private RMQ_HOSTNAME = 'rabbitmq';
+
   private connection?: amqp.Connection;
 
   private channel?: amqp.Channel;
@@ -14,7 +16,7 @@ class RMQPublisher {
   }
 
   async init() {
-    this.connection = await amqp.connect(`${process.env.RABBITMQ_URL}`);
+    this.connection = await amqp.connect(`amqp://${this.RMQ_HOSTNAME}`);
     this.channel = await this.connection.createChannel();
     await this.channel.assertQueue(this.queueName, { durable: false });
   }
