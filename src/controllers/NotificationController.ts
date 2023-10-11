@@ -2,15 +2,15 @@ import { InlineKeyboardButton, InputMediaPhoto } from 'telegraf/typings/core/typ
 import { MediaGroup } from 'telegraf/typings/telegram-types';
 import { Markup } from 'telegraf';
 import { ObjectId } from 'mongodb';
-import TelegramBot from './TelegramBot';
-import DBManager from './mongodb/DBManager';
+import TelegramBot from '../bot/TelegramBot';
+import DBManager from '../data/mongodb/DBManager';
 import {
   EventWithParticipants, Media, Notification, ParticipantShort,
-} from './types';
-import parseRichText from './utils/parseRichText';
-import { isValidUrl } from './utils/isValidUrl';
+} from '../data/types';
+import parseRichText from '../utils/parseRichText';
+import { isValidUrl } from '../utils/isValidUrl';
 // eslint-disable-next-line import/no-cycle
-import RMQPublisher from './utils/RMQ/RMQPublisher';
+import RMQPublisher from '../data/Scheduler/Publisher';
 
 export interface NotificationObject {
   recipientId: number,

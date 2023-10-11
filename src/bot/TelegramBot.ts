@@ -1,7 +1,7 @@
 import { Telegraf, Context } from 'telegraf';
 import { Db } from 'mongodb';
-import DBManager from './mongodb/DBManager';
-import { Event } from './types';
+import DBManager from '../data/mongodb/DBManager';
+import { Event } from '../data/types';
 
 export interface SessionData {
   userId: number | undefined;

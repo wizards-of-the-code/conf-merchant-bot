@@ -1,8 +1,8 @@
 import amqp from 'amqplib';
 // eslint-disable-next-line import/no-cycle
-import { NotificationObject } from '../../NotificationController';
+import { NotificationObject } from '../../controllers/NotificationController';
 
-class RMQPublisher {
+class Publisher {
   private connection?: amqp.Connection;
 
   private channel?: amqp.Channel;
@@ -37,4 +37,4 @@ class RMQPublisher {
   }
 }
 
-export default RMQPublisher;
+export default Publisher;

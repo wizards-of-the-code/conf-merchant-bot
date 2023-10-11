@@ -1,7 +1,7 @@
 import TelegramBot, { BotContext } from '../TelegramBot';
-import { Event } from '../types';
-import Paginator from '../utils/paginator';
-import formatDateToDdMmYyyy from '../utils/dateFormat';
+import { Event } from '../../data/types';
+import Paginator from '../../utils/paginator';
+import formatDateToDdMmYyyy from '../../utils/dateFormat';
 
 async function populateEventsList(
   bot: TelegramBot,

@@ -1,4 +1,4 @@
-import { messages } from '../constants';
+import { messages } from '../data/constants';
 
 /**
  * Switch role message constant depending on role passed to the function.

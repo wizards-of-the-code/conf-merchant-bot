@@ -1,11 +1,11 @@
 import cron, { ScheduledTask } from 'node-cron';
-import DBManager from './mongodb/DBManager';
-import TelegramBot from './TelegramBot';
+import DBManager from '../mongodb/DBManager';
+import TelegramBot from '../../bot/TelegramBot';
 import 'dotenv/config';
-import logger from './logger/logger';
-import RMQPublisher from './utils/RMQ/RMQPublisher';
-import RMQConsumer from './utils/RMQ/RMQConsumer';
-import NotificationController from './NotificationController';
+import logger from '../logger/logger';
+import RMQPublisher from './Publisher';
+import RMQConsumer from './Consumer';
+import NotificationController from '../../controllers/NotificationController';
 
 class Scheduler {
   tasks: ScheduledTask[];

@@ -1,5 +1,5 @@
-import TelegramBot, { BotContext } from '../TelegramBot';
-import { sendEventsMessage } from '../actions/getEvents';
+import TelegramBot, { BotContext } from '../bot/TelegramBot';
+import { sendEventsMessage } from '../bot/actions/getEvents';
 
 /**
  * Function used to avoid bot crash when bot was restarted and session
