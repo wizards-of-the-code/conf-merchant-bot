@@ -6,6 +6,8 @@ services:
     ports:
       - "${RABBITMQ_MAINPORT}:5672"  # RabbitMQ main port
       - "${RABBITMQ_MANAGMENT}:15672"  # RabbitMQ management interface
+    networks:
+      - node_network
   bot:
     build: .
     volumes:
@@ -13,7 +15,12 @@ services:
       - ${SESSIONS_PATH}:${SESSIONS_PATH}
       - ${LOGS_PATH}:/code/logs
     working_dir: /code/
-    command: node ./dist/app.js
+    command: sh -c '/bin/wait-for-it.sh rabbitmq:5672 --timeout=30 -- node ./dist/app.js'
     env_file:
       - .env
     restart: on-failure
+    networks:
+      - node_network
+networks:
+  node_network:
+    driver: bridge
