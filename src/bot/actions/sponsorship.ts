@@ -1,9 +1,9 @@
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
-import { Sponsor, TelegramUser, Message } from '../types';
+import { Sponsor, TelegramUser, Message } from '../../data/types';
 import TelegramBot, { BotContext } from '../TelegramBot';
-import { messages } from '../constants';
-import sendMessage from '../utils/sendMessage';
+import { messages } from '../../data/constants';
+import sendMessage from '../../utils/sendMessage';
 
 const createSponsor = async (bot: TelegramBot, ctx: BotContext) => {
   if (!ctx.from) {

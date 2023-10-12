@@ -1,4 +1,4 @@
-import { Event } from '../types/index';
+import { Event } from '../data/types/index';
 import formatDateToDdMmYyyy from './dateFormat';
 import parseRichText from './parseRichText';
 

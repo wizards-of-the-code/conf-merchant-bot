@@ -3,13 +3,13 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import {
   Participant, TelegramUser, Event, Message, LogEntry, ParticipantEventDetails,
-} from '../types';
+} from '../../data/types';
 import TelegramBot from '../TelegramBot';
-import parseActionParam from '../utils/parseActionParam';
-import sendMessage from '../utils/sendMessage';
+import parseActionParam from '../../utils/parseActionParam';
+import sendMessage from '../../utils/sendMessage';
 // import switchRoleMessage from '../utils/switchRoleMessage';
-import { statuses, messages } from '../constants';
-import handleExpiredSession from '../utils/handleExpiredSession';
+import { statuses, messages } from '../../data/constants';
+import handleExpiredSession from '../../utils/handleExpiredSession';
 
 const addParticipantToEvent = async (
   role: string,

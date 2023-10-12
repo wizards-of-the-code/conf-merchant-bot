@@ -1,7 +1,7 @@
 import TelegramBot from '../TelegramBot';
-import logger from '../logger/logger';
-import { Command } from '../types';
-import getErrorMsg from '../utils/getErrorMessage';
+import logger from '../../data/logger/logger';
+import { Command } from '../../data/types';
+import getErrorMsg from '../../utils/getErrorMessage';
 
 class CommandSetter {
   private bot: TelegramBot;

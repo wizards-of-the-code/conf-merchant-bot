@@ -10,14 +10,14 @@ import participate from '../actions/participate';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
 import TelegramBot, { BotContext } from '../TelegramBot';
-import { messages } from '../constants';
+import { messages } from '../../data/constants';
 import selectRole from '../actions/selectRole';
-import sendMessage from '../utils/sendMessage';
+import sendMessage from '../../utils/sendMessage';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
-import { Message } from '../types';
+import { Message } from '../../data/types';
 import CommandSetter from './CommandSetter';
-import logger from '../logger/logger';
+import logger from '../../data/logger/logger';
 import mainMenu from '../actions/mainMenu';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: BotContext) => {

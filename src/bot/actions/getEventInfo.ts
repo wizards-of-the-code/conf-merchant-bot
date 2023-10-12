@@ -4,14 +4,14 @@ import { ObjectId } from 'mongodb';
 import TelegramBot, { BotContext } from '../TelegramBot';
 import {
   Event, Participant,
-} from '../types';
-import { isValidUrl } from '../utils/isValidUrl';
+} from '../../data/types';
+import { isValidUrl } from '../../utils/isValidUrl';
 // eslint-disable-next-line import/no-cycle
 import { sendStartMessage } from '../commands/StartCommand';
-import composeEventInfoBody from '../utils/composeEventInfoBody';
-import parseActionParam from '../utils/parseActionParam';
-import logger from '../logger/logger';
-import getErrorMsg from '../utils/getErrorMessage';
+import composeEventInfoBody from '../../utils/composeEventInfoBody';
+import parseActionParam from '../../utils/parseActionParam';
+import logger from '../../data/logger/logger';
+import getErrorMsg from '../../utils/getErrorMessage';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,

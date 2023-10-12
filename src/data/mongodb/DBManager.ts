@@ -2,14 +2,14 @@ import {
   MongoClient, Db, Document,
   OptionalUnlessRequiredId, ObjectId,
 } from 'mongodb';
-import { IConfigService } from '../config/ConfigService.interface';
+import { IConfigService } from '../../bot/config/ConfigService.interface';
 import {
   Event,
   EventWithParticipants,
   LogEntry,
 } from '../types';
 import logger from '../logger/logger';
-import getErrorMsg from '../utils/getErrorMessage';
+import getErrorMsg from '../../utils/getErrorMessage';
 
 interface Item extends Document { }
 

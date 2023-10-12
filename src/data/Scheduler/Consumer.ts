@@ -1,8 +1,8 @@
 import amqp from 'amqplib';
-import logger from '../../logger/logger';
-import NotificationController from '../../NotificationController';
+import logger from '../logger/logger';
+import NotificationController from '../../controllers/NotificationController';
 
-class RMQConsumer {
+class Consumer {
   private RMQ_HOSTNAME = 'rabbitmq';
 
   private connection?: amqp.Connection;
@@ -47,4 +47,4 @@ class RMQConsumer {
   }
 }
 
-export default RMQConsumer;
+export default Consumer;

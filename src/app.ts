@@ -1,13 +1,13 @@
 import './init';
 import LocalSession from 'telegraf-session-local';
-import TelegramBot from './TelegramBot';
-import { IConfigService } from './config/ConfigService.interface';
-import ConfigService from './config/ConfigService';
-import Command from './commands/Command';
-import Scheduler from './Scheduler';
-import DBManager from './mongodb/DBManager';
-import StartCommand from './commands/StartCommand';
-import logger from './logger/logger';
+import TelegramBot from './bot/TelegramBot';
+import { IConfigService } from './bot/config/ConfigService.interface';
+import ConfigService from './bot/config/ConfigService';
+import Command from './bot/commands/Command';
+import Scheduler from './data/Scheduler/Scheduler';
+import DBManager from './data/mongodb/DBManager';
+import StartCommand from './bot/commands/StartCommand';
+import logger from './data/logger/logger';
 import getErrorMsg from './utils/getErrorMessage';
 
 class App {

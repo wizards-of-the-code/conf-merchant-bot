@@ -1,6 +1,6 @@
 import { Markup } from 'telegraf';
 // eslint-disable-next-line import/no-cycle
-import TelegramBot, { BotContext } from '../TelegramBot';
+import TelegramBot, { BotContext } from '../bot/TelegramBot';
 
 interface PaginatorOptions<T> {
   items: T[];
