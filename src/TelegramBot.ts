@@ -1,9 +1,21 @@
-import { Telegraf } from 'telegraf';
+import { Telegraf, Context } from 'telegraf';
 import { Db } from 'mongodb';
-import { IBotContext } from './context/IBotContext';
 import DBManager from './mongodb/DBManager';
+import { Event } from './types';
 
-class TelegramBot extends Telegraf<IBotContext> {
+export interface SessionData {
+  userId: number | undefined;
+  selectedEvent: Event | null;
+  role: string;
+  currentMessage: number;
+  currentPage: number;
+}
+
+export interface BotContext extends Context {
+  session: SessionData;
+}
+
+class TelegramBot extends Telegraf<BotContext> {
   db: Db | undefined;
 
   dbManager: DBManager;

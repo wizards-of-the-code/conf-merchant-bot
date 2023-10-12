@@ -2,8 +2,7 @@ import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Markup } from 'telegraf';
 import { ObjectId } from 'mongodb';
 import { Media, Message } from '../types';
-import { IBotContext } from '../context/IBotContext';
-import TelegramBot from '../TelegramBot';
+import TelegramBot, { BotContext } from '../TelegramBot';
 import 'dotenv/config';
 import parseRichText from './parseRichText';
 import { isValidUrl } from './isValidUrl';
@@ -13,12 +12,12 @@ import logger from '../logger/logger';
 /**
  * Send a message with images and/or buttons from Standard Messages DB collection.
  * @param {Message} message Message to be sent.
- * @param {IBotContext} ctx Bot context.
+ * @param {BotContext} ctx Bot context.
  * @param buttons (Optional) Inline buttons array.
  */
 const sendMessage = async (
   message: Message,
-  ctx: IBotContext,
+  ctx: BotContext,
   bot: TelegramBot,
   buttons: (
     InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton

@@ -1,12 +1,11 @@
-import TelegramBot from '../TelegramBot';
+import TelegramBot, { BotContext } from '../TelegramBot';
 import { Event } from '../types';
-import { IBotContext } from '../context/IBotContext';
 import Paginator from '../utils/paginator';
 import formatDateToDdMmYyyy from '../utils/dateFormat';
 
 async function populateEventsList(
   bot: TelegramBot,
-  ctx: IBotContext,
+  ctx: BotContext,
   increment: number = 0,
 ): Promise<void> {
   // Clean currently selected event in session
@@ -33,10 +32,10 @@ async function populateEventsList(
   paginator.handlePage(ctx);
 }
 
-export const sendEventsMessage = async (bot: TelegramBot, ctx: IBotContext) => {
+export const sendEventsMessage = async (bot: TelegramBot, ctx: BotContext) => {
   await populateEventsList(bot, ctx);
-  bot.action('prev_page', (userCtx: IBotContext) => { populateEventsList(bot, userCtx, -1); });
-  bot.action('next_page', (userCtx: IBotContext) => { populateEventsList(bot, userCtx, 1); });
+  bot.action('prev_page', (userCtx: BotContext) => { populateEventsList(bot, userCtx, -1); });
+  bot.action('next_page', (userCtx: BotContext) => { populateEventsList(bot, userCtx, 1); });
 };
 
 const getEvents = async (bot: TelegramBot) => {

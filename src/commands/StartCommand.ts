@@ -9,8 +9,7 @@ import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
 import getEventSpeakers from '../actions/getEventSpeakers';
 import getEventSchedule from '../actions/getEventSchedule';
-import TelegramBot from '../TelegramBot';
-import { IBotContext } from '../context/IBotContext';
+import TelegramBot, { BotContext } from '../TelegramBot';
 import { messages } from '../constants';
 import selectRole from '../actions/selectRole';
 import sendMessage from '../utils/sendMessage';
@@ -21,7 +20,7 @@ import CommandSetter from './CommandSetter';
 import logger from '../logger/logger';
 import mainMenu from '../actions/mainMenu';
 
-export const sendStartMessage = async (bot: TelegramBot, ctx: IBotContext) => {
+export const sendStartMessage = async (bot: TelegramBot, ctx: BotContext) => {
   // Get message from DB
   const startMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.START_MESSAGES });
 

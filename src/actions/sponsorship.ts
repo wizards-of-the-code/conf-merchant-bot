@@ -1,12 +1,11 @@
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Sponsor, TelegramUser, Message } from '../types';
-import TelegramBot from '../TelegramBot';
-import { IBotContext } from '../context/IBotContext';
+import TelegramBot, { BotContext } from '../TelegramBot';
 import { messages } from '../constants';
 import sendMessage from '../utils/sendMessage';
 
-const createSponsor = async (bot: TelegramBot, ctx: IBotContext) => {
+const createSponsor = async (bot: TelegramBot, ctx: BotContext) => {
   if (!ctx.from) {
     throw new Error('Internal bot error.');
   }

@@ -1,12 +1,11 @@
 import { Markup } from 'telegraf';
 import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
-import TelegramBot from '../TelegramBot';
+import TelegramBot, { BotContext } from '../TelegramBot';
 import {
   Event, Participant,
 } from '../types';
 import { isValidUrl } from '../utils/isValidUrl';
-import { IBotContext } from '../context/IBotContext';
 // eslint-disable-next-line import/no-cycle
 import { sendStartMessage } from '../commands/StartCommand';
 import composeEventInfoBody from '../utils/composeEventInfoBody';
@@ -16,7 +15,7 @@ import getErrorMsg from '../utils/getErrorMessage';
 
 export const sendEventInfoMessage = async (
   bot: TelegramBot,
-  ctx: IBotContext,
+  ctx: BotContext,
   eventIdParam: string,
 ) => {
   try {
