@@ -101,10 +101,10 @@ class NotificationController {
   async addLinksButtons(notification: Notification) {
     const buttons = [];
 
-    for (const link of notification.links) {
-      // eslint-disable-next-line no-await-in-loop
-      if (await isValidUrl(link.url)) {
-        buttons.push([Markup.button.url(link.name, link.url)]);
+    const validUrls = await isValidUrl(notification.links);
+    for (let i = 0; i < notification.links.length; i += 1) {
+      if (validUrls[i]) {
+        buttons.push([Markup.button.url(notification.links[i].name, notification.links[i].url)]);
       }
     }
 

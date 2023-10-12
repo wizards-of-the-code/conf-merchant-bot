@@ -8,6 +8,7 @@ import parseRichText from './parseRichText';
 import { isValidUrl } from './isValidUrl';
 import getErrorMsg from './getErrorMessage';
 import logger from '../data/logger/logger';
+// import { messages } from '../data/constants';
 
 /**
  * Send a message with images and/or buttons from Standard Messages DB collection.
@@ -55,13 +56,14 @@ const sendMessage = async (
       InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
     )[][] = [];
     if (message.links && message.links.length > 0) {
-      for (const link of message.links) {
-        // Mandatory link validation - in other case bot will crash
-        if (await isValidUrl(link.url)) {
-          dbButtons.push([Markup.button.url(link.name, link.url)]);
+      // Add dbButtons to parameter array
+      const validUrls = await isValidUrl(message.links);
+      for (let i = 0; i < message.links.length; i += 1) {
+        if (validUrls[i]) {
+          dbButtons.push([Markup.button.url(message.links[i].name, message.links[i].url)]);
         }
       }
-      // Add dbButtons to parameter array
+
       buttons.unshift(...dbButtons);
     }
 

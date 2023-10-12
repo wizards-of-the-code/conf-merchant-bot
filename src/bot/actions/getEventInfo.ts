@@ -76,18 +76,19 @@ export const sendEventInfoMessage = async (
       buttons.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
     }
 
+    // TODO rewrite hardcoded links!!!!
     // Add link buttons if event has filled with valid fields
-    if (await isValidUrl(event.tickets_link)) {
-      buttons.push([Markup.button.url('🎟 Билеты', event.tickets_link)]);
-    }
+    // if (await isValidUrl(event.tickets_link)) {
+    //   buttons.push([Markup.button.url('🎟 Билеты', event.tickets_link)]);
+    // }
 
-    if (await isValidUrl(event.link)) {
-      buttons.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
-    }
+    // if (await isValidUrl(event.link)) {
+    //   buttons.push([Markup.button.url('🌐 Сайт фестиваля', event.link)]);
+    // }
 
-    if (await isValidUrl(event.tg_channel)) {
-      buttons.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
-    }
+    // if (await isValidUrl(event.tg_channel)) {
+    //   buttons.push([Markup.button.url('📣 Телеграм канал фестиваля', event.tg_channel)]);
+    // }
 
     // Cancel registration if user already participating but not paid yet
     if (isAlreadyParticipate && !isAlreadyPaid) {
