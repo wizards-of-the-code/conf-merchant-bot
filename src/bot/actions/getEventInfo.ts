@@ -5,7 +5,7 @@ import TelegramBot, { BotContext } from '../TelegramBot';
 import {
   Event, Participant,
 } from '../../data/types';
-import { isValidUrl } from '../../utils/isValidUrl';
+// import { isValidUrl } from '../../utils/isValidUrl';
 // eslint-disable-next-line import/no-cycle
 import { sendStartMessage } from '../commands/StartCommand';
 import composeEventInfoBody from '../../utils/composeEventInfoBody';
@@ -96,10 +96,10 @@ export const sendEventInfoMessage = async (
     }
 
     buttons.push(
-      [Markup.button.callback('🌟 Стать спонсором', 'become_sponsor')],
+      [Markup.button.callback('🌟 Стать спонсором', 'sponsorship')],
     );
 
-    buttons.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'show_main_manu')]);
+    buttons.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'menu')]);
 
     const message = await ctx.replyWithHTML(
       composeEventInfoBody(event),

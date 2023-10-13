@@ -51,7 +51,7 @@ const cancelParticipation = async (bot: TelegramBot) => {
     ctx.reply(`Ваша регистрация на конференцию "${event!.name}" успешно отменена.`, Markup.inlineKeyboard(
       [
         Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
-        Markup.button.callback('🔼 В главное меню', 'show_main_manu'),
+        Markup.button.callback('🔼 В главное меню', 'menu'),
       ],
     ));
   });

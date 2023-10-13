@@ -4,7 +4,7 @@ import getErrorMsg from '../../utils/getErrorMessage';
 import { sendEventsMessage } from './getEvents';
 
 const mainMenu = async (bot: TelegramBot) => {
-  bot.action('show_main_manu', async (ctx) => {
+  bot.action('menu', async (ctx) => {
     await ctx.deleteMessage().catch(
       (error) => {
         logger.error(`Error when trying to delete message: ${getErrorMsg(error)}`);

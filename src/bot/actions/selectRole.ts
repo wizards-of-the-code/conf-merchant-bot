@@ -11,7 +11,7 @@ const selectRole = async (bot: TelegramBot) => {
         [Markup.button.callback('Участник', 'action_participate_participant')],
         [Markup.button.callback('Волонтер', 'action_participate_volunteer')],
         [Markup.button.callback('Организатор', 'action_participate_organizer')],
-        [Markup.button.callback('Спонсор', 'become_sponsor')],
+        [Markup.button.callback('Спонсор', 'sponsorship')],
       ],
     ));
   });
