@@ -63,7 +63,7 @@ const createParticipantIfNeeded = async (bot: TelegramBot, ctx: any): Promise<Pa
 };
 
 const participate = async (bot: TelegramBot) => {
-  bot.action(/action_participate_/, async (ctx) => {
+  bot.action(/signup_/, async (ctx) => {
     // Get role from actionString
     const actionString = ctx.match.input;
     const role: string = parseActionParam(actionString);
@@ -124,10 +124,10 @@ const participate = async (bot: TelegramBot) => {
 
     const buttons: InlineKeyboardButton.CallbackButton[][] = [
       // [
-      //   Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation'),
+      //   Markup.button.callback('❌ Отменить регистрацию', 'cancel_participation'),
       // ],
       [
-        Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+        Markup.button.callback('◀️ Назад', `info_${eventId}`),
         Markup.button.callback('🔼 В главное меню', 'menu'),
       ],
     ];

@@ -21,14 +21,14 @@ const displayEventSchedule = async (ctx: any, event: Event) => {
   // Reply footer with menu buttons
   ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
     [
-      Markup.button.callback('◀️ Назад', `action_get_info_${event._id}`),
+      Markup.button.callback('◀️ Назад', `info_${event._id}`),
       Markup.button.callback('🔼 В главное меню', 'menu'),
     ],
   ));
 };
 
 const getEventSchedule = async (bot: TelegramBot) => {
-  bot.action(/action_get_schedule_/, async (ctx) => {
+  bot.action(/schedule_/, async (ctx) => {
     const event: Event | null = ctx.session.selectedEvent;
 
     if (!event) {

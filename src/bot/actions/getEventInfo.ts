@@ -60,20 +60,20 @@ export const sendEventInfoMessage = async (
     // Register button if user is not already participate
     if (!isAlreadyParticipate) {
       buttons.unshift(
-        [Markup.button.callback('📝 Зарегистрироваться', 'action_participate_participant')],
-        [Markup.button.callback('🙋‍♂️ Стать волонтером', 'action_participate_volunteer')],
-        [Markup.button.callback('😎 Хочу организовывать!', 'action_participate_organizer')],
+        [Markup.button.callback('📝 Зарегистрироваться', 'signup_participant')],
+        [Markup.button.callback('🙋‍♂️ Стать волонтером', 'signup_volunteer')],
+        [Markup.button.callback('😎 Хочу организовывать!', 'signup_organizer')],
       );
     }
 
     // TODO: Change unshift to push later
     if (event.schedule && event.schedule.length > 0) {
-      buttons.unshift([Markup.button.callback('🗓 Расписание', `action_get_schedule_${eventId!}`)]);
+      buttons.unshift([Markup.button.callback('🗓 Расписание', `schedule_${eventId!}`)]);
     }
 
     // TODO: Change unshift to push later
     if (event.speakers && event.speakers.length > 0) {
-      buttons.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Участники', `action_get_speakers_${eventId!}`)]);
+      buttons.unshift([Markup.button.callback('👨‍👩‍👧‍👦 Спикеры', `speakers_${eventId!}`)]);
     }
 
     // TODO rewrite hardcoded links!!!!
@@ -92,14 +92,14 @@ export const sendEventInfoMessage = async (
 
     // Cancel registration if user already participating but not paid yet
     if (isAlreadyParticipate && !isAlreadyPaid) {
-      buttons.push([Markup.button.callback('❌ Отменить регистрацию', 'action_cancel_participation')]);
+      buttons.push([Markup.button.callback('❌ Отменить регистрацию', 'cancel_participation')]);
     }
 
     buttons.push(
       [Markup.button.callback('🌟 Стать спонсором', 'sponsorship')],
     );
 
-    buttons.push([Markup.button.callback('◀️ Назад', 'action_get_events'), Markup.button.callback('🔼 В главное меню', 'menu')]);
+    buttons.push([Markup.button.callback('◀️ Назад', 'events'), Markup.button.callback('🔼 В главное меню', 'menu')]);
 
     const message = await ctx.replyWithHTML(
       composeEventInfoBody(event),
@@ -117,7 +117,7 @@ export const sendEventInfoMessage = async (
 };
 
 const getEventInfo = async (bot: TelegramBot) => {
-  bot.action(/action_get_info_/, async (ctx) => {
+  bot.action(/info_/, async (ctx) => {
     const actionString = ctx.match.input;
     const eventId = parseActionParam(actionString);
 

@@ -7,7 +7,7 @@ import handleExpiredSession from '../../utils/handleExpiredSession';
 import logger from '../../data/logger/logger';
 
 const cancelParticipation = async (bot: TelegramBot) => {
-  bot.action(/action_cancel_participation/, async (ctx) => {
+  bot.action(/cancel_participation/, async (ctx) => {
     if (!ctx.session.selectedEvent) {
       handleExpiredSession(bot, ctx);
       return;
@@ -50,7 +50,7 @@ const cancelParticipation = async (bot: TelegramBot) => {
     ctx.editMessageReplyMarkup(undefined);
     ctx.reply(`Ваша регистрация на конференцию "${event!.name}" успешно отменена.`, Markup.inlineKeyboard(
       [
-        Markup.button.callback('◀️ Назад', `action_get_info_${eventId}`),
+        Markup.button.callback('◀️ Назад', `info_${eventId}`),
         Markup.button.callback('🔼 В главное меню', 'menu'),
       ],
     ));

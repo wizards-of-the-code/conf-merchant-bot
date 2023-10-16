@@ -27,7 +27,7 @@ const displaySpeakerDetails = async (ctx: any, speaker: Speaker) => {
 };
 
 const getEventSpeakers = async (bot: TelegramBot) => {
-  bot.action(/action_get_speakers_/, async (ctx) => {
+  bot.action(/speakers_/, async (ctx) => {
     const event: Event | null = ctx.session.selectedEvent;
 
     if (!event) {
@@ -48,7 +48,7 @@ const getEventSpeakers = async (bot: TelegramBot) => {
     // Reply footer with menu buttons
     ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
       [
-        Markup.button.callback('◀️ Назад', `action_get_info_${event._id}`),
+        Markup.button.callback('◀️ Назад', `info_${event._id}`),
         Markup.button.callback('🔼 В главное меню', 'menu'),
       ],
     ));

@@ -24,7 +24,7 @@ async function populateEventsList(
       if (event.datetime) label.push(formatDateToDdMmYyyy(event.datetime));
       return label.join(', ');
     },
-    linkItem: (event: any) => `action_get_info_${event._id.toString()}`,
+    linkItem: (event: any) => `info_${event._id.toString()}`,
   };
 
   const messageText = 'Выберите интересующее вас мероприятие: ';
@@ -39,7 +39,7 @@ export const sendEventsMessage = async (bot: TelegramBot, ctx: BotContext) => {
 };
 
 const getEvents = async (bot: TelegramBot) => {
-  bot.action('action_get_events', async (ctx) => {
+  bot.action('events', async (ctx) => {
     sendEventsMessage(bot, ctx);
   });
 };
