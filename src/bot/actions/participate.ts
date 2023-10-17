@@ -123,9 +123,6 @@ const participate = async (bot: TelegramBot) => {
     ctx.editMessageReplyMarkup(undefined);
 
     const buttons: InlineKeyboardButton.CallbackButton[][] = [
-      // [
-      //   Markup.button.callback('❌ Отменить регистрацию', 'cancel_participation'),
-      // ],
       [
         Markup.button.callback('◀️ Назад', `info_${eventId}`),
         Markup.button.callback('🔼 В главное меню', 'menu'),
