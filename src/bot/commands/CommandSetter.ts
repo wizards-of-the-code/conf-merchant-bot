@@ -14,7 +14,7 @@ class CommandSetter {
 
   private async fetchCommands(): Promise<Command[]> {
     try {
-      return await this.bot.dbManager.getCollectionData<Command>('commands', { active: true });
+      return await this.bot.dbManager.getCollectionData<Command>('commands', { active: true, description: { $ne: '' } });
     } catch (error) {
       logger.error(`Failed to fetch commands: ${getErrorMsg(error)}`);
       return [];
