@@ -1,8 +1,7 @@
 import './init';
 import LocalSession from 'telegraf-session-local';
 import TelegramBot from './bot/TelegramBot';
-import { IConfigService } from './bot/config/ConfigService.interface';
-import ConfigService from './bot/config/ConfigService';
+import ConfigService, { IConfigService } from './bot/config/ConfigService';
 import Command from './bot/commands/Command';
 import Scheduler from './data/Scheduler/Scheduler';
 import DBManager from './data/mongodb/DBManager';

@@ -2,7 +2,7 @@ import {
   MongoClient, Db, Document,
   OptionalUnlessRequiredId, ObjectId,
 } from 'mongodb';
-import { IConfigService } from '../../bot/config/ConfigService.interface';
+import { IConfigService } from '../../bot/config/ConfigService';
 import {
   Event,
   EventWithParticipants,
