@@ -126,6 +126,7 @@ export type Notification = {
   type: 'manual' | 'auto';
   text: unknown[];
   links: MessageButton[];
+  commands: CommandButton[];
   images_on_top: boolean;
   images: {
     media_id: string;
