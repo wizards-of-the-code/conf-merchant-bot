@@ -115,6 +115,7 @@ export type Message = {
     media_id: string;
   }[];
   links: MessageButton[];
+  commands: CommandButton[];
 };
 
 export type Notification = {
@@ -137,6 +138,11 @@ export type Notification = {
 export type MessageButton = {
   name: string;
   url: string;
+};
+
+export type CommandButton = {
+  command: string;
+  text: string;
 };
 
 export type Media = {

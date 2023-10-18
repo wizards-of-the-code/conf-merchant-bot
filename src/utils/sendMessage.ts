@@ -67,6 +67,15 @@ const sendMessage = async (
       buttons.unshift(...dbButtons);
     }
 
+    if (message.commands && message.commands.length > 0) {
+      for (let i = 0; i < message.commands.length; i += 1) {
+        buttons.push([Markup.button.callback(
+          message.commands[i].text,
+          message.commands[i].command,
+        )]);
+      }
+    }
+
     // Index for finding last message
     let index = 0;
     for (const messageItem of message.messageList) {
