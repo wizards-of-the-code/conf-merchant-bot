@@ -108,6 +108,13 @@ class NotificationController {
       }
     }
 
+    for (let i = 0; i < notification.commands.length; i += 1) {
+      buttons.push([Markup.button.callback(
+        notification.commands[i].text,
+        notification.commands[i].command,
+      )]);
+    }
+
     return buttons;
   }
 
