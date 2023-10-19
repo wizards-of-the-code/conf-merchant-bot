@@ -1,5 +1,3 @@
-import { Markup } from 'telegraf';
-import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { Sponsor, TelegramUser, Message } from '../../data/types';
 import TelegramBot, { BotContext } from '../TelegramBot';
 import { messages } from '../../data/constants';
@@ -29,18 +27,12 @@ const sponsorship = async (bot: TelegramBot) => {
   bot.action('sponsorship', async (ctx) => {
     await createSponsor(bot, ctx);
 
-    const buttonsArray: (
-      InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-    )[][] = [
-      [Markup.button.callback('🔼 В главное меню', 'menu')],
-    ];
-
     const sponsorMessage = await bot.dbManager.getDocumentData<Message>('messages', { name: messages.SPONSOR_MESSAGES });
     if (sponsorMessage) {
       // Remove keyboard from the last message
       ctx.editMessageReplyMarkup(undefined);
 
-      await sendMessage(sponsorMessage, ctx, bot, buttonsArray);
+      await sendMessage(sponsorMessage, ctx, bot);
     }
   });
 };

@@ -1,5 +1,3 @@
-import { Markup } from 'telegraf';
-import { InlineKeyboardButton } from 'telegraf/typings/core/types/typegram';
 import { ObjectId } from 'mongodb';
 import {
   Participant, TelegramUser, Event, Message, LogEntry, ParticipantEventDetails,
@@ -122,14 +120,15 @@ const participate = async (bot: TelegramBot) => {
     }
     ctx.editMessageReplyMarkup(undefined);
 
-    const buttons: InlineKeyboardButton.CallbackButton[][] = [
-      [
-        Markup.button.callback('◀️ Назад', `info_${eventId}`),
-        Markup.button.callback('🔼 В главное меню', 'menu'),
-      ],
-    ];
+    // how to make dynamic info_ button?
+    // const buttons: InlineKeyboardButton.CallbackButton[][] = [
+    //   [
+    //     Markup.button.callback('◀️ Назад', `info_${eventId}`),
+    //     Markup.button.callback('🔼 В главное меню', 'menu'),
+    //   ],
+    // ];
 
-    sendMessage(userMessage, ctx, bot, buttons);
+    sendMessage(userMessage, ctx, bot);
   });
 };
 
