@@ -14,16 +14,13 @@ import logger from '../data/logger/logger';
  * Send a message with images and/or buttons from Standard Messages DB collection.
  * @param {Message} message Message to be sent.
  * @param {BotContext} ctx Bot context.
- * @param buttons (Optional) Inline buttons array.
  */
 const sendMessage = async (
   message: Message,
   ctx: BotContext,
   bot: TelegramBot,
-  buttons: (
-    InlineKeyboardButton.CallbackButton | InlineKeyboardButton.UrlButton
-  )[][] = [],
 ) => {
+  const buttons = [];
   // Send images if they exists
   if (message.images && message.images.length > 0) {
     const paths = message.images.map((item) => new ObjectId(item.media_id));
