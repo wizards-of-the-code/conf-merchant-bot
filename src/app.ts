@@ -1,4 +1,5 @@
 import './init';
+import mongoose from 'mongoose';
 import LocalSession from 'telegraf-session-local';
 import TelegramBot from './bot/TelegramBot';
 import ConfigService, { IConfigService } from './bot/config/ConfigService';
@@ -47,6 +48,12 @@ const main = async () => {
   const config = new ConfigService();
   logger.info('Bot started');
 
+  // TODO: implement mongoose connection and operations with db
+  // mongoose.connect('mongodb://localhost/your-database-name');
+
+  // const db = mongoose.connection;
+
+  // db.on('error', console.error.bind(console, 'MongoDB connection error:'));
   // Connect to database
   const dbManager = new DBManager(config);
   await dbManager.connect();
