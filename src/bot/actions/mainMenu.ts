@@ -3,7 +3,7 @@ import logger from '../../data/logger/logger';
 import getErrorMsg from '../../utils/getErrorMessage';
 import { sendEventsMessage } from './getEvents';
 
-const mainMenu = async (bot: TelegramBot) => {
+const menu = async (bot: TelegramBot) => {
   bot.action('menu', async (ctx) => {
     await ctx.deleteMessage().catch(
       (error) => {
@@ -16,4 +16,4 @@ const mainMenu = async (bot: TelegramBot) => {
   });
 };
 
-export default mainMenu;
+export default menu;
