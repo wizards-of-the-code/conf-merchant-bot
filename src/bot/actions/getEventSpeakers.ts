@@ -4,26 +4,19 @@ import { Event, Speaker } from '../../data/types';
 import parseRichText from '../../utils/parseRichText';
 import handleExpiredSession from '../../utils/handleExpiredSession';
 
-const displaySpeakerDetails = async (ctx: any, speaker: Speaker) => {
-  const messageLines: string[] = [
-    `<b>${speaker.name}</b>`,
-  ];
+const displaySpeakerDetails = (speaker: Speaker): string => {
+  const messageLines: string[] = [`<b>${speaker.name}</b>`];
 
-  // Position is only non-required field for Speaker
-  messageLines.push((speaker.position) ? `<em>${speaker.position}</em>\n` : '');
+  if (speaker.position) {
+    messageLines.push(`<em>${speaker.position}</em>`);
+  }
 
   messageLines.push(
-    `<b>Тема доклада:</b> ${speaker.topic}\n`,
-    parseRichText(speaker.topic_description),
+    `<b>Тема доклада:</b> ${speaker.topic}`,
+    parseRichText(speaker.topic_description)
   );
 
-  await ctx.replyWithHTML(
-    messageLines.join('\n'),
-    {
-      parse_mode: 'HTML',
-      disable_web_page_preview: true,
-    },
-  );
+  return messageLines.join('\n');
 };
 
 const getEventSpeakers = async (bot: TelegramBot) => {
@@ -35,23 +28,25 @@ const getEventSpeakers = async (bot: TelegramBot) => {
       return;
     }
 
-    // Remove keyboard from the last message
+    // Remove the keyboard from the last message
     ctx.editMessageReplyMarkup(undefined);
 
     await ctx.reply('👨‍👩‍👧‍👦 Список спикеров конференции:');
 
-    for (const speaker of event.speakers) {
-      /* eslint-disable no-await-in-loop */
-      await displaySpeakerDetails(ctx, speaker);
+    const speakerMessages = event.speakers.map((speaker) => displaySpeakerDetails(speaker));
+    for (const message of speakerMessages) {
+      // eslint-disable-next-line no-await-in-loop
+      await ctx.replyWithHTML(message, {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+      });
     }
 
     // Reply footer with menu buttons
-    ctx.reply('Что делаем дальше?', Markup.inlineKeyboard(
-      [
-        Markup.button.callback('◀️ Назад', `info_${event._id}`),
-        Markup.button.callback('🔼 В главное меню', 'menu'),
-      ],
-    ));
+    ctx.reply('Что делаем дальше?', Markup.inlineKeyboard([
+      Markup.button.callback('◀️ Назад', `info_${event._id}`),
+      Markup.button.callback('🔼 В главное меню', 'menu'),
+    ]));
   });
 };
 

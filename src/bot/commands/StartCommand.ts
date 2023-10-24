@@ -15,7 +15,7 @@ import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../../data/types';
 import CommandSetter from './CommandSetter';
 import logger from '../../data/logger/logger';
-import menu from '../actions/mainMenu';
+import menu from '../actions/menu';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: BotContext) => {
   // Get message from DB

@@ -120,7 +120,7 @@ const participate = async (bot: TelegramBot) => {
     }
     ctx.editMessageReplyMarkup(undefined);
 
-    // how to make dynamic info_ button?
+    // TODO: how to make dynamic info_ button?
     // const buttons: InlineKeyboardButton.CallbackButton[][] = [
     //   [
     //     Markup.button.callback('◀️ Назад', `info_${eventId}`),
