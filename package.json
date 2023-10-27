@@ -40,7 +40,6 @@
     "amqplib": "^0.10.3",
     "dotenv": "^16.3.1",
     "mongodb": "^5.7.0",
-    "mongoose": "^7.4.3",
     "node-cron": "^3.0.2",
     "telegraf": "^4.12.2",
     "telegraf-session-local": "^2.1.1",

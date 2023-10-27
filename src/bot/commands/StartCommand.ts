@@ -5,18 +5,17 @@ import getEvents, { sendEventsMessage } from '../actions/getEvents';
 // eslint-disable-next-line import/no-cycle
 import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
-import getEventSpeakers from '../actions/getEventSpeakers';
+import speakers from '../actions/speakers';
 import getEventSchedule from '../actions/getEventSchedule';
 import TelegramBot, { BotContext } from '../TelegramBot';
 import { messages } from '../../data/constants';
-import selectRole from '../actions/selectRole';
 import sendMessage from '../../utils/sendMessage';
 import sponsorship from '../actions/sponsorship';
 import cancelParticipation from '../actions/cancelParticipation';
 import { Message } from '../../data/types';
 import CommandSetter from './CommandSetter';
 import logger from '../../data/logger/logger';
-import mainMenu from '../actions/mainMenu';
+import menu from '../actions/menu';
 
 export const sendStartMessage = async (bot: TelegramBot, ctx: BotContext) => {
   // Get message from DB
@@ -24,12 +23,6 @@ export const sendStartMessage = async (bot: TelegramBot, ctx: BotContext) => {
 
   if (startMessage) {
     await sendMessage(startMessage, ctx, bot);
-  }
-
-  const social = await bot.dbManager.getDocumentData<Message>('messages', { name: 'Social' });
-
-  if (social) {
-    await sendMessage(social, ctx, bot);
   }
 
   ctx.session.currentMessage = -1;
@@ -63,12 +56,10 @@ class StartCommand extends Command {
     getEvents(this.bot);
 
     // Action: main menu
-    mainMenu(this.bot);
+    menu(this.bot);
 
     // Action: Get event by name, saved in Session
     getEventInfo(this.bot);
-
-    selectRole(this.bot);
 
     // Action: Participate in selected event
     participate(this.bot);
@@ -78,7 +69,7 @@ class StartCommand extends Command {
     cancelParticipation(this.bot);
 
     // Action: Show speakers for a selected event
-    getEventSpeakers(this.bot);
+    speakers(this.bot);
 
     // Action: Show schedule for a selected event
     getEventSchedule(this.bot);

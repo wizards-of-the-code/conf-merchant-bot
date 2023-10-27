@@ -46,8 +46,6 @@ class App {
 const main = async () => {
   const config = new ConfigService();
   logger.info('Bot started');
-
-  // Connect to database
   const dbManager = new DBManager(config);
   await dbManager.connect();
 
