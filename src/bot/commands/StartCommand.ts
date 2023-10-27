@@ -5,7 +5,7 @@ import getEvents, { sendEventsMessage } from '../actions/getEvents';
 // eslint-disable-next-line import/no-cycle
 import getEventInfo, { sendEventInfoMessage } from '../actions/getEventInfo';
 import participate from '../actions/participate';
-import getEventSpeakers from '../actions/getEventSpeakers';
+import speakers from '../actions/speakers';
 import getEventSchedule from '../actions/getEventSchedule';
 import TelegramBot, { BotContext } from '../TelegramBot';
 import { messages } from '../../data/constants';
@@ -69,7 +69,7 @@ class StartCommand extends Command {
     cancelParticipation(this.bot);
 
     // Action: Show speakers for a selected event
-    getEventSpeakers(this.bot);
+    speakers(this.bot);
 
     // Action: Show schedule for a selected event
     getEventSchedule(this.bot);
